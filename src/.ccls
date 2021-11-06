@@ -1,4 +1,0 @@
-g++
-%h -x c++-header
--I.././include
--I../../.././include
