@@ -9,15 +9,35 @@ using namespace GLBase;
 
 class GLSandbox
 {
+    //==============================
+    // User defined variables and logic
+    //==============================
+
+    private:
+        glm::vec3 quadPosition;
+
+        // Cubemap for the sky
+        GLCubemap* mSkymap;
+
+
+    //==============================
+    // Basic implementation of the class
+    //==============================
+
     private:
         // Main application
         Application mApplication;
 
         // Main camera
         Camera mCamera;
+        // Projection and view matrices
+        glm::mat4 mProjection;
+        glm::mat4 mView;
 
-        // Vector of GLObject instances
-        std::vector<GLObject> mObjects;
+        // Vector of GLElemObject instances
+        std::vector<GLElemObject*> mElementaryObjects;
+        // // Vector of GLObject instances
+        // std::vector<GLObject*> mObjects;
 
         // Vector of model instances
         std::vector<Model> mModels;
@@ -38,6 +58,9 @@ class GLSandbox
 
         // Pass pointers to objects to the application, for the input processing
         void setupApplication();
+
+        // Method to run on each frame, to update the scene
+        void updateScene();
 
         // Main render logic
         void render();

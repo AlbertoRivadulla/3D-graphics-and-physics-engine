@@ -28,10 +28,6 @@ message(STATUS ${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories(${INCLUDE})
 
-# Add GLAD as a library. It's code is located inside the src/thirdparty folder
-# of the project
-# add_library(glad thirdparty/glad.c)
-
 # Define a variable with all the libraries
 set(LIBS PUBLIC 
     glfw 
@@ -44,10 +40,11 @@ set(LIBS PUBLIC
 # Create a variable with a link to all cpp files to compile
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLQuad.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLSphere.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCube.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLSphere.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLPolyhedron.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCubemap.cpp
 )
 
 # Create the library

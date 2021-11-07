@@ -5,32 +5,36 @@ using namespace GLBase;
 namespace GLGeometry
 {
     // Constructor
-    GLQuad::GLQuad() : mVertices(4)
+    GLQuad::GLQuad() : mIndices(6), mEBO { 0 }
     {
+        // Create the Element buffer object
+        glGenBuffers(1, &mEBO);
+
         // Compute the four vertices by hand
-        float vertices[] {  0.5f,  0.5f, 0.0f, 0.f, 0.f, 1.f, 1.f, 1.f, // top right
-                            0.5f, -0.5f, 0.0f, 0.f, 0.f, 1.f, 1.f, 0.f, // bottom right
-                           -0.5f, -0.5f, 0.0f, 0.f, 0.f, 1.f, 0.f, 1.f, // bottom left
-                           -0.5f,  0.5f, 0.0f, 0.f, 0.f, 1.f, 0.f, 0.f  // top left
+        float vertices[] {  1.f,  1.f, 0.0f, 0.f, 0.f, 1.f, 1.f, 1.f, // top right
+                            1.f, -1.f, 0.0f, 0.f, 0.f, 1.f, 1.f, 0.f, // bottom right
+                           -1.f, -1.f, 0.0f, 0.f, 0.f, 1.f, 0.f, 1.f, // bottom left
+                           -1.f,  1.f, 0.0f, 0.f, 0.f, 1.f, 0.f, 0.f  // top left
                          };
         for (int i = 0; i < 4; ++i)
         {
             Vertex thisVertex;
-            thisVertex.Position = glm::vec3(vertices[i * sizeof(Vertex) + 0],
-                                            vertices[i * sizeof(Vertex) + 1],
-                                            vertices[i * sizeof(Vertex) + 2]);
-            thisVertex.Normal = glm::vec3(vertices[i * sizeof(Vertex) + 3],
-                                          vertices[i * sizeof(Vertex) + 4],
-                                          vertices[i * sizeof(Vertex) + 5]);
-            thisVertex.TexCoords = glm::vec2(vertices[i * sizeof(Vertex) + 6],
-                                             vertices[i * sizeof(Vertex) + 7]);
+            thisVertex.Position = glm::vec3(vertices[i * 8 + 0],
+                                            vertices[i * 8 + 1],
+                                            vertices[i * 8 + 2]);
+            thisVertex.Normal = glm::vec3(vertices[i * 8 + 3],
+                                          vertices[i * 8 + 4],
+                                          vertices[i * 8 + 5]);
+            thisVertex.TexCoords = glm::vec2(vertices[i * 8 + 6],
+                                             vertices[i * 8 + 7]);
             mVertices.push_back(thisVertex);
         }
 
         // Indices of the vertices for the EBO
-        unsigned int indices[] { 0, 1, 3, // First triangle
-                                 1, 2, 3  // Second triangle
+        unsigned int indices[] { 3, 1, 0, // First triangle
+                                 3, 2, 1  // Second triangle
                                };
+        memcpy(&mIndices[0], &indices[0], 6 * sizeof(int));
 
         // Bind the VAO and the VBO (as a vertex buffer)
         glBindVertexArray(mVAO);
@@ -63,26 +67,13 @@ namespace GLGeometry
     // Function to render
     void GLQuad::draw()
     {
+        // Disable face culling for drawing the plane
+        glDisable(GL_CULL_FACE);
         // Draw the quad
         glBindVertexArray(mVAO); // This also binds the corresponding EBO
         glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+        // Enable face culling again
+        glEnable(GL_CULL_FACE);
     }
-
-    // Functions to set the VAO, VBO and EBO from a child class
-    void GLQuad::setVAO()
-    {
-
-    }
-
-    void GLQuad::setVBO()
-    {
-
-    }
-
-    void GLQuad::setEBO()
-    {
-
-    }
-
 }

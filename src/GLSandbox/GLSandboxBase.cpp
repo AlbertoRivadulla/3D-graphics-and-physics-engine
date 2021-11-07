@@ -5,8 +5,9 @@ using namespace GLBase;
 
 // Constructor
 GLSandbox::GLSandbox(int width, int height, const char* title) :
-    mCamera(glm::vec3(0.f, 0.f, 5.f)), 
-    mApplication(width, height, title)
+    mApplication(width, height, title),
+    mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
+    mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) }
 {
     // Setup the scene
     setupScene();
@@ -31,14 +32,16 @@ void GLSandbox::run()
         // Store in memory the time at the beginning of the drawing
         float thisFrameTime { (float)glfwGetTime() };
 
+        // Update the scene
+        updateScene();
+
         // Clear the window
         mApplication.clearWindow();
 
-        // Do the rendering and swap buffers
-        // render(renderCallback);
+        // Render the scene
         render();
 
-        // Update the window
+        // Update the window, swapping the buffers
         mApplication.updateWindow();
 
         // Add the duration of this frame to the counter
@@ -56,5 +59,4 @@ void GLSandbox::run()
     }
 
     std::cout << "Execution stopped\n";
-
 }

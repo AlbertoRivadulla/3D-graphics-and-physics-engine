@@ -14,6 +14,7 @@ set(INCLUDE
     ${PROJECT_SOURCE_DIR}/src/thirdparty
     ${PROJECT_SOURCE_DIR}/src/GLBase
     ${PROJECT_SOURCE_DIR}/src/GLGeometry
+    ${PROJECT_SOURCE_DIR}/src/GLSandbox
 
     # If the main application only inports GLBase, and this itself imports all
     # needed dependencies, the following two lines should not be necessary
@@ -26,8 +27,8 @@ include_directories(${INCLUDE})
 # Create a variable with a link to all cpp files to compile
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/main.cpp
-    ${PROJECT_SOURCE_DIR}/src/GLSandboxBase.cpp
-    ${PROJECT_SOURCE_DIR}/src/GLSandbox.cpp
+    ${PROJECT_SOURCE_DIR}/src/GLSandbox/GLSandboxBase.cpp
+    ${PROJECT_SOURCE_DIR}/src/GLSandbox/GLSandbox.cpp
 )
 
 add_executable(main ${SOURCES})

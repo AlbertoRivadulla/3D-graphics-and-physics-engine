@@ -1,5 +1,5 @@
-// Add this file to the project to include all needed libraries and headers
-// for a basis OpenGL application.
+#ifndef GLGEOMETRYAUX_H
+#define GLGEOMETRYAUX_H
 
 #include <iostream>
 #include <cstdlib>
@@ -21,12 +21,4 @@
 
 #include "GLBase.h"
 
-// #include "GLGeometryAux.h"
-
-// #include "GLObject.h"
-#include "GLQuad.h"
-#include "GLSphere.h"
-#include "GLCubemap.h"
-#include "GLCube.h"
-#include "GLCylinder.h"
-#include "GLPolyhedron.h"
+#endif

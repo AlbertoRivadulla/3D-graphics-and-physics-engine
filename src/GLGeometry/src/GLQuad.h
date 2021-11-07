@@ -2,19 +2,17 @@
 #define GLQUAD_H
 
 #include "GLGeometry.h"
-#include "GLObject.h"
+#include "GLElemObject.h"
 
 using namespace GLBase;
 
 namespace GLGeometry
 {
-    class GLQuad : public GLObject
+    class GLQuad : public GLElemObject
     {
         private:
-            // Functions to set the VAO, VBO and EBO from a child class
-            void setVAO();
-            void setVBO();
-            void setEBO();
+            // This class will use an element buffer object
+            unsigned int mEBO;
 
             // Data of the mesh
             std::vector<Vertex> mVertices;
@@ -28,7 +26,5 @@ namespace GLGeometry
             void draw();
     };
 }
-
-
 
 #endif

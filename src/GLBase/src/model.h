@@ -41,7 +41,6 @@ namespace GLBase
                                                       std::string typeName);
     };
 
-
     // Function to load a texture with a path inside a directory
     unsigned int loadTextureFromDirectory(const char* path, const std::string& directory, bool gamma = false);
 

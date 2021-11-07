@@ -1,5 +1,4 @@
 #include "GLBase.h"
-// #include "GLSandbox.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -11,10 +10,6 @@ namespace GLBase
     //==============================
 
     // Constructor
-    // Application::Application(int width, int height, const char* title, GLSandbox* sandbox,
-    //     Camera* camera) :
-    //     mWidth { width }, mHeight { height }, mCamera { camera }, mSandbox { sandbox },
-    //     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. }
     Application::Application(int width, int height, const char* title) :
         mWidth { width }, mHeight { height }, mShouldClose { false }
     {
@@ -92,6 +87,16 @@ namespace GLBase
     int Application::getHeight()
     {
         return mHeight;
+    }
+
+    glm::mat4 Application::getPerspectiveProjection(float fov, float near, float far)
+    {
+        return glm::perspective(glm::radians(fov), (float)mWidth / (float)mHeight, near, far);
+    }
+
+    glm::mat4 Application::getOrthographicProjection(float near, float far)
+    {
+        return glm::ortho(0.f, (float)mWidth, (float)mHeight, 0.f, near, far);
     }
 
     // Method to pass a pointer to the camera
