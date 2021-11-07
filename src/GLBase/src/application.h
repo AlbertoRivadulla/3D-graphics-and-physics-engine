@@ -8,8 +8,11 @@ namespace GLBase
     class Application
     {
         public:
+            // Boolean variable that becomes true when the window should close
+            bool mShouldClose;
+
             // Constructor
-            Application(int width, int height, const char* title, Camera* camera);
+            Application(int width, int height, const char* title);
             // Destructor
             ~Application();
 
@@ -22,6 +25,18 @@ namespace GLBase
             int getWidth();
             int getHeight();
 
+            // Methods to pass pointers to the camera and to input handlers
+            void addCamera(Camera* camera);
+            // void addInputHandler
+
+            // Function to be called to process input that can modify the window, every frame
+            void processInput(float deltaTime);
+
+            // Function to clear the window
+            void clearWindow();
+            // Function called to update the window
+            void updateWindow();
+
         private:
             // Pointer to a window object
             GLFWwindow* mWindow;
@@ -29,27 +44,12 @@ namespace GLBase
             // A pointer to a camera
             Camera* mCamera; 
 
+            // Vector of pointers to input handlers
+            // XXXXXXXXXXXXXXXxx
+
             // Width and height of the window
             int mWidth;
             int mHeight;
-            
-            // Value of the time elapsed since the last frame. This needs to be updated 
-            // every frame
-            float mDeltaTime;
-            float mLastFrame;
-            // Variables to measure the amount of time that each frame takes
-            int mFrameCounter;
-            float mTotalTime;
-
-            // Function to be called to process input that can modify the window, every frame
-            void processInput();
-
-            // Function to run every frame
-            void render();
-
-        public:
-            // Function to start the application
-            void run();
     };
 
     // Function to be called when the window is resized

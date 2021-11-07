@@ -21,5 +21,9 @@
 
 #include "GLBase.h"
 
-#include "GLObject.h"
+// #include "GLObject.h"
 #include "GLQuad.h"
+#include "GLSphere.h"
+#include "GLCube.h"
+#include "GLCylinder.h"
+#include "GLPolyhedron.h"

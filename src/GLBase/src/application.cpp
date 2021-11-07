@@ -1,5 +1,5 @@
 #include "GLBase.h"
-// #include "application.h"
+// #include "GLSandbox.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -11,9 +11,12 @@ namespace GLBase
     //==============================
 
     // Constructor
-    Application::Application(int width, int height, const char* title, Camera* camera) :
-        mWidth { width }, mHeight { height }, mCamera { camera },
-        mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. }
+    // Application::Application(int width, int height, const char* title, GLSandbox* sandbox,
+    //     Camera* camera) :
+    //     mWidth { width }, mHeight { height }, mCamera { camera }, mSandbox { sandbox },
+    //     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. }
+    Application::Application(int width, int height, const char* title) :
+        mWidth { width }, mHeight { height }, mShouldClose { false }
     {
         // Initialize GLFW
         glfwInit();
@@ -76,9 +79,9 @@ namespace GLBase
     // Destructor
     Application::~Application()
     {
-        // std::cout << "Closing application... ";
+        std::cout << "Closing application... ";
         glfwTerminate();
-        // std::cout << "Application closed\n";
+        std::cout << "Application closed\n";
     }
 
     // Methods to get witdth and height
@@ -91,65 +94,43 @@ namespace GLBase
         return mHeight;
     }
 
+    // Method to pass a pointer to the camera
+    void Application::addCamera(Camera* camera)
+    {
+        mCamera = camera;
+    }
+
     // Process all input
-    void Application::processInput()
+    void Application::processInput(float deltaTime)
     {
         // Process input for the window
         if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(mWindow, true);
+            // glfwSetWindowShouldClose(mWindow, true);
+            mShouldClose = true;
+
+        if (glfwWindowShouldClose(mWindow))
+            mShouldClose = true;
 
         // Process input for all the objects in the frame
-        mCamera->processKeyboardInput(mWindow, mDeltaTime);
+        mCamera->processKeyboardInput(mWindow, deltaTime);
     }
 
-    // Function to update the application every frame
-    void Application::render()
+    // Function to clear the window every frame
+    void Application::clearWindow()
     {
-        // render
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void Application::run()
+    // Function to update the window every frame
+    void Application::updateWindow()
     {
-        while(!glfwWindowShouldClose(mWindow))
-        {
-            // per-frame time logic
-            // --------------------
-            float currentFrame = glfwGetTime();
-            mDeltaTime = currentFrame - mLastFrame;
-            mLastFrame = currentFrame;
-
-            // Process input for all the objects in the scene
-            processInput();
-
-            // Store in memory the time at the beginning of the drawing
-            float thisFrameTime { (float)glfwGetTime() };
-
-            // Do the rendering and swap buffers
-            render();
-
-            // Swap the buffers to present the image on the screen
-            glfwSwapBuffers(mWindow);
-            // Poll for IO events
-            glfwPollEvents();
-
-            // Add the duration of this frame to the counter
-            mTotalTime += (float)glfwGetTime() - thisFrameTime;
-            // Add one to the counter
-            ++mFrameCounter;
-            // Every 300 frames, print the amount of time that each of them takes
-            if (mFrameCounter % 300 == 0)
-            {
-                std::cout << "Average frame duration: " << mTotalTime * 1000 / mFrameCounter << " ms\n";
-                // Reset the variables
-                mFrameCounter = 0;
-                mTotalTime = 0;
-            }
-        }
+        // Swap the buffers to present the image on the screen
+        glfwSwapBuffers(mWindow);
+        // Poll for IO events
+        glfwPollEvents();
     }
-
 
     //==============================
     // Callback function to act on the Window class
@@ -167,20 +148,6 @@ namespace GLBase
     void applicationMouseCallback(GLFWwindow* window, double xpos, double ypos)
     {
         Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-        // // if (app->mFirstMouse)
-        // // {
-        // //     app->mLastX = xpos;
-        // //     app->mLastY = ypos;
-        // //     app->mFirstMouse = false;
-        // // }
-        //
-        // float xoffset = xpos - app->mLastX;
-        // float yoffset = app->mLastY - ypos; // reversed since y-coordinates go from bottom to top
-        //
-        // app->mLastX = xpos;
-        // app->mLastY = ypos;
-        //
-        // app->mCamera->processMouseInput(xoffset, yoffset);
 
         app->mCamera->processMouseInput(xpos, ypos);
     }

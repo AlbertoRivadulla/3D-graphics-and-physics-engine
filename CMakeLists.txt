@@ -26,6 +26,8 @@ include_directories(${INCLUDE})
 # Create a variable with a link to all cpp files to compile
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/main.cpp
+    ${PROJECT_SOURCE_DIR}/src/GLSandboxBase.cpp
+    ${PROJECT_SOURCE_DIR}/src/GLSandbox.cpp
 )
 
 add_executable(main ${SOURCES})

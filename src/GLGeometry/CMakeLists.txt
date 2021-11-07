@@ -44,6 +44,10 @@ set(LIBS PUBLIC
 # Create a variable with a link to all cpp files to compile
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLQuad.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLSphere.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCube.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCylinder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLPolyhedron.cpp
 )
 
 # Create the library

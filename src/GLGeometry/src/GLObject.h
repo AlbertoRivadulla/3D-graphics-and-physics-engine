@@ -23,18 +23,6 @@ namespace GLGeometry
             virtual void setVBO() = 0;
             virtual void setEBO() = 0;
 
-            // Function to set the model matrix
-            void setModelMatrix(const glm::vec3& translation, const float& rotationAngle, 
-                                const glm::vec3& rotationAxis, const glm::vec3& scale)
-            {
-                mModelMatrix = glm::translate(glm::mat4(1.f), translation);
-                mModelMatrix = glm::rotate(mModelMatrix, rotationAngle, rotationAxis);
-                mModelMatrix = glm::scale(mModelMatrix, scale);
-            }
-
-            // Function to render
-            void draw(GLBase::Shader &shader);
-
         public:
             // Constructor
             GLObject() : mVAO { 0 }, mVBO { 0 }, mEBO { 0 }
@@ -46,6 +34,24 @@ namespace GLGeometry
                 // Create the Element buffer object
                 glGenBuffers(1, &mEBO);
             }
+
+            // Function to set the model matrix
+            void setModelMatrix(const glm::vec3& translation, const float& rotationAngle, 
+                                const glm::vec3& rotationAxis, const glm::vec3& scale)
+            {
+                mModelMatrix = glm::scale(glm::mat4(1.f), scale);
+                mModelMatrix = glm::translate(mModelMatrix, translation);
+                mModelMatrix = glm::rotate(mModelMatrix, rotationAngle, rotationAxis);
+            }
+
+            // Function to read the model matrix
+            glm::mat4 getModelMatrix()
+            {
+                return mModelMatrix;
+            }
+
+            // Function to render
+            virtual void draw() = 0;
     };
 }
 

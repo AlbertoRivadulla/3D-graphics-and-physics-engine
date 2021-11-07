@@ -1,5 +1,6 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include "GLSandbox.h"
 
 // Functions for rendering
 void renderScene(const GLBase::Shader& shader);
@@ -30,17 +31,18 @@ float lerp(float a, float b, float f)
 
 int main()
 {
-    // Create a camera
-    GLBase::Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+    // Create the sandbox
+    GLSandbox sandbox(SCR_WIDTH, SCR_HEIGHT, "Title");
 
-    // Create the main program
-    GLBase::Application application(SCR_WIDTH, SCR_HEIGHT, "Title", &camera);
+    GLGeometry::GLQuad algo;
+    algo.setModelMatrix(glm::vec3(0.,0.,0.), 0., glm::vec3(0.,0.,0.), glm::vec3(1.,1.,1.));
 
     // Load a shader
     GLBase::Shader shader("../shaders/vertex.glsl", "../shaders/fragment.glsl");
+    shader.setMat4("model", algo.getModelMatrix());
 
-    // Run the application
-    application.run();
+    // Start the application
+    sandbox.run();
 
     return 0;
 }
