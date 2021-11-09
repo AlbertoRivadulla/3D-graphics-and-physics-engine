@@ -14,11 +14,11 @@ class GLSandbox
     //==============================
 
     private:
+
         glm::vec3 quadPosition;
 
         // Cubemap for the sky
         GLCubemap* mSkymap;
-
 
     //==============================
     // Basic implementation of the class
@@ -30,6 +30,7 @@ class GLSandbox
 
         // Main camera
         Camera mCamera;
+
         // Projection and view matrices
         glm::mat4 mProjection;
         glm::mat4 mView;

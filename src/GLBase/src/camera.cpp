@@ -2,25 +2,58 @@
 
 namespace GLBase
 {
+
+    //==============================
+    // Methods of the base Camera class
+    //==============================
+
     // Constructor with vector values
-    Camera::Camera( glm::vec3 position, glm::vec3 up, float yaw, float pitch) 
+    Camera::Camera( int width, int height, glm::vec3 position, glm::vec3 up, 
+                    float yaw, float pitch) 
         : Front { glm::vec3(0., 0., -1.) }, MovementSpeed { SPEED },
           MouseSensitivity { SENSITIVITY }, Fov { FOV },  
           Position { position }, WorldUp { up }, Yaw { yaw }, Pitch { pitch },
-          mLastX { 0. }, mLastY { 0. }, mFirstMouse { true }
+          mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
+          mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. }
     {
         updateCameraVectors();
     }
 
     // Constructor with scalar values
-    Camera::Camera( float posX, float posY, float posZ, float upX, float upY, 
-            float upZ, float yaw, float pitch) 
+    Camera::Camera( int width, int height, float posX, float posY, float posZ, 
+                    float upX, float upY, float upZ, float yaw, float pitch) 
         : Front { glm::vec3(0., 0., -1.) }, MovementSpeed { SPEED },
           MouseSensitivity { SENSITIVITY }, Fov { FOV },  
           Position { glm::vec3(posX, posY, posZ) }, WorldUp { glm::vec3(upX, upY, upZ)},
-          Yaw { yaw }, Pitch { pitch }, mLastX { 0. }, mLastY { 0. }, mFirstMouse { true }
+          Yaw { yaw }, Pitch { pitch }, mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
+          mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. }
     {
         updateCameraVectors();
+    }
+
+    // Method to set the frustum of the camera
+    void Camera::setFrustum(float near, float far)
+    {
+        mNear = near;
+        mFar = far;
+    }
+
+    // Method to change the width and height of the viewport
+    void Camera::setDimensions(int width, int height)
+    {
+        mWidth = width;
+        mHeight = height;
+    }
+
+    // Method to obtain the two possible projections
+    glm::mat4 Camera::getPerspectiveProjection()
+    {
+        return glm::perspective(glm::radians(Fov), (float)mWidth / (float)mHeight, mNear, mFar);
+    }
+
+    glm::mat4 Camera::getOrthographicProjection()
+    {
+        return glm::ortho(0.f, (float)mWidth, (float)mHeight, 0.f, mNear, mFar);
     }
 
     // Compute the view matrix calculated from the Euler angles
@@ -108,4 +141,5 @@ namespace GLBase
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
     }
+
 }

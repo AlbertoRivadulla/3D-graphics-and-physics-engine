@@ -25,12 +25,8 @@ namespace GLBase
             int getWidth();
             int getHeight();
 
-            // Methods to get a projection matrix
-            glm::mat4 getPerspectiveProjection(float fov, float near, float far);
-            glm::mat4 getOrthographicProjection(float near, float far);
-
             // Methods to pass pointers to the camera and to input handlers
-            void addCamera(Camera* camera);
+            void setCamera(Camera* camera);
 
             // Function to be called to process input that can modify the window, every frame
             void processInput(float deltaTime);

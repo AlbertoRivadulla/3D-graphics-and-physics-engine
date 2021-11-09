@@ -89,18 +89,8 @@ namespace GLBase
         return mHeight;
     }
 
-    glm::mat4 Application::getPerspectiveProjection(float fov, float near, float far)
-    {
-        return glm::perspective(glm::radians(fov), (float)mWidth / (float)mHeight, near, far);
-    }
-
-    glm::mat4 Application::getOrthographicProjection(float near, float far)
-    {
-        return glm::ortho(0.f, (float)mWidth, (float)mHeight, 0.f, near, far);
-    }
-
     // Method to pass a pointer to the camera
-    void Application::addCamera(Camera* camera)
+    void Application::setCamera(Camera* camera)
     {
         mCamera = camera;
     }
@@ -147,6 +137,11 @@ namespace GLBase
         // make sure the viewport matches the new window dimensions; note that width and 
         // height will be significantly larger than specified on retina displays.
         glViewport(0, 0, width, height);
+
+        // Change the dimensions in the camera
+        Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
+
+        app->mCamera->setDimensions(width, height);
     }
 
     // Function to be called when the mouse is moved

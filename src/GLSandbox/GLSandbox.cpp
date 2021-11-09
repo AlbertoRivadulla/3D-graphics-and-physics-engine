@@ -14,14 +14,16 @@ using namespace GLGeometry;
 //  - Create lights
 void GLSandbox::setupScene()
 {
-    // Create the cubemap for the sky
-    mSkymap = new GLCubemap("../resources/skybox", "../shaders/skyboxVertex.glsl",
-                         "../shaders/skyboxFragment.glsl");
+    // // Create the cubemap for the sky
+    // mSkymap = new GLCubemap("../resources/skybox", "../shaders/skyboxVertex.glsl",
+    //                      "../shaders/skyboxFragment.glsl");
 
-    // Create a camera
-    mCamera = Camera(glm::vec3(0.f, 0.f, 5.f));
-    // Compute the projection matrix
-    mProjection = mApplication.getPerspectiveProjection(mCamera.Fov, 1., 100.);
+    // Set the position of the camera
+    mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
+
+    // Get teh projection matrix from the camera
+    mProjection = mCamera.getPerspectiveProjection();
+    // mProjection = mCamera.getOrthographicProjection();
 
     // Create a quad
     mElementaryObjects.push_back(new GLQuad());
@@ -42,18 +44,19 @@ void GLSandbox::setupScene()
 void GLSandbox::setupApplication()
 {
     // Pass a pointer to the camera
-    mApplication.addCamera(&mCamera);
+    mApplication.setCamera(&mCamera);
 }
 
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene()
 {
     // Get the view and projection matrices
-    mProjection = mApplication.getPerspectiveProjection(mCamera.Fov, 0.1, 100.);
+    mProjection = mCamera.getPerspectiveProjection();
+    // mProjection = mCamera.getOrthographicProjection();
     mView = mCamera.getViewMatrix();
 
-    // Update the cubemap
-    mSkymap->setViewProjection(mView, mProjection);
+    // // Update the skymap
+    // mSkymap->setViewProjection(mView, mProjection);
 
     // Move the quad
     // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., 0., -0.2), -90., glm::vec3(1.,0.,0.), glm::vec3(5.,5.,5.));
@@ -82,7 +85,7 @@ void GLSandbox::render()
     mShaders[0].setVec3("color", glm::vec3(1., 0., 0.));
     mElementaryObjects[1]->draw();
 
-    // Draw the skymap
-    mSkymap->draw();
+    // // Draw the skymap
+    // mSkymap->draw();
 }
 
