@@ -24,6 +24,7 @@
 // #include "GLGeometryAux.h"
 
 // #include "GLObject.h"
+#include "GLGizmo.h"
 #include "GLQuad.h"
 #include "GLSphere.h"
 #include "GLCubemap.h"

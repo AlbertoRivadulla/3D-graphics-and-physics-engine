@@ -19,7 +19,7 @@ class GLSandbox
 
         // Cubemap for the sky
         GLCubemap* mSkymap;
-
+        
     //==============================
     // Basic implementation of the class
     //==============================
@@ -31,14 +31,15 @@ class GLSandbox
         // Main camera
         Camera mCamera;
 
+        // Object used to draw gizmos when needed
+        GLGizmo mGizmo;
+
         // Projection and view matrices
         glm::mat4 mProjection;
         glm::mat4 mView;
 
         // Vector of GLElemObject instances
         std::vector<GLElemObject*> mElementaryObjects;
-        // // Vector of GLObject instances
-        // std::vector<GLObject*> mObjects;
 
         // Vector of model instances
         std::vector<Model> mModels;

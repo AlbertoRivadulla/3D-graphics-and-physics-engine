@@ -10,13 +10,16 @@ using namespace GLGeometry;
 // Setup the scene
 //  - Create the camera
 //  - Create/load geometry
+//      - World
+//      - Skymap
+//      - Objects
+//      - Gizmo
 //  - Load shaders
 //  - Create lights
 void GLSandbox::setupScene()
 {
     // // Create the cubemap for the sky
-    // mSkymap = new GLCubemap("../resources/skybox", "../shaders/skyboxVertex.glsl",
-    //                      "../shaders/skyboxFragment.glsl");
+    // mSkymap = new GLCubemap();
 
     // Set the position of the camera
     mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
@@ -87,5 +90,8 @@ void GLSandbox::render()
 
     // // Draw the skymap
     // mSkymap->draw();
+
+    // Draw a gizmo
+    mGizmo.draw(mView, mProjection);
 }
 

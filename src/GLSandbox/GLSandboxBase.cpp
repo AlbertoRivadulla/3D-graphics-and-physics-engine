@@ -8,7 +8,8 @@ GLSandbox::GLSandbox(int width, int height, const char* title) :
     mApplication(width, height, title),
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
-    mCamera(width, height, glm::vec3(0., 0., 0.))
+    mCamera(width, height, glm::vec3(0., 0., 0.)),
+    mGizmo(glm::vec3(0., 0., 0.), 5, width, height, glm::vec3(1., 0.7, 0.))
 {
     // Setup the scene
     setupScene();

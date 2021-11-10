@@ -9,6 +9,9 @@ namespace GLGeometry
                       const char* fragmentShaderPath) :
         mShader(vertexShaderPath, fragmentShaderPath) , mCube()
     {
+        std::cout << texturesPath << '\n';
+        std::cout << vertexShaderPath << '\n';
+        std::cout << fragmentShaderPath << '\n';
         // Load the textures
         loadCubemap(texturesPath);
 

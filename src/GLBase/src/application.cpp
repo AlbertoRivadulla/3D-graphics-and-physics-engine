@@ -140,7 +140,6 @@ namespace GLBase
 
         // Change the dimensions in the camera
         Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-
         app->mCamera->setDimensions(width, height);
     }
 
