@@ -45,7 +45,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLPolyhedron.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCubemap.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLGizmo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLAuxElements.cpp
 )
 
 # Create the library

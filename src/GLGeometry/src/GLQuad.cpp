@@ -11,10 +11,10 @@ namespace GLGeometry
         glGenBuffers(1, &mEBO);
 
         // Compute the four vertices by hand
-        float vertices[] {  1.f,  1.f, 0.0f, 0.f, 0.f, 1.f, 1.f, 1.f, // top right
-                            1.f, -1.f, 0.0f, 0.f, 0.f, 1.f, 1.f, 0.f, // bottom right
-                           -1.f, -1.f, 0.0f, 0.f, 0.f, 1.f, 0.f, 1.f, // bottom left
-                           -1.f,  1.f, 0.0f, 0.f, 0.f, 1.f, 0.f, 0.f  // top left
+        float vertices[] {  0.5f,  0.5f, 0.0f, 0.f, 0.f, 1.f, 1.f, 1.f, // top right
+                            0.5f, -0.5f, 0.0f, 0.f, 0.f, 1.f, 1.f, 0.f, // bottom right
+                           -0.5f, -0.5f, 0.0f, 0.f, 0.f, 1.f, 0.f, 1.f, // bottom left
+                           -0.5f,  0.5f, 0.0f, 0.f, 0.f, 1.f, 0.f, 0.f  // top left
                          };
         for (int i = 0; i < 4; ++i)
         {

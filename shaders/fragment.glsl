@@ -28,7 +28,7 @@ void main()
     // Specular lighting
     vec3 viewDir = normalize(viewPos - fs_in.FragPos);
     // Float for the intensity of the specular color
-    float spec = 0.;
+    float spec = 1.;
     // Blinn-Phong shading
     vec3 halfwayDir = normalize(lightDir + viewDir);
     spec = pow(max(dot(normal, halfwayDir), 0.), 8.); 

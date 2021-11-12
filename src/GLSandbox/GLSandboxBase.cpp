@@ -9,7 +9,7 @@ GLSandbox::GLSandbox(int width, int height, const char* title) :
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(0., 0., 0.)),
-    mGizmo(glm::vec3(0., 0., 0.), 5, width, height, glm::vec3(1., 0.7, 0.))
+    mAuxElements(width, height)
 {
     // Setup the scene
     setupScene();
@@ -23,6 +23,9 @@ void GLSandbox::run()
 {
     while(!mApplication.mShouldClose)
     {
+        // Clear the window
+        mApplication.clearWindow();
+
         // Compute the time since the last frame
         float currentFrame = glfwGetTime();
         mDeltaTime = currentFrame - mLastFrame;
@@ -36,9 +39,6 @@ void GLSandbox::run()
 
         // Update the scene
         updateScene();
-
-        // Clear the window
-        mApplication.clearWindow();
 
         // Render the scene
         render();

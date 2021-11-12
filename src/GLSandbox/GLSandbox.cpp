@@ -13,7 +13,6 @@ using namespace GLGeometry;
 //      - World
 //      - Skymap
 //      - Objects
-//      - Gizmo
 //  - Load shaders
 //  - Create lights
 void GLSandbox::setupScene()
@@ -26,13 +25,13 @@ void GLSandbox::setupScene()
 
     // Get teh projection matrix from the camera
     mProjection = mCamera.getPerspectiveProjection();
-    // mProjection = mCamera.getOrthographicProjection();
 
     // Create a quad
     mElementaryObjects.push_back(new GLQuad());
-
     // Create a cube
     mElementaryObjects.push_back(new GLCube());
+    // Create a cylinder
+    mElementaryObjects.push_back(new GLCylinder(32));
 
     // Load a shader
     mShaders.push_back(Shader("../shaders/vertex.glsl", "../shaders/fragment.glsl"));
@@ -62,17 +61,19 @@ void GLSandbox::updateScene()
     // mSkymap->setViewProjection(mView, mProjection);
 
     // Move the quad
-    // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., 0., -0.2), -90., glm::vec3(1.,0.,0.), glm::vec3(5.,5.,5.));
-    mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -1., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(5.,5.,5.));
+    mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -1., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
 
     // Move the cube
-    mElementaryObjects[1]->setModelMatrix(glm::vec3(2.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(1.,1.,1.));
+    mElementaryObjects[1]->setModelMatrix(glm::vec3(2.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
+
+    // Move the cylinder
+    mElementaryObjects[2]->setModelMatrix(glm::vec3(3.,1.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
 }
 
 // Main render logic
 void GLSandbox::render()
 {
-    // Configure the shader
+    // Configure the shaders
     mShaders[0].use();
     mShaders[0].setMat4("view", mView);
     mShaders[0].setMat4("projection", mProjection);
@@ -88,10 +89,30 @@ void GLSandbox::render()
     mShaders[0].setVec3("color", glm::vec3(1., 0., 0.));
     mElementaryObjects[1]->draw();
 
+    // Draw the cylinder
+    mShaders[0].setMat4("model", mElementaryObjects[2]->getModelMatrix());
+    mShaders[0].setVec3("color", glm::vec3(0., 0., 1.));
+    mElementaryObjects[2]->draw();
+
     // // Draw the skymap
     // mSkymap->draw();
 
-    // Draw a gizmo
-    mGizmo.draw(mView, mProjection);
+    // Draw a point
+    mAuxElements.drawPoint(glm::vec3(-1., 0., -5.), mView, mProjection);
+    mAuxElements.drawPoint(glm::vec3(2., 1., -1.), mView, mProjection);
+    // Draw a line
+    mAuxElements.drawLine(glm::vec3(-1, 0., -5.), glm::vec3(2., 1., -1.), mView, mProjection);
+    // Draw a parallelepiped
+    mAuxElements.drawParallelepiped(glm::vec3(-2., 0., 0.), glm::vec3(1., 0., 0.), glm::vec3(0., 1., 1.), 
+                               mView, mProjection);
+    // Draw a rectangle
+    mAuxElements.drawRectangle(glm::vec3(-2., 1., 0.), -45., glm::vec3(1., 0., 0.), glm::vec3(1., 2., 1.),
+                               mView, mProjection);
+    // Draw a box
+    mAuxElements.drawBox(glm::vec3(2., 1., 0.), -45., glm::vec3(1., 0., 0.), glm::vec3(1., 2., 1.),
+                               mView, mProjection);
+    // Draw a cylinder
+    mAuxElements.drawCylinder(glm::vec3(-2., 3., 0.), -45., glm::vec3(1., 0., 0.), glm::vec3(1., 2., 1.),
+                               mView, mProjection);
 }
 

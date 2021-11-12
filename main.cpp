@@ -6,12 +6,6 @@
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
-// Linear interpolation function
-float lerp(float a, float b, float f)
-{
-    return a + f * (b - a);
-}
-
 int main()
 {
     // Create the sandbox

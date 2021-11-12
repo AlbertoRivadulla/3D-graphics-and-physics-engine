@@ -31,8 +31,11 @@ class GLSandbox
         // Main camera
         Camera mCamera;
 
-        // Object used to draw gizmos when needed
-        GLGizmo mGizmo;
+        // Object used to draw auxiliary geometry
+        GLAuxElements mAuxElements;
+        //
+        // // Object used to draw gizmos when needed
+        // GLGizmo mGizmo;
 
         // Projection and view matrices
         glm::mat4 mProjection;

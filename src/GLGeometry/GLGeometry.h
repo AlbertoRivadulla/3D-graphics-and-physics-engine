@@ -21,10 +21,8 @@
 
 #include "GLBase.h"
 
-// #include "GLGeometryAux.h"
-
 // #include "GLObject.h"
-#include "GLGizmo.h"
+#include "GLAuxElements.h"
 #include "GLQuad.h"
 #include "GLSphere.h"
 #include "GLCubemap.h"
