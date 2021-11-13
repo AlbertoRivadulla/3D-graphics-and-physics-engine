@@ -5,15 +5,6 @@
 
 namespace GLBase
 {
-    // // Define several possible options for the movement of the camera.
-    // enum CameraMovement 
-    // {
-    //     FORWARD,
-    //     BACKWARD,
-    //     LEFT,
-    //     RIGHT
-    // };
-
     // Default camera values
     // Angle with respect to the camera's y axis.
     // Default to -90 degrees. Otherwise the camera will be looking to the right.
@@ -24,9 +15,60 @@ namespace GLBase
     const float SENSITIVITY { 0.1 };
     const float FOV { 45. }; // Field of view
 
+    // Forward declare the camera class
+    class Camera;
+
+    // Input handlers for the camera
+    class CameraKeyboardInputHandler : public KeyboardInputHandler
+    {
+        public:
+            // Constructor
+            CameraKeyboardInputHandler(Camera* camera);
+
+            // Method to process input
+            void process(GLFWwindow* window, float deltaTime) const;
+
+        private:
+            // Pointer to the camera
+            Camera* mCamera;
+    };
+
+    class CameraMouseInputHandler : public MouseInputHandler
+    {
+        public:
+            // Constructor
+            CameraMouseInputHandler(Camera* camera);
+
+            // Method to process input
+            void process(double xpos, double ypos) const;
+
+        private:
+            // Pointer to the camera
+            Camera* mCamera;
+    };
+
+    class CameraScrollInputHandler : public ScrollInputHandler
+    {
+        public:
+            // Constructor
+            CameraScrollInputHandler(Camera* camera);
+
+            // Method to process input
+            void process(double xoffset, double yoffset) const;
+
+        private:
+            // Pointer to the camera
+            Camera* mCamera;
+    };
+
     // Abstract camera class
     class Camera 
     {
+        // Declare the input handler classes as friends
+        friend class CameraKeyboardInputHandler;
+        friend class CameraMouseInputHandler;
+        friend class CameraScrollInputHandler;
+
         public:
             // Width and height of the viewport
             int mWidth;
@@ -45,6 +87,11 @@ namespace GLBase
             float Pitch;
             // Field of view
             float Fov;
+
+            // Input handlers
+            CameraKeyboardInputHandler mKeyboardHandler;
+            CameraMouseInputHandler mMouseHandler;
+            CameraScrollInputHandler mScrollHandler;
 
             // Constructor with vector values
             Camera( int width, int height,
@@ -70,17 +117,6 @@ namespace GLBase
 
             // Compute the view matrix calculated from the Euler angles
             glm::mat4 getViewMatrix();
-
-            // Function to process the keyboard input
-            // void processKeyboardInput(CameraMovement direction, float deltaTime);
-            void processKeyboardInput(GLFWwindow* window, float deltaTime);
-
-            // Function to process the mouse input
-            // void processMouseInput(float xoffset, float yoffset, bool constrainPitch = true);
-            void processMouseInput(float xpos, float ypos);
-
-            // Function to process the scroll
-            void processScrollInput(float xoffset, float yoffset);
 
         private:
             // Camera options

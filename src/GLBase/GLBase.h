@@ -21,6 +21,7 @@
 
 #include "application.h"
 #include "camera.h"
+#include "inputHandler.h"
 #include "model.h"
 #include "mesh.h"
 #include "shader.h"

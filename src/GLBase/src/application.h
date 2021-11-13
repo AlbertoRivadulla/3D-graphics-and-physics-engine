@@ -28,8 +28,11 @@ namespace GLBase
             // Methods to pass pointers to the camera and to input handlers
             void setCamera(Camera* camera);
 
+            // Method to pass a pointer to the input handler
+            void setInputHandler(InputHandler* inputHandler);
+
             // Function to be called to process input that can modify the window, every frame
-            void processInput(float deltaTime);
+            void processKeyboardInput(float deltaTime);
 
             // Function to clear the window
             void clearWindow();
@@ -43,8 +46,8 @@ namespace GLBase
             // A pointer to a camera
             Camera* mCamera; 
 
-            // Vector of pointers to input handlers
-            // std::vector<GLInputHandler*> mInputHandlers;
+            // Pointer to the input handler
+            InputHandler* mInputHandler;
 
             // Width and height of the window
             int mWidth;

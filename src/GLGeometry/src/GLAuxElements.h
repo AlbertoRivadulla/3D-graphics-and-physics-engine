@@ -59,6 +59,11 @@ namespace GLGeometry
                                const glm::vec3& rotationAxis, const glm::vec3& scale,
                                const glm::mat4& view, const glm::mat4& projection);
 
+            // Method to draw a sphere
+            void drawSphere(const glm::vec3& translation, const float& rotationAngle, 
+                               const glm::vec3& rotationAxis, const glm::vec3& scale,
+                               const glm::mat4& view, const glm::mat4& projection);
+
         private:
             // Objects needed for rendering points
             unsigned int mPointVAO;
@@ -96,6 +101,15 @@ namespace GLGeometry
             unsigned int mCylinderEBO;
             // Method to set the VAO, VBO and properties of the rectangle
             void setupCylinder();
+
+            // Number of vertices in each circle in the sphere
+            int mNrVerticesSphere;
+            // Objects needed for rendering cylinder
+            unsigned int mSphereVAO;
+            unsigned int mSphereVBO;
+            unsigned int mSphereEBO;
+            // Method to set the VAO, VBO and properties of the rectangle
+            void setupSphere();
     };
 }
 

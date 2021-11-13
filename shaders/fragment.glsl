@@ -31,7 +31,7 @@ void main()
     float spec = 1.;
     // Blinn-Phong shading
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    spec = pow(max(dot(normal, halfwayDir), 0.), 8.); 
+    spec = pow(max(dot(normal, halfwayDir), 0.), 128.); 
     // Compute the specular component, assuming a white light with a lower indensity
     vec3 specular = vec3(0.1) * spec;
 

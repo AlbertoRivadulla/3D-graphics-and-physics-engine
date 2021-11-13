@@ -28,7 +28,7 @@ namespace GLGeometry
                 // Normal vector
                 thisVertex.Normal = glm::vec3(x, 0., z);
                 // Texture coordinates
-                thisVertex.TexCoords = glm::vec3(0., 0., 0.);
+                thisVertex.TexCoords = glm::vec2(0., 0.);
 
                 mVertices.push_back(thisVertex);
             }
@@ -46,7 +46,7 @@ namespace GLGeometry
                 // Normal vector
                 thisVertex.Normal = glm::vec3(0., 2. * ((float)y - 0.5), 0.);
                 // Texture coordinates
-                thisVertex.TexCoords = glm::vec3(0., 0., 0.);
+                thisVertex.TexCoords = glm::vec2(0., 0.);
 
                 mVertices.push_back(thisVertex);
             }
@@ -82,9 +82,6 @@ namespace GLGeometry
             mIndices.push_back(i + 3 * mNrVertices + 1);
             mIndices.push_back(mNrVertices + 3 * mNrVertices + 1);
         }
-
-
-
 
         // Bind the VAO and the VBO (as a vertex buffer)
         glBindVertexArray(mVAO);

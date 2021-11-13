@@ -95,8 +95,14 @@ namespace GLBase
         mCamera = camera;
     }
 
+    // Method to pass a pointer to the input handler
+    void Application::setInputHandler(InputHandler* inputHandler)
+    {
+        mInputHandler = inputHandler;
+    }
+
     // Process all input
-    void Application::processInput(float deltaTime)
+    void Application::processKeyboardInput(float deltaTime)
     {
         // Process input for the window
         if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -107,7 +113,7 @@ namespace GLBase
             mShouldClose = true;
 
         // Process input for all the objects in the frame
-        mCamera->processKeyboardInput(mWindow, deltaTime);
+        mInputHandler->processKeyboardInput(mWindow, deltaTime);
     }
 
     // Function to clear the window every frame
@@ -134,8 +140,7 @@ namespace GLBase
     // Function to be called when the window is resized
     void applicationFramebufferSizeCallback(GLFWwindow* window, int width, int height)
     {
-        // make sure the viewport matches the new window dimensions; note that width and 
-        // height will be significantly larger than specified on retina displays.
+        // Make sure the viewport matches the new window dimensions
         glViewport(0, 0, width, height);
 
         // Change the dimensions in the camera
@@ -147,14 +152,13 @@ namespace GLBase
     void applicationMouseCallback(GLFWwindow* window, double xpos, double ypos)
     {
         Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-
-        app->mCamera->processMouseInput(xpos, ypos);
+        app->mInputHandler->processMouseInput(xpos, ypos);
     }
 
     // Function to be called on scroll
     void applicationScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
         Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-        app->mCamera->processScrollInput(xoffset, yoffset);
+        app->mInputHandler->processScrollInput(xoffset, yoffset);
     }
 }

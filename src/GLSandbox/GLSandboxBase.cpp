@@ -32,7 +32,7 @@ void GLSandbox::run()
         mLastFrame = currentFrame;
 
         // Process input for all the objects in the scene
-        mApplication.processInput(mDeltaTime);
+        mApplication.processKeyboardInput(mDeltaTime);
 
         // Store in memory the time at the beginning of the drawing
         float thisFrameTime { (float)glfwGetTime() };

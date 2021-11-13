@@ -31,6 +31,9 @@ class GLSandbox
         // Main camera
         Camera mCamera;
 
+        // Main input handler
+        InputHandler mInputHandler;
+
         // Object used to draw auxiliary geometry
         GLAuxElements mAuxElements;
         //

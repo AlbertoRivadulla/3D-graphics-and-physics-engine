@@ -14,8 +14,10 @@ namespace GLGeometry
                 "../shaders/GLGeometry/pointGeometry.glsl"),
         mLineShader("../shaders/GLGeometry/lineVertex.glsl", "../shaders/GLGeometry/lineFragment.glsl")
     {
-        // Set the number of vertices in the cylinder
+        // Set the number of vertices in each circle of the cylinder
         mNrVerticesCylinder = 16;
+        // Set the number of vertices in each circle of the sphere
+        mNrVerticesSphere = 8;
 
         // Set the size of the viewport in all the shaders
         setViewportSize(width, height);
@@ -30,6 +32,8 @@ namespace GLGeometry
         setupBox();
         // Configure the cylinder
         setupCylinder();
+        // Configure the sphere
+        setupSphere();
     }
 
     // Method to change the dimensions of the screen
@@ -378,7 +382,7 @@ namespace GLGeometry
             indices.push_back(i + mNrVerticesCylinder);
             indices.push_back((i + 1) % mNrVerticesCylinder + mNrVerticesCylinder);
 
-            // Join vertice between bases
+            // Join vertices between bases
             indices.push_back(i);
             indices.push_back(i + mNrVerticesCylinder);
         }
@@ -426,6 +430,125 @@ namespace GLGeometry
         glDrawElements(GL_LINES, 3 * 2 * mNrVerticesCylinder, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
+
+    //==============================
+    // Methods for drawing spheres
+    //==============================
+
+    // Method to set the VAO, VBO and properties of the line
+    void GLAuxElements::setupSphere()
+    {
+        // Create the Vertex array object
+        glGenVertexArrays(1, &mSphereVAO);
+        // Create the Vertex buffer object
+        glGenBuffers(1, &mSphereVBO);
+        // Create the Element buffer object
+        glGenBuffers(1, &mSphereEBO);
+
+        // Lists of vertices and indices
+        std::vector<float> vertices;
+        std::vector<int> indices;
+        vertices.reserve(3 * (2 * (mNrVerticesSphere * mNrVerticesSphere - mNrVerticesSphere + 1)));
+        indices.reserve(2 * 2 * mNrVerticesSphere * (2 * mNrVerticesSphere - 1));
+
+        // Generate the vertices
+        // Upper cusp
+        vertices.push_back(0.);
+        vertices.push_back(0.5);
+        vertices.push_back(0.);
+        // Loop vertically
+        for (int t = 1; t < mNrVerticesSphere; ++t)
+        {
+            // Loop horizontally
+            for (int p = 0; p < 2 * mNrVerticesSphere; ++p)
+            {
+                vertices.push_back(0.5 * glm::sin(glm::pi<float>() * (float)t / mNrVerticesSphere) *
+                                         glm::cos(glm::pi<float>() * (float)p / mNrVerticesSphere));
+                vertices.push_back(0.5 * glm::cos(glm::pi<float>() * (float)t / mNrVerticesSphere));
+                vertices.push_back(0.5 * glm::sin(glm::pi<float>() * (float)t / mNrVerticesSphere) *
+                                         glm::sin(glm::pi<float>() * (float)p / mNrVerticesSphere));
+            }
+        }
+        // Lower cusp
+        vertices.push_back(0.);
+        vertices.push_back(-0.5);
+        vertices.push_back(0.);
+
+        // Generate the indices for the EBO
+        // Join the upper cusp
+        for (int p = 1; p < 2 * mNrVerticesSphere + 1; ++p)
+        {
+            // Vertical lines
+            indices.push_back(0);
+            indices.push_back(p);
+            // Horizontal lines
+            indices.push_back(p);
+            indices.push_back(p % (2 * mNrVerticesSphere) + 1);
+        }
+        // Loop horizontally
+        for (int p = 0; p < 2 * mNrVerticesSphere; ++p)
+        {
+            // Loop vertically
+            for (int t = 1; t < mNrVerticesSphere - 1; ++t)
+            {
+                // Horizontal line
+                indices.push_back(p + t * (2 * mNrVerticesSphere) + 1);
+                indices.push_back((p + 1) % (2 * mNrVerticesSphere) + t * (2 * mNrVerticesSphere) + 1);
+                // Vertical line to the vertex above
+                indices.push_back(p + t * (2 * mNrVerticesSphere) + 1);
+                indices.push_back(p + (t - 1) * (2 * mNrVerticesSphere) + 1);
+            }
+        }
+        // Join the lower cusp
+        for (int p = 0; p < 2 * mNrVerticesSphere; ++p)
+        {
+            // Vertical lines
+            indices.push_back(p + 1 + (mNrVerticesSphere - 2) * 2 * mNrVerticesSphere);
+            indices.push_back(2 * (mNrVerticesSphere * mNrVerticesSphere - mNrVerticesSphere + 1) - 1);
+        }
+
+        // Bind the VAO and the VBO (as a verex buffer)
+        glBindVertexArray(mSphereVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, mSphereVBO);
+        // Add the data to the VBO
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+        // Bind the EBO as an element array buffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mSphereEBO);
+        // Add the data to the EBO
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+        // Set the vertex attribute pointers
+        // Vertex position
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        // Unbind the VAO
+        glBindVertexArray(0);
+    }
+
+    // Method to draw a sphere
+    void GLAuxElements::drawSphere(const glm::vec3& translation, const float& rotationAngle, 
+                                const glm::vec3& rotationAxis, const glm::vec3& scale,
+                                const glm::mat4& view, const glm::mat4& projection)
+    {
+        // Compute the model matrix 
+        glm::mat4 model { glm::translate(glm::mat4(1.), translation) };
+        if (rotationAngle != 0.)
+            model = glm::rotate(model, glm::radians(rotationAngle), 
+                                       glm::normalize(rotationAxis));
+        model = glm::scale(model, scale);
+        
+        // Set the model, view and projection matrices in the shader
+        mLineShader.use();
+        mLineShader.setMat4("model", model);
+        mLineShader.setMat4("view", view);
+        mLineShader.setMat4("projection", projection);
+
+        // Draw the two vertices of the line
+        glBindVertexArray(mSphereVAO);
+        glDrawElements(GL_LINES, 2 * 2 * mNrVerticesSphere * (2 * mNrVerticesSphere - 1), 
+                       GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
 }
-
-
