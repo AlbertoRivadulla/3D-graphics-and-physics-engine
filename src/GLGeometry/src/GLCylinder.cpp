@@ -28,7 +28,9 @@ namespace GLGeometry
                 // Normal vector
                 thisVertex.Normal = glm::vec3(x, 0., z);
                 // Texture coordinates
-                thisVertex.TexCoords = glm::vec2(0., 0.);
+                thisVertex.TexCoords = glm::vec2(angle / (float)mNrVertices, y);
+                // Texture index
+                thisVertex.TexIndex = 0;
 
                 mVertices.push_back(thisVertex);
             }
@@ -46,7 +48,9 @@ namespace GLGeometry
                 // Normal vector
                 thisVertex.Normal = glm::vec3(0., 2. * ((float)y - 0.5), 0.);
                 // Texture coordinates
-                thisVertex.TexCoords = glm::vec2(0., 0.);
+                thisVertex.TexCoords = glm::vec2(x + 0.5, z + 0.5);
+                // Texture index
+                thisVertex.TexIndex = 1;
 
                 mVertices.push_back(thisVertex);
             }
@@ -54,7 +58,8 @@ namespace GLGeometry
             Vertex thisVertex;
             thisVertex.Position = glm::vec3(0., (float)y - 0.5, 0.);
             thisVertex.Normal = glm::vec3(0., 2. * ((float)y - 0.5), 0.);
-            thisVertex.TexCoords = glm::vec3(0., 0., 0.);
+            thisVertex.TexCoords = glm::vec2(0.5, 0.5);
+            thisVertex.TexIndex = 1;
             mVertices.push_back(thisVertex);
         }
 
@@ -106,6 +111,9 @@ namespace GLGeometry
         // Vertex texture coordinates
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+        // Vertex texture index
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexIndex));
 
         // Unbind the VAO
         glBindVertexArray(0);

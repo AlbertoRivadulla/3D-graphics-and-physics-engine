@@ -39,6 +39,7 @@ set(LIBS PUBLIC
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/application.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/inputHandler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/deferredRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp

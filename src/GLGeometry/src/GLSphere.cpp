@@ -103,6 +103,9 @@ namespace GLGeometry
         // Vertex texture coordinates
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+        // Vertex texture index
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexIndex));
 
         // Unbind the VAO
         glBindVertexArray(0);

@@ -19,6 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
+#include "deferredRenderer.h"
 #include "application.h"
 #include "camera.h"
 #include "inputHandler.h"

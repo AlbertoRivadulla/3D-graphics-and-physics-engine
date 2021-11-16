@@ -9,7 +9,8 @@ GLSandbox::GLSandbox(int width, int height, const char* title) :
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(0., 0., 0.)),
-    mAuxElements(width, height)
+    mAuxElements(width, height),
+    mRenderer(width, height, 1.f)
 {
     // Setup the scene
     setupScene();
@@ -23,8 +24,12 @@ void GLSandbox::run()
 {
     while(!mApplication.mShouldClose)
     {
-        // Clear the window
-        mApplication.clearWindow();
+        // // Clear the window
+        // mApplication.clearWindow();
+
+        // Start the renderer
+        // This also clears the window
+        mRenderer.startFrame();
 
         // Compute the time since the last frame
         float currentFrame = glfwGetTime();
@@ -43,6 +48,9 @@ void GLSandbox::run()
         // Render the scene
         render();
 
+        // End the renderer, which produces the final scene from the g-buffer
+        mRenderer.endFrame();
+
         // Update the window, swapping the buffers
         mApplication.updateWindow();
 
@@ -51,7 +59,7 @@ void GLSandbox::run()
         // Add one to the counter
         ++mFrameCounter;
         // Every 300 frames, print the amount of time that each of them takes
-        if (mFrameCounter % 300 == 0)
+        if (mFrameCounter % 100 == 0)
         {
             std::cout << "Average frame duration: " << mTotalTime * 1000 / mFrameCounter << " ms\n";
             // Reset the variables

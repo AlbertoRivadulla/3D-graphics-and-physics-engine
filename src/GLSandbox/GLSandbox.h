@@ -28,6 +28,9 @@ class GLSandbox
         // Main application
         Application mApplication;
 
+        // Renderer
+        DeferredRenderer mRenderer;
+
         // Main camera
         Camera mCamera;
 
@@ -36,9 +39,6 @@ class GLSandbox
 
         // Object used to draw auxiliary geometry
         GLAuxElements mAuxElements;
-        //
-        // // Object used to draw gizmos when needed
-        // GLGizmo mGizmo;
 
         // Projection and view matrices
         glm::mat4 mProjection;

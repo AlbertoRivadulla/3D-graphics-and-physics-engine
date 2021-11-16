@@ -110,6 +110,8 @@ namespace GLBase
             void setFrustum(float near, float far);
             // Method to change the width and height of the viewport
             void setDimensions(int width, int height);
+            // Method to set the dimension of the orthographic projection matrix
+            void setOrthographicSize(float size);
             
             // Method to obtain the two possible projections
             glm::mat4 getPerspectiveProjection();
@@ -129,21 +131,25 @@ namespace GLBase
             // Boolean variable that determines whether it is the first mouse mouvement in the execution
             bool mFirstMouse;
 
+            // Dimensions of the orthographic camera
+            float mOrthoHalfWidth;
+            float mOrthoHalfHeight;
+
             // Calculate the front vector from the camera's updated Euler angles
             void updateCameraVectors();
     };
 
-    class OrthographicCamera : public Camera
-    {
-        public:
-            glm::mat4 getProjectionMatrix();
-    };
-
-    class PerspectiveCamera : public Camera
-    {
-        public:
-            glm::mat4 getProjectionMatrix();
-    };
+    // class OrthographicCamera : public Camera
+    // {
+    //     public:
+    //         glm::mat4 getProjectionMatrix();
+    // };
+    //
+    // class PerspectiveCamera : public Camera
+    // {
+    //     public:
+    //         glm::mat4 getProjectionMatrix();
+    // };
 }
 
 #endif

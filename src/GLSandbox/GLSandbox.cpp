@@ -114,9 +114,9 @@ void GLSandbox::render()
     // // Draw the skymap
     // mSkymap->draw();
 
-    // // Draw a point
-    // mAuxElements.drawPoint(glm::vec3(-1., 0., -5.), mView, mProjection);
-    // mAuxElements.drawPoint(glm::vec3(2., 1., -1.), mView, mProjection);
+    // Draw a point
+    mAuxElements.drawPoint(glm::vec3(-1., 0., -5.), mView, mProjection);
+    mAuxElements.drawPoint(glm::vec3(2., 1., -1.), mView, mProjection);
     // // Draw a line
     // mAuxElements.drawLine(glm::vec3(-1, 0., -5.), glm::vec3(2., 1., -1.), mView, mProjection);
     // // Draw a parallelepiped

@@ -11,6 +11,7 @@ namespace GLBase
         glm::vec3 Position;
         glm::vec3 Normal;
         glm::vec2 TexCoords;
+        int TexIndex = 0;
     };
 
     // Struct to organize the texture data

@@ -14,6 +14,7 @@ namespace GLBase
           Position { position }, WorldUp { up }, Yaw { yaw }, Pitch { pitch },
           mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
           mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. },
+          mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
           mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this)
     {
         updateCameraVectors();
@@ -26,7 +27,8 @@ namespace GLBase
           MouseSensitivity { SENSITIVITY }, Fov { FOV },  
           Position { glm::vec3(posX, posY, posZ) }, WorldUp { glm::vec3(upX, upY, upZ)},
           Yaw { yaw }, Pitch { pitch }, mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
-          mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. },
+          mWidth { width }, mHeight { height }, mNear { 0.1f }, mFar { 100.f },
+          mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
           mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this)
     {
         updateCameraVectors();
@@ -46,6 +48,13 @@ namespace GLBase
         mHeight = height;
     }
 
+    // Method to set the dimension of the orthographic projection matrix
+    void Camera::setOrthographicSize(float size)
+    {
+        mOrthoHalfWidth = size * ( (float)mWidth / (float)mHeight ) / 2.f;
+        mOrthoHalfHeight = size / 2.f;
+    }
+
     // Method to obtain the two possible projections
     glm::mat4 Camera::getPerspectiveProjection()
     {
@@ -54,7 +63,10 @@ namespace GLBase
 
     glm::mat4 Camera::getOrthographicProjection()
     {
-        return glm::ortho(0.f, (float)mWidth, (float)mHeight, 0.f, mNear, mFar);
+        // float aspectRatio = (float)mWidth / (float)mHeight;
+        // return glm::ortho(-5.0f * aspectRatio, 5.0f * aspectRatio, -5.0f, 5.0f, mNear - 1.f, mFar);
+
+        return glm::ortho(-mOrthoHalfWidth, mOrthoHalfWidth, -mOrthoHalfHeight, mOrthoHalfHeight, mNear, mFar);
     }
 
     // Compute the view matrix calculated from the Euler angles

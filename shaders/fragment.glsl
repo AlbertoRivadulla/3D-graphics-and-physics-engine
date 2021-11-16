@@ -31,11 +31,11 @@ void main()
     float spec = 1.;
     // Blinn-Phong shading
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    spec = pow(max(dot(normal, halfwayDir), 0.), 128.); 
+    spec = pow(max(dot(normal, halfwayDir), 0.), 32.); 
     // Compute the specular component, assuming a white light with a lower indensity
-    vec3 specular = vec3(0.1) * spec;
+    vec3 specular = vec3(0.3) * spec;
 
     // Sum all the contributions, with gamma correction
-    // FragColor = vec4(ambient + diffuse + specular, 1.);
     FragColor = vec4(ambient + attenuation * (diffuse + specular), 1.);
+    // FragColor = vec4(ambient + diffuse + specular, 1.);
 }
