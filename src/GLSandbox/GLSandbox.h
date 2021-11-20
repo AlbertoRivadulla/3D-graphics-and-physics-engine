@@ -15,10 +15,6 @@ class GLSandbox
 
     private:
 
-        glm::vec3 quadPosition;
-
-        // Cubemap for the sky
-        GLCubemap* mSkymap;
         
     //==============================
     // Basic implementation of the class
@@ -30,6 +26,10 @@ class GLSandbox
 
         // Renderer
         DeferredRenderer mRenderer;
+        // Reference to the shader of the Lighting pass
+        Shader& mLightingShader;
+        // Shaders for the geometry pass
+        std::vector<Shader> mGPassShaders;
 
         // Main camera
         Camera mCamera;
@@ -52,6 +52,12 @@ class GLSandbox
 
         // Shaders
         std::vector<Shader> mShaders;
+
+        // Materials
+        std::vector<Material> mMaterials;
+
+        // Cubemap for the sky
+        GLCubemap* mSkymap;
             
         // Value of the time elapsed since the last frame. This needs to be updated 
         // every frame
@@ -70,8 +76,14 @@ class GLSandbox
         // Method to run on each frame, to update the scene
         void updateScene();
 
-        // Main render logic
-        void render();
+        // // Main render logic
+        // void render();
+        //
+        // Render the geometry that will use deferred rendering
+        void renderDeferred();
+
+        // Render the geometry that will use forward rendering
+        void renderForward();
 
     public:
         // Constructor

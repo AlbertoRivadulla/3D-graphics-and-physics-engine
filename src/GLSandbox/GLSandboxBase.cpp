@@ -10,7 +10,8 @@ GLSandbox::GLSandbox(int width, int height, const char* title) :
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(0., 0., 0.)),
     mAuxElements(width, height),
-    mRenderer(width, height, 1.f)
+    mRenderer(width, height, 1.f),
+    mLightingShader ( mRenderer.getLightingShader() ) // Reference to the G-pass shader of the renderer
 {
     // Setup the scene
     setupScene();
@@ -45,8 +46,17 @@ void GLSandbox::run()
         // Update the scene
         updateScene();
 
-        // Render the scene
-        render();
+        // // Render the scene
+        // render();
+
+        // Render the geometry that will use deferred rendering
+        renderDeferred();
+
+        // Do the shading pass
+        mRenderer.processGBuffer(mCamera.Position);
+
+        // Render the geometry that will use forward rendering
+        renderForward();
 
         // End the renderer, which produces the final scene from the g-buffer
         mRenderer.endFrame();

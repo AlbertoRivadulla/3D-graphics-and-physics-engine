@@ -38,6 +38,27 @@ namespace GLBase
             // Utility function for checking compile errors for the shaders
             void checkCompileErrors(GLuint shader, std::string type);
     };
+
+    struct Material
+    {
+        // Properties
+        glm::vec3 albedo;
+        float spec;
+
+        // Constructor
+        Material(glm::vec3 alb, float specular)
+        {
+            albedo = alb;
+            spec = specular;
+        }
+
+        // Method to pass the material information to a shader.
+        void configShader(const Shader& shader)
+        {
+            shader.setVec3("material.albedo", albedo);
+            shader.setFloat("material.spec", spec);
+        }
+    };
 }
 
 #endif

@@ -44,6 +44,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
 
     # Auxiliary source file needed for stb_image.h to work
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stb_image.cpp

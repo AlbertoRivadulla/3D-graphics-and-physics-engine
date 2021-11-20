@@ -11,15 +11,23 @@ namespace GLGeometry
     {
         public:
             // Constructor
-            GLCubemap(const std::string& texturesPath = "../resources/textures/skybox", 
+            // The default path for the textures is
+            //      ../resources/textures/skybox
+            GLCubemap(const std::string& texturesPath, 
                       const char* vertexShaderPath = "../shaders/GLGeometry/skyboxVertex.glsl",
                       const char* fragmentShaderPath = "../shaders/GLGeometry/skyboxFragment.glsl");
+            // Constructor without textures
+            GLCubemap(const char* vertexShaderPath = "../shaders/GLGeometry/skyboxVertex.glsl",
+                      const char* fragmentShaderPath = "../shaders/GLGeometry/skyboxFragmentFlat.glsl");
 
             // Method to pass the view and projection matrices to the shader
             void setViewProjection(glm::mat4& view, glm::mat4& projection);
 
             // Function to render
             void draw();
+
+            // Function to render a flat sky
+            void drawFlat();
 
         private:
             // Cube geometry

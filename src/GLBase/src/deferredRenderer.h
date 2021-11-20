@@ -16,8 +16,17 @@ namespace GLBase
             // Destructor
             ~DeferredRenderer();
 
+            // Method to get a point to the geometry pass shader
+            Shader& getLightingShader()
+            {
+                return mLightingPassShader;
+            }
+
             // Method to call at the beginning of the frame
             void startFrame();
+
+            // Method to do the shading pass with the information in the g-buffer
+            void processGBuffer( glm::vec3 viewPos );
 
             // Method to call at the end of the frame
             void endFrame();
@@ -30,21 +39,35 @@ namespace GLBase
             int mRenderWidth;
             int mRenderHeight;
 
-            // Target framebuffer object
-            unsigned int mTargetBuffer;
-            // Texture attachment for the target FBO
-            unsigned int mTextureTarget;
-            // Shader for rendering the target
-            Shader mScreenShader;
-            // VAO and VBO for the screen quad
-            unsigned int mScreenVAO;
-            unsigned int mScreenVBO;
+            // Renderbuffer object for the depth information, to be used by all 
+            // passes
+            unsigned int mDepthRBO;
 
+            // Data for the geometry pass
+            // ------------------------------
             // G-buffer
             unsigned int mGBuffer;
             // Texture attachments for the G-buffer
-            // ...
-            // ...
+            unsigned int mGPositionTexture;
+            unsigned int mGNormalTexture;
+            unsigned int mGAlbedoSpecTexture;
+
+            // Data for the lighting pass
+            // ------------------------------
+            // Shader for the lighting pass
+            Shader mLightingPassShader;
+
+            // Data for rendering the screen quad
+            // ------------------------------
+            // Shader for rendering the target
+            Shader mScreenShader;
+            // Target framebuffer object
+            unsigned int mTargetBuffer;
+            // Texture attachment for the target FBO
+            unsigned int mTargetTexture;
+            // VAO and VBO for the screen quad
+            unsigned int mScreenVAO;
+            unsigned int mScreenVBO;
 
             // Setup the screen quad
             void setupScreenQuad();
