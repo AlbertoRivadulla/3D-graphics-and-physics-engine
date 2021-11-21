@@ -15,7 +15,8 @@ namespace GLBase
           mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
           mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. },
           mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
-          mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this)
+          mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this),
+          mIsOrthographic { false }
     {
         updateCameraVectors();
     }
@@ -29,9 +30,21 @@ namespace GLBase
           Yaw { yaw }, Pitch { pitch }, mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
           mWidth { width }, mHeight { height }, mNear { 0.1f }, mFar { 100.f },
           mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
-          mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this)
+          mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this),
+          mIsOrthographic { false }
     {
         updateCameraVectors();
+    }
+
+    // Method to make the camera orthographic
+    void Camera::setOrthographic()
+    {
+        mIsOrthographic = true;
+    }
+    // Method to make the camera perspective
+    void Camera::setPerspective()
+    {
+        mIsOrthographic = false;
     }
 
     // Method to set the frustum of the camera
@@ -55,6 +68,17 @@ namespace GLBase
         mOrthoHalfHeight = size / 2.f;
     }
 
+    // Method to get the projection matrix
+    glm::mat4 Camera::getProjectionMatrix()
+    {
+        if (mIsOrthographic)
+            mProjectionMatrix = glm::ortho(-mOrthoHalfWidth, mOrthoHalfWidth, -mOrthoHalfHeight, mOrthoHalfHeight, mNear, mFar);
+        else
+            mProjectionMatrix = glm::perspective(glm::radians(Fov), (float)mWidth / (float)mHeight, mNear, mFar);
+        
+        return mProjectionMatrix;
+    }
+
     // Method to obtain the two possible projections
     glm::mat4 Camera::getPerspectiveProjection()
     {
@@ -72,74 +96,41 @@ namespace GLBase
     // Compute the view matrix calculated from the Euler angles
     glm::mat4 Camera::getViewMatrix()
     {
-        return glm::lookAt(Position, Position + Front, Up);
+        mViewMatrix = glm::lookAt(Position, Position + Front, Up);
+
+        return mViewMatrix;
     }
 
-    // // Function to process the keyboard input
-    // // void Camera::processKeyboardInput(CameraMovement direction, float deltaTime)
-    // void Camera::processKeyboardInput(GLFWwindow* window, float deltaTime)
-    // {
-    //     // The keys WASD move the camera around the scene
-    //     float cameraSpeed { MovementSpeed * deltaTime };
-    //     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    //         Position += cameraSpeed * Front;
-    //     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    //         Position -= cameraSpeed * Front;
-    //     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    //         Position -= cameraSpeed * Right;
-    //     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    //         Position += cameraSpeed * Right;
-    // }
+    // Get the position of the eight corners of the frustum
+    // Following https://learnopengl.com/Guest-Articles/2021/CSM
+    std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace() const
+    {
+        // Compute the matrix to go from screen space coordinates to world coordinates
+        const glm::mat4 screenToWorld { glm::inverse( mProjectionMatrix * mViewMatrix ) };
 
-    // // Function to process the mouse input
-    // // void Camera::processMouseInput(float xoffset, float yoffset, bool constrainPitch)
-    // void Camera::processMouseInput(float xpos, float ypos)
-    // {
-    //     // If it is the first time that the mouse is moved, the last position is
-    //     // the same as the current one
-    //     if (mFirstMouse)
-    //     {
-    //         mLastX = xpos;
-    //         mLastY = ypos;
-    //         mFirstMouse = false;
-    //     }
-    //
-    //     // Compute the change in the position of the mouse since the previous frame
-    //     float xoffset = xpos - mLastX;
-    //     float yoffset = mLastY - ypos; // reversed since y-coordinates go from bottom to top
-    //     // Update the previous position of the mouse stored
-    //     mLastX = xpos;
-    //     mLastY = ypos;
-    //     // Multiply the offsets by the mouse sensitivity value
-    //     xoffset *= MouseSensitivity;
-    //     yoffset *= MouseSensitivity;
-    //
-    //     // Add the offset values to the global variables yaw and pitch (rotation around
-    //     // the camera's vertical (y) and horizontal (x) axes)
-    //     Yaw += xoffset;
-    //     Pitch += yoffset;
-    //
-    //     // Constrain the pitch to be between (-90, 90) degrees
-    //     if (Pitch > 89.)
-    //         Pitch = 89.;
-    //     if (Pitch < -89)
-    //         Pitch = -89;
-    //
-    //     // Update the Front, Up and Right camera vectors
-    //     updateCameraVectors();
-    // }
+        // Initialize a vector for the eight corners of the frustum
+        std::vector<glm::vec4> frustumCorners;
+        frustumCorners.reserve(8);
+        
+        // Compute the eight coners in world space
+        for (unsigned int x = 0; x < 2; ++x)
+        {
+            for (unsigned int y = 0; y < 2; ++y)
+            {
+                for (unsigned int z = 0; z < 2; ++z)
+                {
+                    const glm::vec4 point = screenToWorld * glm::vec4( 2.f * x - 1.f,
+                                                                       2.f * y - 1.f,
+                                                                       // (2.f * z - 1.f) / 2.f,
+                                                                       2.f * z - 1.f,
+                                                                       1.f);
+                    frustumCorners.push_back(point / point.w);
+                }
+            }
+        }
 
-    // // Function to process the scroll
-    // void Camera::processScrollInput(float xoffset, float yoffset)
-    // {
-    //     // Change the field of view with vertical scroll.
-    //     Fov -= (float)yoffset;
-    //     // Constraint it to be between (1, 45) degrees
-    //     if (Fov < 1.)
-    //         Fov = 1.;
-    //     if (Fov > 45.)
-    //         Fov = 45.;
-    // }
+        return frustumCorners;
+    }
 
     // Calculate the front vector from the camera's updated Euler angles
     void Camera::updateCameraVectors()

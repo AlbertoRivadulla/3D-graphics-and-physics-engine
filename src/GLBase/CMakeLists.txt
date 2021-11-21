@@ -18,6 +18,9 @@ set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty
 
     ${CMAKE_CURRENT_SOURCE_DIR}/..
+    ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry
+    ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/thirdparty
 )
 
 include_directories(${INCLUDE})
@@ -44,6 +47,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/light.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
 
     # Auxiliary source file needed for stb_image.h to work

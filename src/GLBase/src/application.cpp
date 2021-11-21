@@ -68,7 +68,7 @@ namespace GLBase
         // Enable face culling
         glEnable(GL_CULL_FACE);
         // Enable gamma correction the easy way
-        // glEnable(GL_FRAMEBUFFER_SRGB);
+        glEnable(GL_FRAMEBUFFER_SRGB);
     }
 
     // Destructor
@@ -87,6 +87,12 @@ namespace GLBase
     int Application::getHeight()
     {
         return mHeight;
+    }
+
+    // Method to change the title of the window
+    void Application::setTitle(const char* title)
+    {
+        glfwSetWindowTitle(mWindow, title);
     }
 
     // Method to pass a pointer to the camera

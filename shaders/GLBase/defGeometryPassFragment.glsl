@@ -1,4 +1,4 @@
-#version 330 core
+#version 420 core
 
 // Output to the G-buffer textures
 layout (location = 0) out vec3 gPosition;

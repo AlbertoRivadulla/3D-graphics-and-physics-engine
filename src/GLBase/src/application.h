@@ -25,6 +25,9 @@ namespace GLBase
             int getWidth();
             int getHeight();
 
+            // Method to change the title of the window
+            void setTitle(const char* title);
+
             // Methods to pass pointers to the camera and to input handlers
             void setCamera(Camera* camera);
 

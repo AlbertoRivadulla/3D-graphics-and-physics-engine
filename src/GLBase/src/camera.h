@@ -105,6 +105,11 @@ namespace GLBase
                     float upX, float upY, float upZ,
                     float yaw = YAW, float pitch = PITCH);
 
+            // Method to make the camera orthographic
+            void setOrthographic();
+            // Method to make the camera perspective
+            void setPerspective();
+
             // Methods to configure the camera
             // Method to set the frustum of the camera
             void setFrustum(float near, float far);
@@ -112,13 +117,15 @@ namespace GLBase
             void setDimensions(int width, int height);
             // Method to set the dimension of the orthographic projection matrix
             void setOrthographicSize(float size);
-            
-            // Method to obtain the two possible projections
-            glm::mat4 getPerspectiveProjection();
-            glm::mat4 getOrthographicProjection();
+
+            // Method to get the projection matrix
+            glm::mat4 getProjectionMatrix();
 
             // Compute the view matrix calculated from the Euler angles
             glm::mat4 getViewMatrix();
+
+            // Get the position of the eight corners of the frustum
+            std::vector<glm::vec4> getFrustumCornersWorldSpace() const;
 
         private:
             // Camera options
@@ -135,8 +142,19 @@ namespace GLBase
             float mOrthoHalfWidth;
             float mOrthoHalfHeight;
 
+            // View and projection matrices
+            glm::mat4 mViewMatrix;
+            glm::mat4 mProjectionMatrix;
+
+            // Bool that says if the camera is orthographic or perspective
+            bool mIsOrthographic;
+
             // Calculate the front vector from the camera's updated Euler angles
             void updateCameraVectors();
+            
+            // Method to obtain the two possible projections
+            glm::mat4 getPerspectiveProjection();
+            glm::mat4 getOrthographicProjection();
     };
 
     // class OrthographicCamera : public Camera

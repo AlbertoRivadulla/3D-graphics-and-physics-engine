@@ -2,9 +2,12 @@
 #define DEFERREDRENDERER_H
 
 #include "GLBase.h"
+#include "GLGeometry.h"
 
 namespace GLBase
 {
+    class Light;
+
     class DeferredRenderer
     {
         public:
@@ -22,11 +25,27 @@ namespace GLBase
                 return mLightingPassShader;
             }
 
+            // Method to configure the lights in the shader
+            void configureLights(const std::vector<Light*> lights);
+            // // Method to configure the light space matrices
+            // // This needs to be called in each frame
+            // void configureLightSpaceMatrices(const std::vector<Light*> lights);
+
             // Method to call at the beginning of the frame
             void startFrame();
 
+            // Method to compute the shadow maps
+            void computeShadowMaps(const Camera& camera, const std::vector<Light*> lightsWithShadow, 
+                            const std::vector<GLGeometry::GLElemObject*> objectsWithShadow);
+
+            // Method to call to start the geometry pass
+            void startGeometryPass();
+
+            // Configure the lights for the lighting pass
+            void configureLightsForLightingPass(const std::vector<Light*> lights);
+
             // Method to do the shading pass with the information in the g-buffer
-            void processGBuffer( glm::vec3 viewPos );
+            void processGBuffer(glm::vec3 viewPos, const std::vector<Light*> lights);
 
             // Method to call at the end of the frame
             void endFrame();
@@ -42,6 +61,11 @@ namespace GLBase
             // Renderbuffer object for the depth information, to be used by all 
             // passes
             unsigned int mDepthRBO;
+
+            // Data for the shadow pass
+            // ------------------------------
+            // Shader for computing the shadow maps
+            Shader mShadowMapShader;
 
             // Data for the geometry pass
             // ------------------------------

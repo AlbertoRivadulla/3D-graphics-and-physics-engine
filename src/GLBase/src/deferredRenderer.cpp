@@ -1,6 +1,8 @@
 #include "GLBase.h"
 #include "shader.h"
 
+using namespace GLGeometry;
+
 namespace GLBase
 {
     // Constructor
@@ -14,10 +16,10 @@ namespace GLBase
         mRenderWidth { (int)(width / scaling) }, mRenderHeight { (int)(height / scaling) },
         mScreenShader("../shaders/GLBase/defRenderQuadVertex.glsl", 
                       "../shaders/GLBase/defRenderQuadFragment.glsl"),
-        // mLightingPassShader("../shaders/GLBase/defGeometryPassVertex.glsl", 
-        //              "../shaders/GLBase/defGeometryPassFragment.glsl")
         mLightingPassShader("../shaders/GLBase/defLightingPassVertex.glsl", 
-                            "../shaders/GLBase/defLightingPassFragment.glsl")
+                            "../shaders/GLBase/defLightingPassFragment.glsl"),
+        mShadowMapShader("../shaders/GLBase/shadowMapVertex.glsl", 
+                         "../shaders/GLBase/shadowMapFragment.glsl")
     {
         // Color to clear the window
         glClearColor(1.f, 0.f, 1.f, 1.0f);
@@ -171,25 +173,127 @@ namespace GLBase
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    // Method to configure the lights in the shader
+    void DeferredRenderer::configureLights(const std::vector<Light*> lights)
+    {
+        // Counters for each type of light
+        unsigned int countDirLights { 0 };
+        unsigned int countSpotLights { 0 };
+        unsigned int countPointLights { 0 };
+        // Counter for the index of the shadow map
+        // It starts in 3, because the three first ones correspond to the three textures
+        // of the Geometry pass
+        unsigned int countShadowMap { 3 };
+
+        // Pass all the lights to the shader
+        mLightingPassShader.use();
+        for (auto light : lights)
+        {
+            light->configureShader(mLightingPassShader, countDirLights, countSpotLights, 
+                                   countPointLights, countShadowMap);
+        }
+
+        // Pass the count of each type of light to the shader
+        mLightingPassShader.setInt("nrDirLights", countDirLights);
+        mLightingPassShader.setInt("nrSpotLights", countSpotLights);
+        mLightingPassShader.setInt("nrPointLights", countPointLights);
+    }
+
+    // // Method to configure the light space matrices
+    // void DeferredRenderer::configureLightSpaceMatrices(const std::vector<Light*> lights)
+    // {
+    //     // Counters for each type of light
+    //     unsigned int countDirLights { 0 };
+    //     unsigned int countSpotLights { 0 };
+    //     unsigned int countPointLights { 0 };
+    //     // Counter for the index of the shadow map
+    //     // It starts in 3, because the three first ones correspond to the three textures
+    //     // of the Geometry pass
+    //     unsigned int countShadowMap { 3 };
+    //
+    //     // Pass all the lights to the shader
+    //     mLightingPassShader.use();
+    //     for (auto light : lights)
+    //     {
+    //         light->configureShader(mLightingPassShader, countDirLights, countSpotLights, 
+    //                                countPointLights, countShadowMap);
+    //     }
+    //
+    //     // Pass the count of each type of light to the shader
+    //     mLightingPassShader.setInt("nrDirLights", countDirLights);
+    //     mLightingPassShader.setInt("nrSpotLights", countSpotLights);
+    //     mLightingPassShader.setInt("nrPointLights", countPointLights);
+    // }
+
     // Method to call at the beginning of the frame
     void DeferredRenderer::startFrame()
     {
-        // Change the viewport to the lower resolution
-        glViewport(0, 0, mRenderWidth, mRenderHeight);
-
         // Clear the default buffer
         // I do this here instead of in endFrame() to have an accurate reading 
         // of the frametime
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    // Method to compute the shadow maps
+    void DeferredRenderer::computeShadowMaps(const Camera& camera, 
+                            const std::vector<Light*> lightsWithShadow, 
+                            const std::vector<GLElemObject*> objectsWithShadow)
+    {
+        // Set face culling to the front faces
+        glCullFace(GL_FRONT);
+
+        // Bind the shader
+        mShadowMapShader.use();
+        // Compute the shadow map for each light in the provided list
+        for (auto light : lightsWithShadow)
+        {
+            light->computeShadowMap(mShadowMapShader, camera, objectsWithShadow);
+        }
+
+        // Restore face culling
+        glCullFace(GL_BACK);
+    }
+
+    // Method to call to start the geometry pass
+    void DeferredRenderer::startGeometryPass()
+    {
+        // Change the viewport to the lower resolution
+        glViewport(0, 0, mRenderWidth, mRenderHeight);
 
         // Bind the g-buffer and clear it
         glBindFramebuffer(GL_FRAMEBUFFER, mGBuffer);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
+    // Configure the lights for the lighting pass
+    void DeferredRenderer::configureLightsForLightingPass(const std::vector<Light*> lights)
+    {
+        // Counters for each type of light
+        unsigned int countDirLights { 0 };
+        unsigned int countSpotLights { 0 };
+        unsigned int countPointLights { 0 };
+        // Counter for the index of the shadow map
+        // It starts in 3, because the three first ones correspond to the three textures
+        // of the Geometry pass
+        unsigned int countShadowMap { 3 };
+
+        // Pass all the lights to the shader
+        mLightingPassShader.use();
+        for (auto light : lights)
+        {
+            light->configureShaderForLightingPass(mLightingPassShader, countDirLights, countSpotLights, 
+                                   countPointLights, countShadowMap);
+        }
+
+        // Pass the count of each type of light to the shader
+        mLightingPassShader.setInt("nrDirLights", countDirLights);
+        mLightingPassShader.setInt("nrSpotLights", countSpotLights);
+        mLightingPassShader.setInt("nrPointLights", countPointLights);
+    }
+
     // Method to do the shading pass with the information in the g-buffer
-    void DeferredRenderer::processGBuffer( glm::vec3 viewPos )
+    void DeferredRenderer::processGBuffer(glm::vec3 viewPos, const std::vector<Light*> lights)
     {
         // Bind the lower resolution FBO, and clear it 
         // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mTargetBuffer);
@@ -202,28 +306,20 @@ namespace GLBase
         // Bind the texture attachments of the G-buffer, and setup the shader
         mLightingPassShader.use();
         mLightingPassShader.setVec3("viewPos", viewPos);
+        // Bind the textures from the geometry pass
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mGPositionTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, mGNormalTexture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, mGAlbedoSpecTexture);
+        // Configure the lights
+        configureLightsForLightingPass(lights);
         // Draw the screen quad, performing the lighting calculations
         glBindVertexArray(mScreenVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // Enable depth testing again
         glEnable(GL_DEPTH_TEST);
-
-        // // Copy the content of the GBuffer's depth component to the target framebuffer's
-        // // depth component
-        // glBindFramebuffer(GL_READ_FRAMEBUFFER, mGBuffer);
-        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mTargetBuffer); // write to default framebuffer
-        // // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
-        // // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
-        // // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
-        // glBlitFramebuffer(0, 0, mRenderWidth, mRenderHeight, 0, 0, mRenderWidth, mRenderHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
-        // glBindFramebuffer(GL_FRAMEBUFFER, mTargetBuffer);
     }
 
     // Method to call at the end of the frame
@@ -247,11 +343,13 @@ namespace GLBase
         // // Enable depth testing again
         // glEnable(GL_DEPTH_TEST);
 
-        // Instead of drawing the screen quad, I could do the following:
-        // Bind the default framebuffer
+        // Instead of drawing the screen quad, I do the following:
+        // Bind the default framebuffer for drawing to it
         // glBindFramebuffer(GL_FRAMEBUFFER, mTargetBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         // Copy the result of the target FBO to the screen
+        // Recall that the target framebuffer is still bound, so it is used as the
+        // read framebuffer
         glBlitFramebuffer( 0, 0, mRenderWidth, mRenderHeight,
                            0, 0, mWinWidth,    mWinHeight,
                            GL_COLOR_BUFFER_BIT, GL_NEAREST );

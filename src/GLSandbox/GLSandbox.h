@@ -50,6 +50,9 @@ class GLSandbox
         // Vector of model instances
         std::vector<Model> mModels;
 
+        // Lights
+        std::vector<Light*> mLights;
+
         // Shaders
         std::vector<Shader> mShaders;
 

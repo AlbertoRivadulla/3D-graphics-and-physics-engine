@@ -2,6 +2,7 @@
 
 using namespace GLBase;
 using namespace GLGeometry;
+using namespace GLUtils;
 
 //==============================
 // Methods of the GLSandbox class that depend on the scene to render
@@ -22,9 +23,9 @@ void GLSandbox::setupScene()
 
     // Set the position of the camera
     mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
-
-    // Get teh projection matrix from the camera
-    mProjection = mCamera.getPerspectiveProjection();
+    //
+    // // Get teh projection matrix from the camera
+    // mProjection = mCamera.getProjectionMatrix();
 
     // Create a quad
     mElementaryObjects.push_back(new GLQuad());
@@ -41,16 +42,33 @@ void GLSandbox::setupScene()
     // Load a shader for the geometry pass
     mGPassShaders.push_back(Shader("../shaders/GLBase/defGeometryPassVertex.glsl",
                                    "../shaders/GLBase/defGeometryPassFragment.glsl"));
+
+    // // Add some point lights
+    // for (int i = 0; i < 10; ++i)
+    // {
+    //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(), getRandom0To1()}, 
+    //                                       {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1(), 10.f * getRandom0To1() - 5.f}, 
+    //                                       0.3f, 0.01f, 0.02f ) );
+    // }
+    // Add a directional light
+    mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
+                                            {10., 10., 10.},  // Position
+                                            {-1., -1., -1.},  // Direction
+                                            1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
+    // // Add a spotlight
+    // mLights.push_back(new SpotLight( {1., 1., 1.},            // Color
+    //                                  {0., 5., 0.},            // Position
+    //                                  {0., -1., 0.},           // Direction
+    //                                  20.f, 35.f,              // Angles
+    //                                  1.f, 0.05f, 0.1f) );        // Intensity, attenuation linear, attenuation quadratic
     
     // Add a light
-    mLightingShader.use();
-    mLightingShader.setVec3("lightPos", glm::vec3(1., 1., 2.));
-    mShaders[0].use();
-    mShaders[0].setVec3("lightPos", glm::vec3(1., 1., 2.));
+    // mShaders[0].use();
+    // mShaders[0].setVec3("lightPos", glm::vec3(-3., 1., 3.));
 
     // Create some materials
-    mMaterials.push_back(Material( {1., 1., 0.}, 0.2 ));
-    mMaterials.push_back(Material( {1., 0., 0.}, 0.5 ));
+    mMaterials.push_back(Material( {1., 1., 0.}, 1.0 ));
+    mMaterials.push_back(Material( {1., 0., 0.}, 1.0 ));
     mMaterials.push_back(Material( {0., 0., 1.}, 1.0 ));
     mMaterials.push_back(Material( {0., 1., 1.}, 1.0 ));
 }
@@ -63,19 +81,26 @@ void GLSandbox::setupApplication()
     mApplication.setCamera(&mCamera);
     // Pass a pointer to the input handler
     mApplication.setInputHandler(&mInputHandler);
+    // // Configure the frustum of the camera
+    // mCamera.setFrustum(0.1f, 50.f);
 
     // Pass pointers to the input handler of the camera
     mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
     mInputHandler.addMouseHandler(&mCamera.mMouseHandler);
     mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
+
+    // Pass the list of lights to the renderer, to configure the lighting shader
+    mRenderer.configureLights(mLights);
 }
 
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene()
 {
+    // // Set the camera to be orthographic
+    // mCamera.setOrthographic();
+
     // Get the view and projection matrices
-    mProjection = mCamera.getPerspectiveProjection();
-    // mProjection = mCamera.getOrthographicProjection();
+    mProjection = mCamera.getProjectionMatrix();
     mView = mCamera.getViewMatrix();
 
     // Update the skymap
@@ -118,16 +143,10 @@ void GLSandbox::renderDeferred()
     mMaterials[2].configShader(mGPassShaders[0]);
     mElementaryObjects[2]->draw();
 
-    // // Draw the sphere
-    // mGPassShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
-    // mMaterials[3].configShader(mGPassShaders[0]);
-    // mElementaryObjects[3]->draw();
-
-    // // Draw the skymap
-    // mSkymap->drawFlat();
-
-    mLightingShader.use();
-    mLightingShader.setVec3("viewPos", mCamera.Position);
+    // Draw the sphere
+    mGPassShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
+    mMaterials[3].configShader(mGPassShaders[0]);
+    mElementaryObjects[3]->draw();
 }
 
 // Render the geometry that will use forward rendering
@@ -154,14 +173,20 @@ void GLSandbox::renderForward()
     // mAuxElements.drawSphere(glm::vec3(-2., 1., 0.), 0., glm::vec3(1., 0., 0.), glm::vec3(1., 1., 1.),
     //                            mView, mProjection);
 
-    // Draw the sphere
-    mShaders[0].use();
-    mShaders[0].setMat4("view", mView);
-    mShaders[0].setMat4("projection", mProjection);
-    mShaders[0].setVec3("viewPos", mCamera.Position);
-    mShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
-    mMaterials[3].configShader(mShaders[0]);
-    mElementaryObjects[3]->draw();
+    // // Draw the sphere
+    // mShaders[0].use();
+    // mShaders[0].setMat4("view", mView);
+    // mShaders[0].setMat4("projection", mProjection);
+    // mShaders[0].setVec3("viewPos", mCamera.Position);
+    // mShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
+    // mMaterials[3].configShader(mShaders[0]);
+    // mElementaryObjects[3]->draw();
+
+    // Draw points in the positions of the lights
+    for (auto light : mLights)
+    {
+        mAuxElements.drawPoint(light->getPosition(), mView, mProjection);
+    }
 
     // Draw the skymap
     mSkymap->drawFlat();
