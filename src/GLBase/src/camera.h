@@ -124,8 +124,14 @@ namespace GLBase
             // Compute the view matrix calculated from the Euler angles
             glm::mat4 getViewMatrix();
 
+            // Method to get the near and far planes of the frustum
+            void getNearFarPlanes(float& near, float& far) const;
+
             // Get the position of the eight corners of the frustum
             std::vector<glm::vec4> getFrustumCornersWorldSpace() const;
+            // Get the position of the eight corners of the subfrustum index of the
+            // total of subfrustums
+            std::vector<glm::vec4> getFrustumCornersWorldSpace(const float& zNear, const float& zFar) const;
 
         private:
             // Camera options

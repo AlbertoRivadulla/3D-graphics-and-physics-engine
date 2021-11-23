@@ -18,8 +18,15 @@ namespace GLBase
                       "../shaders/GLBase/defRenderQuadFragment.glsl"),
         mLightingPassShader("../shaders/GLBase/defLightingPassVertex.glsl", 
                             "../shaders/GLBase/defLightingPassFragment.glsl"),
-        mShadowMapShader("../shaders/GLBase/shadowMapVertex.glsl", 
-                         "../shaders/GLBase/shadowMapFragment.glsl")
+        mShadowMapDirectionalShader("../shaders/GLBase/shadowMapCascadedVertex.glsl", 
+                                    "../shaders/GLBase/shadowMapCascadedFragment.glsl",
+                                    "../shaders/GLBase/shadowMapCascadedGeometry.glsl"),
+        // mShadowMapDirectionalShader("../shaders/GLBase/shadowMapVertex.glsl", 
+        //                             "../shaders/GLBase/shadowMapFragment.glsl"),
+        mShadowMapPointShader("../shaders/GLBase/shadowMapVertex.glsl", 
+                                    "../shaders/GLBase/shadowMapFragment.glsl"),
+        mShadowMapSpotShader("../shaders/GLBase/shadowMapVertex.glsl", 
+                                    "../shaders/GLBase/shadowMapFragment.glsl")
     {
         // Color to clear the window
         glClearColor(1.f, 0.f, 1.f, 1.0f);
@@ -82,7 +89,7 @@ namespace GLBase
         // Generate the texture attachments for the G-buffer
         // ------------------------------
         // 1 - Position texture
-        // It needs only 3 components per pixel, but I sue RGBA for hardware reasons
+        // It needs only 3 components per pixel, but I use RGBA for hardware reasons
         glGenTextures(1, &mGPositionTexture);
         glBindTexture(GL_TEXTURE_2D, mGPositionTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0, 
@@ -189,8 +196,26 @@ namespace GLBase
         mLightingPassShader.use();
         for (auto light : lights)
         {
-            light->configureShader(mLightingPassShader, countDirLights, countSpotLights, 
-                                   countPointLights, countShadowMap);
+            // Check the type of the shader
+            Shader* shadowShader;
+            switch (light->getLightType())
+            {
+                case LIGHT_DIRECTIONAL:
+                    shadowShader = &mShadowMapDirectionalShader;
+                    break;
+                case LIGHT_POINT:
+                    shadowShader = &mShadowMapPointShader;
+                    break;
+                case LIGHT_SPOT:
+                    shadowShader = &mShadowMapSpotShader;
+                    break;
+            }
+
+            // This configures the shader for the lighting pass, and also passes
+            // a pointer to the corresponding shader for the shadow pass, so it
+            // is stored by the light object
+            light->configureShader(mLightingPassShader, shadowShader, countDirLights, 
+                                   countSpotLights, countPointLights, countShadowMap);
         }
 
         // Pass the count of each type of light to the shader
@@ -241,18 +266,21 @@ namespace GLBase
                             const std::vector<GLElemObject*> objectsWithShadow)
     {
         // Set face culling to the front faces
-        glCullFace(GL_FRONT);
+        // glCullFace(GL_FRONT);
 
-        // Bind the shader
-        mShadowMapShader.use();
+        // glDisable(GL_CULL_FACE);
+
+        // // Bind the shader
+        // mShadowMapDirectionalShader.use();
         // Compute the shadow map for each light in the provided list
         for (auto light : lightsWithShadow)
         {
-            light->computeShadowMap(mShadowMapShader, camera, objectsWithShadow);
+            light->computeShadowMap(camera, objectsWithShadow);
         }
+        // glEnable(GL_CULL_FACE);
 
         // Restore face culling
-        glCullFace(GL_BACK);
+        // glCullFace(GL_BACK);
     }
 
     // Method to call to start the geometry pass

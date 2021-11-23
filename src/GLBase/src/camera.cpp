@@ -100,6 +100,13 @@ namespace GLBase
 
         return mViewMatrix;
     }
+    
+    // Method to get the near and far planes of the frustum
+    void Camera::getNearFarPlanes(float& near, float& far) const
+    {
+        near = mNear;
+        far = mFar;
+    }
 
     // Get the position of the eight corners of the frustum
     // Following https://learnopengl.com/Guest-Articles/2021/CSM
@@ -107,6 +114,47 @@ namespace GLBase
     {
         // Compute the matrix to go from screen space coordinates to world coordinates
         const glm::mat4 screenToWorld { glm::inverse( mProjectionMatrix * mViewMatrix ) };
+
+        // Initialize a vector for the eight corners of the frustum
+        std::vector<glm::vec4> frustumCorners;
+        frustumCorners.reserve(8);
+        
+        // Compute the eight coners in world space
+        for (unsigned int x = 0; x < 2; ++x)
+        {
+            for (unsigned int y = 0; y < 2; ++y)
+            {
+                for (unsigned int z = 0; z < 2; ++z)
+                {
+                    const glm::vec4 point = screenToWorld * glm::vec4( 2.f * x - 1.f,
+                                                                       2.f * y - 1.f,
+                                                                       // (2.f * z - 1.f) / 2.f,
+                                                                       2.f * z - 1.f,
+                                                                       1.f);
+                    frustumCorners.push_back(point / point.w);
+                }
+            }
+        }
+
+        return frustumCorners;
+    }
+
+    // Get the position of the eight corners of the frustum
+    // Following https://learnopengl.com/Guest-Articles/2021/CSM
+    // Get the position of the eight corners of the subfrustum index of the
+    // total of subfrustums
+    std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace(const float& zNear, const float& zFar) const
+    {
+        // // Compute the values of z at the near and far plane
+        // zNear = mNear + (float)index * (mFar - mNear) / (float)total;
+        // float zFar  { mNear + (float)(index + 1) * (mFar - mNear) / (float)total };
+
+        // Get the projection matrix of the subfrustum
+        glm::mat4 subProjection { glm::perspective(glm::radians(Fov), (float)mWidth / (float)mHeight,
+                                                   zNear, zFar) };
+        
+        // Compute the matrix to go from screen space coordinates to world coordinates
+        const glm::mat4 screenToWorld { glm::inverse( subProjection * mViewMatrix ) };
 
         // Initialize a vector for the eight corners of the frustum
         std::vector<glm::vec4> frustumCorners;

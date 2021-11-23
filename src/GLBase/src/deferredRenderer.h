@@ -64,8 +64,10 @@ namespace GLBase
 
             // Data for the shadow pass
             // ------------------------------
-            // Shader for computing the shadow maps
-            Shader mShadowMapShader;
+            // Shaders for computing the shadow maps
+            Shader mShadowMapDirectionalShader;
+            Shader mShadowMapPointShader;
+            Shader mShadowMapSpotShader;
 
             // Data for the geometry pass
             // ------------------------------

@@ -54,13 +54,13 @@ void GLSandbox::setupScene()
     mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
                                             {10., 10., 10.},  // Position
                                             {-1., -1., -1.},  // Direction
-                                            1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
-    // // Add a spotlight
-    // mLights.push_back(new SpotLight( {1., 1., 1.},            // Color
-    //                                  {0., 5., 0.},            // Position
-    //                                  {0., -1., 0.},           // Direction
-    //                                  20.f, 35.f,              // Angles
-    //                                  1.f, 0.05f, 0.1f) );        // Intensity, attenuation linear, attenuation quadratic
+                                            .2f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
+    // Add a spotlight
+    mLights.push_back(new SpotLight( {1., 1., 1.},            // Color
+                                     {0., 5., 0.},            // Position
+                                     {0., -1., 0.},           // Direction
+                                     20.f, 35.f,              // Angles
+                                     1.f, 0.05f, 0.1f) );        // Intensity, attenuation linear, attenuation quadratic
     
     // Add a light
     // mShaders[0].use();
@@ -108,6 +108,8 @@ void GLSandbox::updateScene()
 
     // Move the quad
     mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -1., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
+    // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -3., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
+    // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -0.5, 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
 
     // Move the cube
     mElementaryObjects[1]->setModelMatrix(glm::vec3(2.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));

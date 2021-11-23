@@ -9,6 +9,9 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 
+// Maximum cascade levels for the directional light
+const int NR_MAX_CASCADE_LEVELS = 8;
+
 struct DirectionalLight
 {
     vec3 color;
@@ -20,7 +23,9 @@ struct DirectionalLight
     float kQuadratic;
 
     mat4 lightSpaceMatrix;
-    sampler2D shadowMap;
+    sampler2DArray shadowMap;
+    // int nrCascadeLevels;
+    float cascadeDistances[NR_MAX_CASCADE_LEVELS + 1];
 };
 
 struct SpotLight
@@ -66,10 +71,21 @@ uniform DirectionalLight dirLights[NR_MAX_DIR_LIGHTS];
 uniform SpotLight spotLights[NR_MAX_SPOT_LIGHTS];
 uniform PointLight pointLights[NR_MAX_POINT_LIGHTS];
 
+// Light space matrices for the cascaded shadow maps
+layout (std140, binding = 0) uniform LightSpaceMatrices
+{
+    // This allows for a maximum of 8 cascades
+    mat4 lightSpaceMatrices[16];
+};
+/* uniform sampler2DArray shadowMap; */
+
+// Number of levels in the cascaded shadow maps
+uniform int nrCascadeLevels;
+
 // Number of lights of each type
-uniform int nrDirLights;
-uniform int nrSpotLights;
-uniform int nrPointLights;
+uniform int nrDirLights = 0;
+uniform int nrSpotLights = 0;
+uniform int nrPointLights = 0;
 
 // View position
 uniform vec3 viewPos;
@@ -77,27 +93,104 @@ uniform vec3 viewPos;
 // Color of the ambient light, with a default value
 uniform vec3 ambientLightColor = vec3(0.1, 0.1, 0.1);
 
-// Functions to compute the shadows
-float shadowComputationDirLight(vec3 fragPos, vec3 normal, DirectionalLight light)
+// // Functions to compute the shadows
+// float shadowComputationDirLight(vec3 fragPos, vec3 normal, DirectionalLight light)
+// {
+//     // Position of the fragment in light space
+//     vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.);
+//     // Perform perspective divide
+//     vec3 projCoordsLightSpace = fragPosLightSpace.xyz / fragPosLightSpace.w;
+//     // Transform to [0,1] range, to use these as the coordinates of the shadow map texture
+//     projCoordsLightSpace = projCoordsLightSpace * 0.5 + 0.5;
+//     // Get the closest depth value from the light's perspective at these coodinates
+//     // in the light's view space
+//     // float closestDepth = texture(light.shadowMap, projCoordsLightSpace.xy).r; 
+//     float closestDepth = texture(light.shadowMap, vec3(projCoordsLightSpace.xy, 0.)).r; 
+//     // Get the depth of the current fragment from the light's perspective
+//     float currentDepth = projCoordsLightSpace.z;
+//
+//     // Compute a bias with the normal vector
+//     // float shadowBias = max(0.005 * (1.0 - dot(normal, light.direction)), 0.0005);
+//     // float shadowBias = max(0.00005 * (1.0 - dot(normal, light.direction)), 0.000005);
+//     float shadowBias = 0.0005;
+//     // Check whether the current fragment is in the shadow
+//     float shadow = currentDepth - shadowBias > closestDepth ? 1.0 : 0.0;
+//
+//     return shadow;
+// }
+
+// Functions to compute the shadow of a directional light with cascaded shadowmaps
+float shadowComputationDirLight(vec3 fragPos, vec3 normal, float depth, DirectionalLight light)
+// float shadowComputationDirLight(vec3 fragPos, vec3 normal, float depth, int index)
 {
-    // Position of the fragment in light space
-    vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.);
+    // Check what level of the cascade map the fragment is in
+    int level = -1;
+    for (int j = 0; j < nrCascadeLevels; ++j)
+    {
+        if (depth < light.cascadeDistances[j+1])
+        {
+            level = j;
+            break;
+        }
+    }
+    /* int level = -1; */
+    /* for (int i = 0; i < nrCascadeLevels + 1; ++i) */
+    /* { */
+    /*     if (depth < light.cascadeDistances[i]) */
+    /*     { */
+    /*         level = i; */
+    /*         break; */
+    /*     } */
+    /* } */
+    /* if (level == -1) */
+    /* { */
+    /*     level = nrCascadeLevels; */
+    /* } */
+
+    /* level = 0; */
+
+    // Position of the fragment in light space, with the corresponding light
+    // space matrix
+    /* vec4 fragPosLightSpace = lightSpaceMatrices[level] * vec4(fragPos, 1.); */
+    vec4 fragPosLightSpace = lightSpaceMatrices[level] * vec4(fragPos, 1.);
+
     // Perform perspective divide
     vec3 projCoordsLightSpace = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // Transform to [0,1] range, to use these as the coordinates of the shadow map texture
     projCoordsLightSpace = projCoordsLightSpace * 0.5 + 0.5;
     // Get the closest depth value from the light's perspective at these coodinates
     // in the light's view space
-    float closestDepth = texture(light.shadowMap, projCoordsLightSpace.xy).r; 
+    // float closestDepth = texture(light.shadowMap, projCoordsLightSpace.xy).r; 
+    // float closestDepth = texture(light.shadowMap, vec3(projCoordsLightSpace.xy, 0.)).r; 
+    float closestDepth = texture(light.shadowMap, vec3(projCoordsLightSpace.xy, level)).r; 
     // Get the depth of the current fragment from the light's perspective
     float currentDepth = projCoordsLightSpace.z;
 
-    // Compute a bias with the normal vector
-    // float shadowBias = max(0.005 * (1.0 - dot(normal, light.direction)), 0.0005);
-    // float shadowBias = max(0.00005 * (1.0 - dot(normal, light.direction)), 0.000005);
-    float shadowBias = 0.00005;
-    // Check whether the current fragment is in the shadow
-    float shadow = currentDepth - shadowBias > closestDepth ? 1.0 : 0.0;
+    // Calculate the bias based on the depth map resolution and slope
+    float bias = max(0.025 * (1.0 + dot(normal, light.direction)), 0.0025);
+    if (level == nrCascadeLevels)
+    {
+        bias *= 1. / (light.cascadeDistances[nrCascadeLevels] * 0.5f);
+    }
+    else
+    {
+        bias *= 1. / (light.cascadeDistances[level + 1] * 0.5f);
+    }
+
+    // PCF (percentage closer filtering)
+    // This averages over the 9 surrounding pixels of the shadow map, to make 
+    // softer shadows
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / vec2(textureSize(light.shadowMap, 0));
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(light.shadowMap, vec3(projCoordsLightSpace.xy + vec2(x, y) * texelSize, float(level))).r; 
+            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
 
     return shadow;
 }
@@ -106,6 +199,7 @@ void main()
 {
     // Get the data from the g-buffer textures
     vec3 FragPos   = texture(gPosition, TexCoords).rgb;
+    float Depth    = texture(gPosition, TexCoords).a;
     vec3 Normal    = normalize( texture(gNormal, TexCoords).rgb );
     vec3 Albedo    = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
@@ -114,32 +208,33 @@ void main()
     vec3 lighting = ambientLightColor * Albedo;
 
     // Compute the lighting due to the directional lights
-    for (int i = 0; i < nrDirLights; ++i)
-    {
+    // for (int i = 0; i < nrDirLights; ++i)
+    // {
         // Attenuation of the light
-        vec3 fragToLight = dirLights[i].position - FragPos;
-        float attenuation = dirLights[i].intensity / (1. 
-                            + dirLights[i].kLinear * length(fragToLight)
-                            + dirLights[i].kQuadratic * dot(fragToLight, fragToLight));
+        vec3 fragToLight = dirLights[0].position - FragPos;
+        float attenuation = dirLights[0].intensity / (1. 
+                            + dirLights[0].kLinear * length(fragToLight)
+                            + dirLights[0].kQuadratic * dot(fragToLight, fragToLight));
 
         // Diffuse contribution
-        vec3 lightDirection = -1. * normalize(dirLights[i].direction);
+        vec3 lightDirection = -1. * dirLights[0].direction;
         vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
 
         // Specular contribution, with the Blinn-Phong model
         vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 halfwayDir = normalize(-dirLights[i].direction + viewDir);
+        vec3 halfwayDir = normalize(-dirLights[0].direction + viewDir);
         // Intensity of the specular component
         float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
         // Color of the specular component
         vec3 specular = specIntensity * Albedo;
 
         // Compute the shadow
-        float shadow = shadowComputationDirLight(FragPos, Normal, dirLights[i]);
+        float shadow = shadowComputationDirLight(FragPos, Normal, Depth, dirLights[0]);
 
         // Sum the two contributions to the total light
-        lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * dirLights[i].color;
-    }
+        lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * dirLights[0].color;
+
+    // }
 
     // Compute the lighting due to the spot lights
     for (int i = 0; i < nrSpotLights; ++i)
@@ -209,9 +304,20 @@ void main()
     FragColor = vec4(lighting, 1.);
 
 
+
+
+
+    // float color = 1.;
     //
-    // float aux = texture(dirLights[0].shadowMap, TexCoords).r;
-    // FragColor = vec4(vec3(aux), 1.);
-    
+    // for (int i = 0; i < dirLights[0].nrCascadeLevels; ++i)
+    // {
+    //     if (Depth > dirLights[0].cascadeDistances[i])
+    //     // if (Depth > 10.)
+    //     {
+    //         color *= 0.5;
+    //     }
+    // }
+    //
+    // FragColor = vec4(vec3(color), 1.);
 }
 
