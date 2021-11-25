@@ -25,8 +25,8 @@ namespace GLBase
         //                             "../shaders/GLBase/shadowMapFragment.glsl"),
         mShadowMapPointShader("../shaders/GLBase/shadowMapVertex.glsl", 
                                     "../shaders/GLBase/shadowMapFragment.glsl"),
-        mShadowMapSpotShader("../shaders/GLBase/shadowMapVertex.glsl", 
-                                    "../shaders/GLBase/shadowMapFragment.glsl")
+        mShadowMapSpotShader("../shaders/GLBase/shadowMapSpotVertex.glsl", 
+                                    "../shaders/GLBase/shadowMapSpotFragment.glsl")
     {
         // Color to clear the window
         glClearColor(1.f, 0.f, 1.f, 1.0f);
@@ -270,8 +270,6 @@ namespace GLBase
 
         // glDisable(GL_CULL_FACE);
 
-        // // Bind the shader
-        // mShadowMapDirectionalShader.use();
         // Compute the shadow map for each light in the provided list
         for (auto light : lightsWithShadow)
         {

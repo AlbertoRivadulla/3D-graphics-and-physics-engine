@@ -94,6 +94,8 @@ namespace GLBase
         private:
             // Direction of the light
             glm::vec3 mDirection;
+            // Up vector, used for shadow mapping
+            glm::vec3 mUpDirection;
             // Number of levels in the shadow cascade
             unsigned int mNrShadowCascadeLevels;
 
@@ -114,7 +116,7 @@ namespace GLBase
             // Constructor
             DirectionalLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
                              float intensity, float attenLinear, float attenQuadratic,
-                             int shadowRes = 2096, unsigned int nrShadowCascadeLevels = 4);
+                             int shadowRes = 2048, unsigned int nrShadowCascadeLevels = 4);
 
             // Method to compute the shadow map
             void computeShadowMap(const Camera& camera,
@@ -139,24 +141,32 @@ namespace GLBase
         private:
             // Direction of the light
             glm::vec3 mDirection;
+            // Up vector, used for shadow mapping
+            glm::vec3 mUpDirection;
             // Cosine of the inner and outer angles
             float mCosAngleInner;
             float mCosAngleOuter;
+            // Outer angle
+            float mAngleOuter;
             // Maximum distance reached by the light
             float mRadiusMax;
+
+            // Light space matrix
+            glm::mat4 mLightSpaceMatrix;
 
             // Method to configure the shadow map framebuffer and texture
             void setupShadowMap();
 
-            // // Method to compute the light space matrix from a camera
+            // Method to compute the light space matrix
             // void computeLightSpaceMatrix(const Camera& camera);
+            void computeLightSpaceMatrix();
 
         public:
             // Constructor
             SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
                       float angleInner, float angleOuter,
                       float intensity, float attenLinear, float attenQuadratic,
-                      int shadowRes = 1024);
+                      int shadowRes = 2048);
 
             // Method to compute the shadow map
             void computeShadowMap(const Camera& camera,

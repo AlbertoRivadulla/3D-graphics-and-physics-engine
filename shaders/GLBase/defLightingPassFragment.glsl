@@ -33,6 +33,7 @@ struct SpotLight
     vec3 color;
     vec3 position;
     vec3 direction;
+    vec3 upDirection;
 
     float intensity;
     float kLinear;
@@ -42,9 +43,11 @@ struct SpotLight
     float cosAngleOuter;
     float radiusMax;
 
-    // mat4 lightSpaceMatrix;
-    // sampler2D shadowMap;
+    mat4 lightSpaceMatrix;
+    /* sampler2D shadowMap; */
 };
+
+uniform sampler2D spotShadowMap;
 
 struct PointLight
 {
@@ -77,7 +80,7 @@ layout (std140, binding = 0) uniform LightSpaceMatrices
     // This allows for a maximum of 8 cascades
     mat4 lightSpaceMatrices[16];
 };
-/* uniform sampler2DArray shadowMap; */
+/* uniform sampler2DArray directionalShadowMap; */
 
 // Number of levels in the cascaded shadow maps
 uniform int nrCascadeLevels;
@@ -93,32 +96,6 @@ uniform vec3 viewPos;
 // Color of the ambient light, with a default value
 uniform vec3 ambientLightColor = vec3(0.1, 0.1, 0.1);
 
-// // Functions to compute the shadows
-// float shadowComputationDirLight(vec3 fragPos, vec3 normal, DirectionalLight light)
-// {
-//     // Position of the fragment in light space
-//     vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.);
-//     // Perform perspective divide
-//     vec3 projCoordsLightSpace = fragPosLightSpace.xyz / fragPosLightSpace.w;
-//     // Transform to [0,1] range, to use these as the coordinates of the shadow map texture
-//     projCoordsLightSpace = projCoordsLightSpace * 0.5 + 0.5;
-//     // Get the closest depth value from the light's perspective at these coodinates
-//     // in the light's view space
-//     // float closestDepth = texture(light.shadowMap, projCoordsLightSpace.xy).r; 
-//     float closestDepth = texture(light.shadowMap, vec3(projCoordsLightSpace.xy, 0.)).r; 
-//     // Get the depth of the current fragment from the light's perspective
-//     float currentDepth = projCoordsLightSpace.z;
-//
-//     // Compute a bias with the normal vector
-//     // float shadowBias = max(0.005 * (1.0 - dot(normal, light.direction)), 0.0005);
-//     // float shadowBias = max(0.00005 * (1.0 - dot(normal, light.direction)), 0.000005);
-//     float shadowBias = 0.0005;
-//     // Check whether the current fragment is in the shadow
-//     float shadow = currentDepth - shadowBias > closestDepth ? 1.0 : 0.0;
-//
-//     return shadow;
-// }
-
 // Functions to compute the shadow of a directional light with cascaded shadowmaps
 float shadowComputationDirLight(vec3 fragPos, vec3 normal, float depth, DirectionalLight light)
 // float shadowComputationDirLight(vec3 fragPos, vec3 normal, float depth, int index)
@@ -133,21 +110,6 @@ float shadowComputationDirLight(vec3 fragPos, vec3 normal, float depth, Directio
             break;
         }
     }
-    /* int level = -1; */
-    /* for (int i = 0; i < nrCascadeLevels + 1; ++i) */
-    /* { */
-    /*     if (depth < light.cascadeDistances[i]) */
-    /*     { */
-    /*         level = i; */
-    /*         break; */
-    /*     } */
-    /* } */
-    /* if (level == -1) */
-    /* { */
-    /*     level = nrCascadeLevels; */
-    /* } */
-
-    /* level = 0; */
 
     // Position of the fragment in light space, with the corresponding light
     // space matrix
@@ -195,6 +157,44 @@ float shadowComputationDirLight(vec3 fragPos, vec3 normal, float depth, Directio
     return shadow;
 }
 
+float shadowComputationSpotLight(vec3 fragPos, vec3 normal, float depth, SpotLight light)
+{
+    // Position of the fragment in light space, with the corresponding light
+    // space matrix
+    vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.);
+
+    // Perform perspective divide
+    vec3 projCoordsLightSpace = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // Transform to [0,1] range, to use these as the coordinates of the shadow map texture
+    projCoordsLightSpace = projCoordsLightSpace * 0.5 + 0.5;
+    // Get the closest depth value from the light's perspective at these coodinates
+    // in the light's view space
+    float closestDepth = texture(spotShadowMap, projCoordsLightSpace.xy).r;
+
+    // Get the distance from the current fragment to the light
+    float currentDepth = length(fragPos - light.position) / light.radiusMax;
+
+    // Calculate the bias based on the depth map resolution and slope
+    float bias = max(0.025 * (1.0 + dot(normal, light.direction)), 0.0025);
+
+    // PCF (percentage closer filtering)
+    // This averages over the 9 surrounding pixels of the shadow map, to make 
+    // softer shadows
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / vec2(textureSize(spotShadowMap, 0));
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(spotShadowMap, projCoordsLightSpace.xy + vec2(x, y) * texelSize).r; 
+            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+
+    return shadow;
+}
+
 void main()
 {
     // Get the data from the g-buffer textures
@@ -233,7 +233,6 @@ void main()
 
         // Sum the two contributions to the total light
         lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * dirLights[0].color;
-
     // }
 
     // Compute the lighting due to the spot lights
@@ -269,9 +268,11 @@ void main()
         // Color of the specular component
         vec3 specular = specIntensity * Albedo;
 
-        // Sum the two contributions to the total light, multiplied by the 
-        // color of the light
-        lighting += attenuation * ( diffuse + specular ) * spotLights[i].color;
+        // Compute the shadow
+        float shadow = shadowComputationSpotLight(FragPos, Normal, Depth, spotLights[i]);
+
+        // Sum the two contributions to the total light
+        lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * spotLights[i].color;
     }
 
     // Compute the lighting due to the point lights
@@ -302,22 +303,4 @@ void main()
 
     // Return the sum of all contributions
     FragColor = vec4(lighting, 1.);
-
-
-
-
-
-    // float color = 1.;
-    //
-    // for (int i = 0; i < dirLights[0].nrCascadeLevels; ++i)
-    // {
-    //     if (Depth > dirLights[0].cascadeDistances[i])
-    //     // if (Depth > 10.)
-    //     {
-    //         color *= 0.5;
-    //     }
-    // }
-    //
-    // FragColor = vec4(vec3(color), 1.);
 }
-

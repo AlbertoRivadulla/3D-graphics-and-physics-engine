@@ -48,23 +48,19 @@ void GLSandbox::setupScene()
     // {
     //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(), getRandom0To1()}, 
     //                                       {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1(), 10.f * getRandom0To1() - 5.f}, 
-    //                                       0.3f, 0.01f, 0.02f ) );
+    //                                       0.1f, 0.01f, 0.02f ) );
     // }
     // Add a directional light
     mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
                                             {10., 10., 10.},  // Position
                                             {-1., -1., -1.},  // Direction
-                                            .2f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
+                                            0.5f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
     // Add a spotlight
-    mLights.push_back(new SpotLight( {1., 1., 1.},            // Color
-                                     {0., 5., 0.},            // Position
+    mLights.push_back(new SpotLight( {1., 0., 0.},            // Color
+                                     {0., 4., 0.},            // Position
                                      {0., -1., 0.},           // Direction
-                                     20.f, 35.f,              // Angles
-                                     1.f, 0.05f, 0.1f) );        // Intensity, attenuation linear, attenuation quadratic
-    
-    // Add a light
-    // mShaders[0].use();
-    // mShaders[0].setVec3("lightPos", glm::vec3(-3., 1., 3.));
+                                     25.f, 90.f,              // Angles
+                                     3.f, 0.05f, 0.1f) );    // Intensity, attenuation linear, attenuation quadratic
 
     // Create some materials
     mMaterials.push_back(Material( {1., 1., 0.}, 1.0 ));
