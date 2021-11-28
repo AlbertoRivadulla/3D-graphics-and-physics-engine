@@ -21,8 +21,6 @@ namespace GLBase
         mShadowMapDirectionalShader("../shaders/GLBase/shadowMapCascadedVertex.glsl", 
                                     "../shaders/GLBase/shadowMapCascadedFragment.glsl",
                                     "../shaders/GLBase/shadowMapCascadedGeometry.glsl"),
-        // mShadowMapDirectionalShader("../shaders/GLBase/shadowMapVertex.glsl", 
-        //                             "../shaders/GLBase/shadowMapFragment.glsl"),
         mShadowMapPointShader("../shaders/GLBase/shadowMapVertex.glsl", 
                                     "../shaders/GLBase/shadowMapFragment.glsl"),
         mShadowMapSpotShader("../shaders/GLBase/shadowMapSpotVertex.glsl", 
@@ -30,6 +28,7 @@ namespace GLBase
     {
         // Color to clear the window
         glClearColor(1.f, 0.f, 1.f, 1.0f);
+        glClearDepth(1.f);
 
         // Setup the FBOs
         setupGBuffer();
@@ -37,6 +36,10 @@ namespace GLBase
 
         // Setup the screen quad
         setupScreenQuad();
+
+        // Enable and configure stencil testing
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
     }
 
     // Destructor
@@ -124,14 +127,13 @@ namespace GLBase
 
         // Create a renderbuffer object for the depth and stencil attachments of the
         // target framebuffer.
-        // This is not needed when doing deferred shading, since that framebuffer
-        // will have its own depth and stencil attachments.
+        // This same RBO will be shared with the target FBO, which won't write to
+        // it during the lighting pass.
         glGenRenderbuffers(1, &mDepthRBO);
         glBindRenderbuffer(GL_RENDERBUFFER, mDepthRBO);
-        // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mRenderWidth, mRenderHeight); // use a single renderbuffer object for both a depth AND stencil buffer.
-        // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO); // now actually attach it
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, mRenderWidth, mRenderHeight);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mRenderWidth, mRenderHeight);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO);
+
         // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -156,8 +158,8 @@ namespace GLBase
         glBindTexture(GL_TEXTURE_2D, mTargetTexture);
         // Configure the texture
         // The last 0 means that it is initially empty
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mRenderWidth, mRenderHeight, 0, 
-                     GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mRenderWidth, mRenderHeight, 0, 
+                     GL_RGBA, GL_FLOAT, NULL);
         // Set the mipmap filtering of the texture
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -170,10 +172,11 @@ namespace GLBase
         unsigned int attachments[1] { GL_COLOR_ATTACHMENT0 };
         glDrawBuffers(1, attachments);
 
-        // Configure the depth renderbuffer object, created in setupGBuffer()
+        // Configure the depth and stencil renderbuffer object, created in setupGBuffer()
+        // This is the same RBO for both FBOs
         glBindRenderbuffer(GL_RENDERBUFFER, mDepthRBO);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, mRenderWidth, mRenderHeight);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO);
+
         // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -224,32 +227,6 @@ namespace GLBase
         mLightingPassShader.setInt("nrPointLights", countPointLights);
     }
 
-    // // Method to configure the light space matrices
-    // void DeferredRenderer::configureLightSpaceMatrices(const std::vector<Light*> lights)
-    // {
-    //     // Counters for each type of light
-    //     unsigned int countDirLights { 0 };
-    //     unsigned int countSpotLights { 0 };
-    //     unsigned int countPointLights { 0 };
-    //     // Counter for the index of the shadow map
-    //     // It starts in 3, because the three first ones correspond to the three textures
-    //     // of the Geometry pass
-    //     unsigned int countShadowMap { 3 };
-    //
-    //     // Pass all the lights to the shader
-    //     mLightingPassShader.use();
-    //     for (auto light : lights)
-    //     {
-    //         light->configureShader(mLightingPassShader, countDirLights, countSpotLights, 
-    //                                countPointLights, countShadowMap);
-    //     }
-    //
-    //     // Pass the count of each type of light to the shader
-    //     mLightingPassShader.setInt("nrDirLights", countDirLights);
-    //     mLightingPassShader.setInt("nrSpotLights", countSpotLights);
-    //     mLightingPassShader.setInt("nrPointLights", countPointLights);
-    // }
-
     // Method to call at the beginning of the frame
     void DeferredRenderer::startFrame()
     {
@@ -268,14 +245,11 @@ namespace GLBase
         // Set face culling to the front faces
         // glCullFace(GL_FRONT);
 
-        // glDisable(GL_CULL_FACE);
-
         // Compute the shadow map for each light in the provided list
         for (auto light : lightsWithShadow)
         {
             light->computeShadowMap(camera, objectsWithShadow);
         }
-        // glEnable(GL_CULL_FACE);
 
         // Restore face culling
         // glCullFace(GL_BACK);
@@ -287,9 +261,22 @@ namespace GLBase
         // Change the viewport to the lower resolution
         glViewport(0, 0, mRenderWidth, mRenderHeight);
 
+        // Enable stencil testing
+        // glEnable(GL_STENCIL_TEST);
+
         // Bind the g-buffer and clear it
         glBindFramebuffer(GL_FRAMEBUFFER, mGBuffer);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Set the mask of the stencil buffer so the following writes to it.
+        // This is needed also for clearing it!
+        glStencilMask(0xFF); // Enable writing to the stencil buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        // Disable blending. This will be enabled later when computing the
+        // contribution of each light separately
+        glDisable(GL_BLEND);
+
+        glEnable(GL_STENCIL_TEST);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF); // All fragments should pass the stencil test
     }
 
     // Configure the lights for the lighting pass
@@ -327,8 +314,16 @@ namespace GLBase
         glBindFramebuffer(GL_FRAMEBUFFER, mTargetBuffer);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Disable depth testing to draw the screen quad
+        // // Enable additive blending, for drawing the differnt light contributions
+        // glEnable(GL_BLEND);
+        // glBlendEquation(GL_FUNC_ADD);
+        // glBlendFunc(GL_ONE, GL_ONE);
+
+        // Disable depth testing and enable stencil testing to draw the screen quad
         glDisable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        glStencilMask(0x00); // Disable writing to the stencil buffer
         // Bind the texture attachments of the G-buffer, and setup the shader
         mLightingPassShader.use();
         mLightingPassShader.setVec3("viewPos", viewPos);
@@ -339,6 +334,7 @@ namespace GLBase
         glBindTexture(GL_TEXTURE_2D, mGNormalTexture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, mGAlbedoSpecTexture);
+        // glBindTexture(GL_TEXTURE_2D, mDepthRBO);
         // Configure the lights
         configureLightsForLightingPass(lights);
         // Draw the screen quad, performing the lighting calculations
@@ -346,38 +342,65 @@ namespace GLBase
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // Enable depth testing again
         glEnable(GL_DEPTH_TEST);
+        // Disable stencil testing
+        glDisable(GL_STENCIL_TEST);
     }
 
     // Method to call at the end of the frame
-    void DeferredRenderer::endFrame()
+    void DeferredRenderer::endFrame(GLGeometry::GLCubemap* skyMap)
+    // void DeferredRenderer::endFrame(GLGeometry::GLCubemap* skyMap, GLGeometry::GLAuxElements auxElements)
     {
-        // // Change the viewport to the full resolution
-        // glViewport(0, 0, mWinWidth, mWinHeight);
-        // // Bind the default framebuffer
-        // // It was already cleared in startFrame()
-        // glBindFramebuffer(GL_READ_FRAMEBUFFER, mTargetBuffer);
-        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        // // Disable depth testing to draw the screen quad
-        // glDisable(GL_DEPTH_TEST);
-        // // Bind the texture attachment of the render FBO, and setup the shader
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_2D, mTargetTexture);
-        // // Draw the screen quad
-        // mScreenShader.use();
-        // glBindVertexArray(mScreenVAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-        // // Enable depth testing again
-        // glEnable(GL_DEPTH_TEST);
+        // glDepthMask(GL_FALSE);
+        // Enable stencil testing for drawing the skymap
+        glEnable(GL_STENCIL_TEST);
+        // The skymap will be drawn where there is no geometry
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00); // Disable writing to the stencil buffer
+        // Draw the skymap
+        skyMap->drawFlat();
+        // skyMap->draw(); // If the skymap has textures
+        // glDepthMask(GL_TRUE);
 
-        // Instead of drawing the screen quad, I do the following:
-        // Bind the default framebuffer for drawing to it
-        // glBindFramebuffer(GL_FRAMEBUFFER, mTargetBuffer);
+        // Change the viewport to the full resolution
+        glViewport(0, 0, mWinWidth, mWinHeight);
+        // Bind the default framebuffer
+        // It was already cleared in startFrame()
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, mTargetBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        // Copy the result of the target FBO to the screen
-        // Recall that the target framebuffer is still bound, so it is used as the
-        // read framebuffer
-        glBlitFramebuffer( 0, 0, mRenderWidth, mRenderHeight,
-                           0, 0, mWinWidth,    mWinHeight,
-                           GL_COLOR_BUFFER_BIT, GL_NEAREST );
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // Disable depth testing to draw the screen quad
+        glDisable(GL_DEPTH_TEST);
+        // Bind the texture attachment of the render FBO, and setup the shader
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mTargetTexture);
+        // Draw the screen quad
+        mScreenShader.use();
+        glBindVertexArray(mScreenVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // Enable depth testing again
+        glEnable(GL_DEPTH_TEST);
+        // Disable stencil testing
+        // glDisable(GL_STENCIL_TEST);
+
+        // // Copy the depth information from the g-buffer to the default buffer
+        // // before drawing the skymap
+        // glBindFramebuffer(GL_READ_FRAMEBUFFER, mGBuffer);
+        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        // glBlitFramebuffer( 0, 0, mRenderWidth, mRenderHeight,
+        //                    0, 0, mWinWidth,    mWinHeight,
+        //                    GL_DEPTH_BUFFER_BIT, GL_NEAREST );
+        // // Draw the skymap
+        // skyMap->drawFlat();
+
+        // // Instead of drawing the screen quad, I do the following:
+        // // Bind the default framebuffer for drawing to it
+        // glBindFramebuffer(GL_FRAMEBUFFER, mTargetBuffer);
+        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        // // Copy the result of the target FBO to the screen
+        // // Recall that the target framebuffer is still bound, so it is used as the
+        // // read framebuffer
+        // glBlitFramebuffer( 0, 0, mRenderWidth, mRenderHeight,
+        //                    0, 0, mWinWidth,    mWinHeight,
+        //                    GL_COLOR_BUFFER_BIT, GL_NEAREST );
     }
 }

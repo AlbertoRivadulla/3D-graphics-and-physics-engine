@@ -18,6 +18,8 @@ namespace GLGeometry
         mNrVerticesCylinder = 16;
         // Set the number of vertices in each circle of the sphere
         mNrVerticesSphere = 8;
+        // Set the number of vertices in the circle of the cone
+        mNrVerticesCone = 16;
 
         // Set the size of the viewport in all the shaders
         setViewportSize(width, height);
@@ -34,6 +36,8 @@ namespace GLGeometry
         setupCylinder();
         // Configure the sphere
         setupSphere();
+        // Configure the cone
+        setupCone();
     }
 
     // Method to change the dimensions of the screen
@@ -549,6 +553,94 @@ namespace GLGeometry
         glBindVertexArray(mSphereVAO);
         glDrawElements(GL_LINES, 2 * 2 * mNrVerticesSphere * (2 * mNrVerticesSphere - 1), 
                        GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
+
+    //==============================
+    // Methods for drawing Cones
+    //==============================
+
+    // Method to set the VAO, VBO and properties of the line
+    void GLAuxElements::setupCone()
+    {
+        // Create the Vertex array object
+        glGenVertexArrays(1, &mConeVAO);
+        // Create the Vertex buffer object
+        glGenBuffers(1, &mConeVBO);
+        // Create the Element buffer object
+        glGenBuffers(1, &mConeEBO);
+
+        // Lists of vertices and indices
+        std::vector<float> vertices;
+        std::vector<int> indices;
+        vertices.reserve((mNrVerticesCone + 1) * 3);
+        indices.reserve(3 * mNrVerticesCone);
+
+        // Generate the vertices of the base
+        for (int angle = 0; angle < mNrVerticesCone; ++angle)
+        {
+            vertices.push_back(0.5 * glm::cos(2. * glm::pi<float>() * (float)angle / mNrVerticesCone));
+            vertices.push_back(-0.5);
+            vertices.push_back(0.5 * glm::sin(2. * glm::pi<float>() * (float)angle / mNrVerticesCone));
+        }
+        // Vertex of the tip
+        vertices.push_back(0.f);
+        vertices.push_back(0.5f);
+        vertices.push_back(0.f);
+
+        // Generate the indices for the EBO
+        for (int i = 0; i < mNrVerticesCone; ++i)
+        {
+            // Join vertices in the base
+            indices.push_back(i);
+            indices.push_back((i + 1) % mNrVerticesCone);
+
+            // Join the vertices in the base with the tip
+            indices.push_back(i);
+            indices.push_back(mNrVerticesCone);
+        }
+
+        // Bind the VAO and the VBO (as a verex buffer)
+        glBindVertexArray(mConeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, mConeVBO);
+        // Add the data to the VBO
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+        // Bind the EBO as an element array buffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mConeEBO);
+        // Add the data to the EBO
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+        // Set the vertex attribute pointers
+        // Vertex position
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        // Unbind the VAO
+        glBindVertexArray(0);
+    }
+
+    // Method to draw a line
+    void GLAuxElements::drawCone(const glm::vec3& translation, const float& rotationAngle, 
+                                const glm::vec3& rotationAxis, const glm::vec3& scale,
+                                const glm::mat4& view, const glm::mat4& projection)
+    {
+        // Compute the model matrix 
+        glm::mat4 model { glm::translate(glm::mat4(1.), translation) };
+        if (rotationAngle != 0.)
+            model = glm::rotate(model, glm::radians(rotationAngle), 
+                                       glm::normalize(rotationAxis));
+        model = glm::scale(model, scale);
+        
+        // Set the model, view and projection matrices in the shader
+        mLineShader.use();
+        mLineShader.setMat4("model", model);
+        mLineShader.setMat4("view", view);
+        mLineShader.setMat4("projection", projection);
+
+        // Draw the two vertices of the line
+        glBindVertexArray(mConeVAO);
+        glDrawElements(GL_LINES, 3 * 2 * mNrVerticesCone, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 }

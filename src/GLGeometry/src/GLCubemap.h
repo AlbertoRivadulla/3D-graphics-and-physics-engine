@@ -20,6 +20,9 @@ namespace GLGeometry
             GLCubemap(const char* vertexShaderPath = "../shaders/GLGeometry/skyboxVertex.glsl",
                       const char* fragmentShaderPath = "../shaders/GLGeometry/skyboxFragmentFlat.glsl");
 
+            // Setup the screen quad
+            void setupScreenQuad();
+
             // Method to pass the view and projection matrices to the shader
             void setViewProjection(glm::mat4& view, glm::mat4& projection);
 
@@ -30,8 +33,9 @@ namespace GLGeometry
             void drawFlat();
 
         private:
-            // Cube geometry
-            GLCube mCube;
+            // VAO and VBO for the screen quad
+            unsigned int mScreenVAO;
+            unsigned int mScreenVBO;
 
             // Cubemap texture
             unsigned int mCubemapTexture;

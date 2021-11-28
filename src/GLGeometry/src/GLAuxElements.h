@@ -63,6 +63,11 @@ namespace GLGeometry
             void drawSphere(const glm::vec3& translation, const float& rotationAngle, 
                                const glm::vec3& rotationAxis, const glm::vec3& scale,
                                const glm::mat4& view, const glm::mat4& projection);
+            
+            // Method to draw a cone
+            void drawCone(const glm::vec3& translation, const float& rotationAngle, 
+                               const glm::vec3& rotationAxis, const glm::vec3& scale,
+                               const glm::mat4& view, const glm::mat4& projection);
 
         private:
             // Objects needed for rendering points
@@ -110,6 +115,15 @@ namespace GLGeometry
             unsigned int mSphereEBO;
             // Method to set the VAO, VBO and properties of the rectangle
             void setupSphere();
+
+            // Number of vertices in the base of the cone
+            int mNrVerticesCone;
+            // Objects needed for rendering cones
+            unsigned int mConeVAO;
+            unsigned int mConeVBO;
+            unsigned int mConeEBO;
+            // Method to set the VAO, VBO and properties of the cone
+            void setupCone();
     };
 }
 

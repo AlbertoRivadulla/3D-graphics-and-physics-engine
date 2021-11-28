@@ -7,7 +7,7 @@ namespace GLGeometry
     // Constructor
     GLCubemap::GLCubemap(const std::string& texturesPath, const char* vertexShaderPath,
                       const char* fragmentShaderPath) :
-        mShader(vertexShaderPath, fragmentShaderPath) , mCube()
+        mShader(vertexShaderPath, fragmentShaderPath)
     {
         // Load the textures
         loadCubemap(texturesPath);
@@ -15,65 +15,101 @@ namespace GLGeometry
         // Pass the cubemap texture to the shader
         mShader.use();
         mShader.setInt("skybox", 0);
+
+        // Setup the screen quad
+        setupScreenQuad();
     }
     // Constructor without textures
     GLCubemap::GLCubemap(const char* vertexShaderPath, const char* fragmentShaderPath) :
-        mShader(vertexShaderPath, fragmentShaderPath) , mCube()
+        mShader(vertexShaderPath, fragmentShaderPath)
     {
         // No textures to load, if no path for them is given
+
+        // Setup the screen quad
+        setupScreenQuad();
+    }
+
+    // Setup the screen quad
+    void GLCubemap::setupScreenQuad()
+    {
+        // Vertices of the screen quad
+        float screenQuadVertices[] = {
+             // positions  // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f
+        };
+
+        // Generate the VAO and VBO
+        glGenVertexArrays(1, &mScreenVAO);
+        glGenBuffers(1, &mScreenVBO);
+        glBindVertexArray(mScreenVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, mScreenVBO);
+        // Set the data in the VBO
+        glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), &screenQuadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     }
 
     void GLCubemap::setViewProjection(glm::mat4& view, glm::mat4& projection)
     {
+        // Pass the inverse of the view and projection matrices to the shader
         // In the view matrix, remove the translation components
-        mShader.setMat4("view", glm::mat4(glm::mat3(view)));
-        mShader.setMat4("projection", projection);
+        mShader.use();
+        mShader.setMat4("viewInv", glm::inverse(glm::mat4(glm::mat3(view))));
+        mShader.setMat4("projectionInv", glm::inverse(projection));
     }
 
     void GLCubemap::draw()
     {
-        // Disable face culling, since we are drawing the cube from inside
-        // glDisable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
+        // Change face culling, since we are drawing the cube from inside
+        // glCullFace(GL_FRONT);
 
         // The depth buffer of the skybox is filled with 1's, so we need to change 
         // the depth function from LESS to LEQUAL
-        glDepthFunc(GL_LEQUAL);
+        // glDepthFunc(GL_LEQUAL);
         
         // Activate the shader
         mShader.use();
         // Activate the skybox texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTexture);
-        // Draw the skybox cube
-        mCube.draw();
+
+        // Draw the skybox quad
+        glBindVertexArray(mScreenVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // Set again the depth function to LESS, and enable face culling
-        glDepthFunc(GL_LESS);
-        // glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        // glDepthFunc(GL_LESS);
+        // glCullFace(GL_BACK);
     }
 
     // Function to render a flat sky
     void GLCubemap::drawFlat()
     {
-        // Disable face culling, since we are drawing the cube from inside
-        // glDisable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
+        // Change face culling, since we are drawing the cube from inside
+        // glCullFace(GL_FRONT);
 
         // The depth buffer of the skybox is filled with 1's, so we need to change 
         // the depth function from LESS to LEQUAL
-        glDepthFunc(GL_LEQUAL);
+        // glDepthFunc(GL_LEQUAL);
         
         // Activate the shader
         mShader.use();
-        // Draw the skybox cube
-        mCube.draw();
+
+        // Draw the skybox quad
+        glBindVertexArray(mScreenVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // Set again the depth function to LESS, and enable face culling
-        glDepthFunc(GL_LESS);
-        // glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        // glDepthFunc(GL_LESS);
+        // glCullFace(GL_BACK);
     }
 
     void GLCubemap::loadCubemap(const std::string& texturesPath)

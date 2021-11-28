@@ -48,9 +48,11 @@ namespace GLBase
             void processGBuffer(glm::vec3 viewPos, const std::vector<Light*> lights);
 
             // Method to call at the end of the frame
-            void endFrame();
+            void endFrame(GLGeometry::GLCubemap* skyMap);
+            // void endFrame(GLGeometry::GLCubemap* skyMap, GLGeometry::GLAuxElements auxElements);
 
         private:
+
             // Size of the window
             int mWinWidth;
             int mWinHeight;

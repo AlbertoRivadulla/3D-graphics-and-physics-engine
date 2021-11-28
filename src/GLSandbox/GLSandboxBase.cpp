@@ -62,7 +62,8 @@ void GLSandbox::run()
         renderForward();
 
         // End the renderer, which produces the final scene from the g-buffer
-        mRenderer.endFrame();
+        mRenderer.endFrame(mSkymap);
+        // mRenderer.endFrame(mSkymap, mAuxElements);
 
         // Update the window, swapping the buffers
         mApplication.updateWindow();
@@ -85,6 +86,12 @@ void GLSandbox::run()
             // Change the title of the application
             mApplication.setTitle(ss.str().c_str());
         }
+
+        // // Wait for the use to press a key
+        // do 
+        // {
+        //     std::cout << '\n' << "Press a key to continue...";
+        // } while (std::cin.get() != '\n');
     }
 
     std::cout << "Execution stopped\n";

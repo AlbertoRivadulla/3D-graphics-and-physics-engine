@@ -20,12 +20,12 @@ void GLSandbox::setupScene()
 {
     // Create the cubemap for the sky
     mSkymap = new GLCubemap();
+    // // Skymap with textures. To use this, comment the constructor without textures
+    // // in GLCubemap.h and GLCubemap.cpp
+    // mSkymap = new GLCubemap("../resources/textures/skybox");
 
     // Set the position of the camera
     mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
-    //
-    // // Get teh projection matrix from the camera
-    // mProjection = mCamera.getProjectionMatrix();
 
     // Create a quad
     mElementaryObjects.push_back(new GLQuad());
@@ -35,6 +35,8 @@ void GLSandbox::setupScene()
     mElementaryObjects.push_back(new GLCylinder(32));
     // Create a sphere
     mElementaryObjects.push_back(new GLSphere(16));
+    // Create a cone
+    mElementaryObjects.push_back(new GLCone(32));
 
     // Load a shader
     mShaders.push_back(Shader("../shaders/vertex.glsl", "../shaders/fragment.glsl"));
@@ -43,20 +45,20 @@ void GLSandbox::setupScene()
     mGPassShaders.push_back(Shader("../shaders/GLBase/defGeometryPassVertex.glsl",
                                    "../shaders/GLBase/defGeometryPassFragment.glsl"));
 
-    // // Add some point lights
-    // for (int i = 0; i < 10; ++i)
-    // {
-    //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(), getRandom0To1()}, 
-    //                                       {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1(), 10.f * getRandom0To1() - 5.f}, 
-    //                                       0.1f, 0.01f, 0.02f ) );
-    // }
+    // Add some point lights
+    for (int i = 0; i < 10; ++i)
+    {
+        mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(), getRandom0To1()}, 
+                                          {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f, 10.f * getRandom0To1() - 5.f}, 
+                                          0.2f, 0.01f, 0.02f ) );
+    }
     // Add a directional light
     mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
                                             {10., 10., 10.},  // Position
                                             {-1., -1., -1.},  // Direction
                                             0.5f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
     // Add a spotlight
-    mLights.push_back(new SpotLight( {1., 0., 0.},            // Color
+    mLights.push_back(new SpotLight( {0., 1., 0.},            // Color
                                      {0., 4., 0.},            // Position
                                      {0., -1., 0.},           // Direction
                                      25.f, 90.f,              // Angles
@@ -67,6 +69,7 @@ void GLSandbox::setupScene()
     mMaterials.push_back(Material( {1., 0., 0.}, 1.0 ));
     mMaterials.push_back(Material( {0., 0., 1.}, 1.0 ));
     mMaterials.push_back(Material( {0., 1., 1.}, 1.0 ));
+    mMaterials.push_back(Material( {0., 1., 0.}, 0.5 ));
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -104,18 +107,18 @@ void GLSandbox::updateScene()
 
     // Move the quad
     mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -1., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
-    // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -3., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
-    // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -0.5, 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
 
     // Move the cube
     mElementaryObjects[1]->setModelMatrix(glm::vec3(2.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
 
     // Move the cylinder
-    // mElementaryObjects[2]->setModelMatrix(glm::vec3(3.,1.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
     mElementaryObjects[2]->setModelMatrix({3.,1.,0.}, 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
 
     // Move the sphere
     mElementaryObjects[3]->setModelMatrix(glm::vec3(-1.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
+
+    // Move the cone
+    mElementaryObjects[4]->setModelMatrix(glm::vec3(-3.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
 }
 
 // Render the geometry that will use deferred rendering
@@ -145,13 +148,18 @@ void GLSandbox::renderDeferred()
     mGPassShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
     mMaterials[3].configShader(mGPassShaders[0]);
     mElementaryObjects[3]->draw();
+
+    // Draw the cone
+    mGPassShaders[0].setMat4("model", mElementaryObjects[4]->getModelMatrix());
+    mMaterials[4].configShader(mGPassShaders[0]);
+    mElementaryObjects[4]->draw();
 }
 
 // Render the geometry that will use forward rendering
 void GLSandbox::renderForward()
 {
     // // Draw a point
-    // mAuxElements.drawPoint(glm::vec3(-1., 0., -5.), mView, mProjection);
+    // mAuxElements.drawPoint(glm::vec3(-0., 0., -5.), mView, mProjection);
     // mAuxElements.drawPoint(glm::vec3(2., 1., -1.), mView, mProjection);
     // // Draw a line
     // mAuxElements.drawLine(glm::vec3(-1, 0., -5.), glm::vec3(2., 1., -1.), mView, mProjection);
@@ -170,22 +178,13 @@ void GLSandbox::renderForward()
     // // Draw a sphere
     // mAuxElements.drawSphere(glm::vec3(-2., 1., 0.), 0., glm::vec3(1., 0., 0.), glm::vec3(1., 1., 1.),
     //                            mView, mProjection);
-
-    // // Draw the sphere
-    // mShaders[0].use();
-    // mShaders[0].setMat4("view", mView);
-    // mShaders[0].setMat4("projection", mProjection);
-    // mShaders[0].setVec3("viewPos", mCamera.Position);
-    // mShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
-    // mMaterials[3].configShader(mShaders[0]);
-    // mElementaryObjects[3]->draw();
+    // Draw a cone
+    mAuxElements.drawCone(glm::vec3(-2., 0., 0.), 0., glm::vec3(1., 0., 0.), glm::vec3(1., 1., 1.),
+                               mView, mProjection);
 
     // Draw points in the positions of the lights
     for (auto light : mLights)
     {
         mAuxElements.drawPoint(light->getPosition(), mView, mProjection);
     }
-
-    // Draw the skymap
-    mSkymap->drawFlat();
 }

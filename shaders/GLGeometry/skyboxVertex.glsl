@@ -1,22 +1,17 @@
-#version 330 core
+#version 420 core
 layout (location = 0) in vec3 aPos;
 
 out vec3 TexCoords;
 
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 viewInv;
+uniform mat4 projectionInv;
 
 void main()
 {
-    // In this case, the texture coordinates are given only by the position, because
-    // the cube is 1x1x1
-    // Notice that these coordinates are a vec3
-    TexCoords = aPos;    
+    // The quad fills the screen
+    gl_Position = vec4(aPos.x, aPos.y, 0., 1.);
 
-    vec4 pos = projection * view * vec4(aPos, 1.0);
-
-    // Set the z coordinate to be equal to w, which is 1 (this maximum). This way,
-    // the skybox will always be behind all objects in the scene, useful for depth
-    // testing
-    gl_Position = pos.xyww;
+    // Compute the texture coordinates inverting the screen coordinates back to 
+    // world space
+    TexCoords = mat3(viewInv) * (projectionInv * gl_Position).xyz;
 }

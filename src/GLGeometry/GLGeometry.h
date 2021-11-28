@@ -23,9 +23,10 @@
 
 // #include "GLObject.h"
 #include "GLAuxElements.h"
+#include "GLCubemap.h"
 #include "GLQuad.h"
 #include "GLSphere.h"
-#include "GLCubemap.h"
 #include "GLCube.h"
 #include "GLCylinder.h"
+#include "GLCone.h"
 #include "GLPolyhedron.h"

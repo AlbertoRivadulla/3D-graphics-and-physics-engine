@@ -64,6 +64,7 @@ namespace GLGeometry
         }
 
         // Compute the indices of the side faces
+        // for (int i = 0; i < mNrVertices; ++i)
         for (int i = 0; i < mNrVertices; ++i)
         {
             mIndices.push_back((i + 1) % mNrVertices);

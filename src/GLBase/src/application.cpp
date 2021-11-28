@@ -27,6 +27,8 @@ namespace GLBase
         // Needed for Mac Os.
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);  
+
         // Create a Window object, and check that it was created successfully.
         // GLFWwindow* window { glfwCreateWindow(800, 600, "My title", NULL, NULL) };
         mWindow = glfwCreateWindow(width, height, title, NULL, NULL);

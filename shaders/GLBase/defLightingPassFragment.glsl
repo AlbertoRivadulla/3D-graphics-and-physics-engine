@@ -1,6 +1,7 @@
 #version 420 core
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+// out vec4 FragColor;
 
 in vec2 TexCoords;
 
@@ -303,4 +304,7 @@ void main()
 
     // Return the sum of all contributions
     FragColor = vec4(lighting, 1.);
+
+    // Specular = texture(gAlbedoSpec, TexCoords).r;
+    // FragColor = vec4(vec3(Specular), 1.);
 }

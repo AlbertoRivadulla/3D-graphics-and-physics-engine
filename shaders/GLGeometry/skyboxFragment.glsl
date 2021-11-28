@@ -9,4 +9,6 @@ void main()
 {
     // Get the color in the skybox from the texture
     FragColor = texture(skybox, TexCoords);
+
+    // gl_FragDepth = 0.;
 }
