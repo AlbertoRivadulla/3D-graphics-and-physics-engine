@@ -113,9 +113,21 @@ namespace GLBase
             glGenBuffers(1, &mLightMatricesUBO);
             glBindBuffer(GL_UNIFORM_BUFFER, mLightMatricesUBO);
             glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) * 16, nullptr, GL_STATIC_DRAW);
-            // Bind this to the point 1, as in the corresponding shader
+            // Bind this to the point 0, as in the corresponding shader
             glBindBufferBase(GL_UNIFORM_BUFFER, 0, mLightMatricesUBO);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            // Set the binding point in the corresponding shader
+            // unsigned int lights_index = glGetUniformBlockIndex(mLightingPassShader.ID, "LightSpaceMatrices");   
+            // glUniformBlockBinding(mLightingPassShader.ID, lights_index, 2);
+            // unsigned int lights_index = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");   
+            // glUniformBlockBinding(mShadowShader->ID, lights_index, 0);
+            // std::cout << "algo" << std::endl;
+            // mShadowShader->use();
+            // std::cout << mShadowShader->ID + 1 << std::endl;
+
+            // std::cout << "configured directional light" << std::endl;
+            // std::cout << mShadowShader->algo << std::endl;
         }
     }
 
@@ -262,6 +274,10 @@ namespace GLBase
         lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) + "].kLinear", mAttenLinear);
         lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) + "].kQuadratic", mAttenQuadratic);
 
+        // Set the binding point for the ligth space matrices in the shader
+        unsigned int lightSpaceMatricesIndex = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");   
+        glUniformBlockBinding(mShadowShader->ID, lightSpaceMatricesIndex, 0);
+
         // Increase the counter of the directiona lights
         indexDirectional++;
     }
@@ -274,6 +290,11 @@ namespace GLBase
         // Bind the shadowmap texture to the corresponding texture unit
         glActiveTexture(GL_TEXTURE0 + indexShadow);
         glBindTexture(GL_TEXTURE_2D_ARRAY, mShadowMapTexture);
+
+        // Pass the position and direction to the shader
+        shader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].position", mPosition);
+        shader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].direction", mDirection);
+
 
         // Pass also the index of the texture unit for the shadowmap, and the 
         // light space matrix
@@ -452,6 +473,10 @@ namespace GLBase
         lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].cosAngleOuter", mCosAngleOuter);
         lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].radiusMax", mRadiusMax);
 
+        // Set the binding point for the ligth space matrices in the shader
+        unsigned int lightSpaceMatricesIndex = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");   
+        glUniformBlockBinding(mShadowShader->ID, lightSpaceMatricesIndex, 0);
+
         // Increase the counter of the spot lights
         indexSpot++;
     }
@@ -464,6 +489,11 @@ namespace GLBase
         // Bind the shadowmap texture to the corresponding texture unit
         glActiveTexture(GL_TEXTURE0 + indexShadow);
         glBindTexture(GL_TEXTURE_2D, mShadowMapTexture);
+
+        // Pass the position and direction to the shader
+        shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].position", mPosition);
+        shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].direction", mDirection);
+        shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].upDirection", mUpDirection);
 
         // Pass also the index of the texture unit for the shadowmap, and the 
         // light space matrix
@@ -522,8 +552,8 @@ namespace GLBase
                                      unsigned int& indexPoint,
                                      unsigned int& indexShadow)
     {
-        // // Copy the pointer to the shader
-        // mShadowShader = shadowShader;
+        // Copy the pointer to the shader
+        mShadowShader = shadowShader;
 
         // Pass the light properties to the shader
         // The shader must be bound before calling this method
@@ -534,6 +564,10 @@ namespace GLBase
         lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].kLinear", mAttenLinear);
         lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].kQuadratic", mAttenQuadratic);
         lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].radiusMax", mRadiusMax);
+
+        // Set the binding point for the ligth space matrices in the shader
+        unsigned int lightSpaceMatricesIndex = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");   
+        glUniformBlockBinding(mShadowShader->ID, lightSpaceMatricesIndex, 0);
 
         // Increase the count of the point lights
         indexPoint++;
@@ -547,6 +581,9 @@ namespace GLBase
         // // Bind the shadowmap texture to the corresponding texture unit
         // glActiveTexture(GL_TEXTURE0 + indexShadow);
         // glBindTexture(GL_TEXTURE_2D, mShadowMapTexture);
+
+        // Pass the position to the shader
+        shader.setVec3("pointLights[" + std::to_string(indexPoint) + "].position", mPosition);
 
         // Pass also the index of the texture unit for the shadowmap, and the 
         // light space matrix

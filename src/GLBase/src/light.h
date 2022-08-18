@@ -64,6 +64,12 @@ namespace GLBase
                 return mLightType;
             }
 
+            // Method to move the light
+            void setPosition(glm::vec3 pos)
+            {
+                mPosition = pos;
+            }
+
             // // Method to set the pointer to the shader
             // void setShadowShader(Shader* shader)
             // {

@@ -1,7 +1,6 @@
-#version 330 core
+#version 410 core
 
 // Shader used to draw the texture attachment of a FBO to the screen
-
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoords;
 

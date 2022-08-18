@@ -12,12 +12,19 @@ namespace GLBase
     {
         public:
             // Constructor
-            // The scaling variable is the relation between the rendering resolution
-            // and teh viewport resolution
-            DeferredRenderer(int width, int height, float scaling = 1.f);
+            DeferredRenderer();
 
             // Destructor
             ~DeferredRenderer();
+
+            // Setup the dimensions for the renderer
+            // The scaling variable is the relation between the rendering resolution
+            // and the viewport resolution
+            // Do this by defining a lower resolution framebuffer, and then blitting
+            // its contents to the main one
+            // https://community.khronos.org/t/creating-low-resolution-output-using-glblitframebuffer/75682/2
+            void setupDimensions(int winWidth, int winHeight, int width, 
+                                 int height, float scaling);
 
             // Method to get a point to the geometry pass shader
             Shader& getLightingShader()
@@ -88,7 +95,8 @@ namespace GLBase
             // Data for rendering the screen quad
             // ------------------------------
             // Shader for rendering the target
-            Shader mScreenShader;
+            // Shader mScreenShader;
+            Shader mScreenPostprocessingShader;
             // Target framebuffer object
             unsigned int mTargetBuffer;
             // Texture attachment for the target FBO

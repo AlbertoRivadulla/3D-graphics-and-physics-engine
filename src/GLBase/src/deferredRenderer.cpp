@@ -6,16 +6,9 @@ using namespace GLGeometry;
 namespace GLBase
 {
     // Constructor
-    // The scaling variable is the relation between the rendering resolution
-    // and teh viewport resolution
-    // Do this by defining a lower resolution framebuffer, and then blitting
-    // its contents to the main one
-    // https://community.khronos.org/t/creating-low-resolution-output-using-glblitframebuffer/75682/2
-    DeferredRenderer::DeferredRenderer(int width, int height, float scaling) :
-        mWinWidth { width }, mWinHeight { height }, 
-        mRenderWidth { (int)(width / scaling) }, mRenderHeight { (int)(height / scaling) },
-        mScreenShader("../shaders/GLBase/defRenderQuadVertex.glsl", 
-                      "../shaders/GLBase/defRenderQuadFragment.glsl"),
+    DeferredRenderer::DeferredRenderer() :
+        mScreenPostprocessingShader("../shaders/GLBase/defRenderQuadVertex.glsl", 
+                      "../shaders/GLBase/defRenderQuadPostproFragment.glsl"),
         mLightingPassShader("../shaders/GLBase/defLightingPassVertex.glsl", 
                             "../shaders/GLBase/defLightingPassFragment.glsl"),
         mShadowMapDirectionalShader("../shaders/GLBase/shadowMapCascadedVertex.glsl", 
@@ -30,13 +23,6 @@ namespace GLBase
         glClearColor(1.f, 0.f, 1.f, 1.0f);
         glClearDepth(1.f);
 
-        // Setup the FBOs
-        setupGBuffer();
-        setupTargetBuffer();
-
-        // Setup the screen quad
-        setupScreenQuad();
-
         // Enable and configure stencil testing
         glEnable(GL_STENCIL_TEST);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
@@ -48,6 +34,34 @@ namespace GLBase
         // Clear the FBOs
         glDeleteFramebuffers(1, &mTargetBuffer);
         glDeleteFramebuffers(1, &mGBuffer);
+    }
+
+    // Setup the dimensions for the renderer
+    // The scaling variable is the relation between the rendering resolution
+    // and the viewport resolution
+    // Do this by defining a lower resolution framebuffer, and then blitting
+    // its contents to the main one
+    // https://community.khronos.org/t/creating-low-resolution-output-using-glblitframebuffer/75682/2
+    void DeferredRenderer::setupDimensions(int winWidth, int winHeight, int width, 
+                                           int height, float scaling)
+    {
+        // Setup the diemnsions of the window
+        mWinWidth = winWidth;
+        mWinHeight = winHeight; 
+        // Setup the dimensions of the renderer
+        mRenderWidth = (int)(width / scaling); 
+        mRenderHeight = (int)(height / scaling);
+
+        // Setup the FBOs
+        setupGBuffer();
+        setupTargetBuffer();
+
+        // Setup the screen quad
+        setupScreenQuad();
+
+        // Enable and configure stencil testing
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
     }
 
     // Setup the screen quad
@@ -78,8 +92,10 @@ namespace GLBase
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
         // Configure the screen texture in the shader
-        mScreenShader.use();
-        mScreenShader.setInt("screenTexture", 0);
+        mScreenPostprocessingShader.use();
+        mScreenPostprocessingShader.setInt("screenTexture", 0);
+        mScreenPostprocessingShader.setInt("gPosition", 1);
+        mScreenPostprocessingShader.setVec3("fogColor", glm::vec3(0.43, 0.81, 0.92));
     }
 
     // Setup the G-buffer
@@ -373,8 +389,11 @@ namespace GLBase
         // Bind the texture attachment of the render FBO, and setup the shader
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mTargetTexture);
+        // Bind the position texture from the G-buffer, to compute the fog contribution
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mGPositionTexture);
         // Draw the screen quad
-        mScreenShader.use();
+        mScreenPostprocessingShader.use();
         glBindVertexArray(mScreenVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // Enable depth testing again

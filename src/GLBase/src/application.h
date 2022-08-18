@@ -25,6 +25,10 @@ namespace GLBase
             int getWidth();
             int getHeight();
 
+            // Method to get the actual width and height of the window.
+            // Needed when using Hi-DPI displays.
+            void getWindowDims( int& width, int& height );
+
             // Method to change the title of the window
             void setTitle(const char* title);
 

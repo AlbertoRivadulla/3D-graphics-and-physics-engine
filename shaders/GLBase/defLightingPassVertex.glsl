@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 // Shader used to draw the texture attachment of a FBO to the screen
 

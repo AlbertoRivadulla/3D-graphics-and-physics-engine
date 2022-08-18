@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 layout (location = 0) out vec4 FragColor;
 // out vec4 FragColor;
@@ -76,7 +76,8 @@ uniform SpotLight spotLights[NR_MAX_SPOT_LIGHTS];
 uniform PointLight pointLights[NR_MAX_POINT_LIGHTS];
 
 // Light space matrices for the cascaded shadow maps
-layout (std140, binding = 0) uniform LightSpaceMatrices
+/* layout (std140, binding = 0) uniform LightSpaceMatrices */
+layout (std140) uniform LightSpaceMatrices
 {
     // This allows for a maximum of 8 cascades
     mat4 lightSpaceMatrices[16];

@@ -10,9 +10,19 @@ GLSandbox::GLSandbox(int width, int height, const char* title) :
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(0., 0., 0.)),
     mAuxElements(width, height),
-    mRenderer(width, height, 1.f),
+    mRenderer(),
     mLightingShader ( mRenderer.getLightingShader() ) // Reference to the G-pass shader of the renderer
 {
+    // Get the actual resolution for the window.
+    // This is needed in case we are using a "retina" display, where the resolution
+    // is scaled.
+    int winWidth;
+    int winHeight;
+    mApplication.getWindowDims( winWidth, winHeight );
+
+    // Setup the renderer with the actual resolution for the window
+    mRenderer.setupDimensions(winWidth, winHeight, width, height, 1.f),
+
     // Seed a random number generator, with the function defined in utils.h
     GLUtils::seedRandomGeneratorClock();
 
@@ -77,7 +87,7 @@ void GLSandbox::run()
         {
             std::stringstream ss;
             // std::cout << "Average frame duration: " << mTotalTime * 1000 / mFrameCounter << " ms\n";
-            ss << "Averate frame time: " << mTotalTime * 1000 / mFrameCounter << " ms - ";
+            ss << "Average frame time: " << mTotalTime * 1000 / mFrameCounter << " ms - ";
             ss << "FPS: " << 1000. / (mTotalTime * 1000 / mFrameCounter);
             // Reset the variables
             mFrameCounter = 0;

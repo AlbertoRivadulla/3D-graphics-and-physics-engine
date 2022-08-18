@@ -15,6 +15,7 @@ namespace GLBase
     {
         // Initialize GLFW
         glfwInit();
+
         // Configure GLFW
         // The first option of glfwWindowHint is the option that we want to configure,
         // and the second argument is the value
@@ -28,6 +29,8 @@ namespace GLBase
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);  
+
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_TRUE);
 
         // Create a Window object, and check that it was created successfully.
         // GLFWwindow* window { glfwCreateWindow(800, 600, "My title", NULL, NULL) };
@@ -52,7 +55,7 @@ namespace GLBase
 
         // Tell OpenGL the size of the rendering window
         // The first two parameters are the location of the lower left corner of the window.
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, mWidth, mHeight);
 
         // Tell GLFW to call this function on every window resize by registering it.
         glfwSetFramebufferSizeCallback(mWindow, applicationFramebufferSizeCallback);
@@ -70,7 +73,7 @@ namespace GLBase
         // Enable face culling
         glEnable(GL_CULL_FACE);
         // Enable gamma correction the easy way
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        // glEnable(GL_FRAMEBUFFER_SRGB);
     }
 
     // Destructor
@@ -89,6 +92,13 @@ namespace GLBase
     int Application::getHeight()
     {
         return mHeight;
+    }
+
+    // Method to get the actual width and height of the window.
+    // Needed when using Hi-DPI displays.
+    void Application::getWindowDims( int& width, int& height )
+    {
+        glfwGetFramebufferSize( mWindow, &width, &height );
     }
 
     // Method to change the title of the window
