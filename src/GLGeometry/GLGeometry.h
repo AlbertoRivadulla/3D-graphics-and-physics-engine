@@ -30,3 +30,5 @@
 #include "GLCylinder.h"
 #include "GLCone.h"
 #include "GLPolyhedron.h"
+
+#include "GLTextRenderer.h"

@@ -11,6 +11,7 @@ find_package(ASSIMP REQUIRED)
 # if(ASSIMP_FOUND)
 #     include_directories(${ASSIMP_INCLUDE_DIR})
 # endif()
+find_package( Freetype REQUIRED )
 
 # Create a variable with all the include directories
 set(INCLUDE
@@ -22,6 +23,8 @@ set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/thirdparty
+
+    ${FREETYPE_INCLUDE_DIRS}
 )
 
 include_directories(${INCLUDE})
@@ -37,6 +40,7 @@ set(LIBS PUBLIC
     glad 
     ${CMAKE_DL_LIBS}
     ${ASSIMP_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
 )
 
 # Create a variable with a link to all cpp files to compile

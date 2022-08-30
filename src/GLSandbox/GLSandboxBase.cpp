@@ -4,12 +4,13 @@ using namespace GLBase;
 // using namespace GLGeometry;
 
 // Constructor
-GLSandbox::GLSandbox(int width, int height, const char* title) :
+GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mApplication(width, height, title),
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(0., 0., 0.)),
     mAuxElements(width, height),
+    mTextRenderer(width, height, "../resources/fonts/Arial.ttf"),
     mRenderer(),
     mLightingShader ( mRenderer.getLightingShader() ) // Reference to the G-pass shader of the renderer
 {
@@ -21,7 +22,8 @@ GLSandbox::GLSandbox(int width, int height, const char* title) :
     mApplication.getWindowDims( winWidth, winHeight );
 
     // Setup the renderer with the actual resolution for the window
-    mRenderer.setupDimensions(winWidth, winHeight, width, height, 1.f),
+    // The last argument is the scaling
+    mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling),
 
     // Seed a random number generator, with the function defined in utils.h
     GLUtils::seedRandomGeneratorClock();

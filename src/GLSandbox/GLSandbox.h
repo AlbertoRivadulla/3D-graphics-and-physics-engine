@@ -39,6 +39,8 @@ class GLSandbox
 
         // Object used to draw auxiliary geometry
         GLAuxElements mAuxElements;
+        // Object used to draw text to the screen
+        GLTextRenderer mTextRenderer;
 
         // Projection and view matrices
         glm::mat4 mProjection;
@@ -90,7 +92,7 @@ class GLSandbox
 
     public:
         // Constructor
-        GLSandbox(int width, int height, const char* title);
+        GLSandbox(int width, int height, const char* title, float scaling=1.f);
 
         // Start the application's loop
         void run();

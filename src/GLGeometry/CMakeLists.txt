@@ -11,6 +11,7 @@ find_package(ASSIMP REQUIRED)
 # if(ASSIMP_FOUND)
 #     include_directories(${ASSIMP_INCLUDE_DIR})
 # endif()
+find_package( Freetype REQUIRED )
 
 project(project)
 
@@ -23,9 +24,9 @@ set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLBase
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLBase/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLBase/thirdparty
-)
 
-message(STATUS ${CMAKE_CURRENT_SOURCE_DIR})
+    ${FREETYPE_INCLUDE_DIRS}
+)
 
 include_directories(${INCLUDE})
 
@@ -36,6 +37,7 @@ set(LIBS PUBLIC
     glad 
     ${CMAKE_DL_LIBS}
     ${ASSIMP_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
 )
 
 # Create a variable with a link to all cpp files to compile
@@ -48,6 +50,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLPolyhedron.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCubemap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLAuxElements.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTextRenderer.cpp
 )
 
 # Create the library
@@ -59,7 +62,8 @@ target_link_libraries(GLGeometry ${LIBS})
 # Configure the include directories defined above.
 # Setting the second argument to INTERFACE (or PUBLIC) allows other programs that
 # link to this library to use these same include directories.
-target_include_directories(GLGeometry INTERFACE ${INCLUDE})
+# target_include_directories(GLGeometry INTERFACE ${INCLUDE})
+target_include_directories(GLGeometry PUBLIC ${INCLUDE})
 
 # Set the path to the folder where libraries are located.
 # This is needed for the library Assimp (for loading 3D models)

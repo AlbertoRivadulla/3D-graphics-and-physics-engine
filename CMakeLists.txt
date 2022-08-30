@@ -17,7 +17,7 @@ set(INCLUDE
     ${PROJECT_SOURCE_DIR}/src/GLGeometry
     ${PROJECT_SOURCE_DIR}/src/GLSandbox
 
-    # If the main application only inports GLBase, and this itself imports all
+    # If the main application only imports GLBase, and this itself imports all
     # needed dependencies, the following two lines should not be necessary
     # ${PROJECT_SOURCE_DIR}/src/GLBase/src
     # ${PROJECT_SOURCE_DIR}/src/GLBase/thirdparty
@@ -46,4 +46,3 @@ set(CMAKE_SKIP_INSTALL_RULES True)
 
 # Move the file compile_commands.json to the directory of the project.
 execute_process(COMMAND cp compile_commands.json ..) 
-

@@ -20,9 +20,10 @@ void GLSandbox::setupScene()
 {
     // Create the cubemap for the sky
     mSkymap = new GLCubemap();
+
     // // Skymap with textures. To use this, comment the constructor without textures
     // // in GLCubemap.h and GLCubemap.cpp
-    // mSkymap = new GLCubemap("../resources/textures/skybox");
+    // mSkymap = new GLCubemap( "../resources/textures/skybox" );
 
     // Set the position of the camera
     mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
@@ -156,6 +157,14 @@ void GLSandbox::renderDeferred()
     mGPassShaders[0].setMat4("model", mElementaryObjects[4]->getModelMatrix());
     mMaterials[4].configShader(mGPassShaders[0]);
     mElementaryObjects[4]->draw();
+
+    // Draw all the objects with physics
+    // =====================================
+    //
+    //
+    //
+    //
+    // =====================================
 }
 
 // Render the geometry that will use forward rendering
@@ -190,4 +199,8 @@ void GLSandbox::renderForward()
     {
         mAuxElements.drawPoint(light->getPosition(), mView, mProjection);
     }
+
+    // Write text to the screen
+    mTextRenderer.renderText( std::to_string(mDeltaTime), 100., 100., 1., glm::vec3( 0., 0.5, 0. ) );
+    mTextRenderer.renderText( "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2, 0.2f, 0.2f));
 }
