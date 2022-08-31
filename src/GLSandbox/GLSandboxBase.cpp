@@ -9,6 +9,7 @@ GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(0., 0., 0.)),
+    mPhysicsWorld(),
     mAuxElements(width, height),
     mTextRenderer(width, height, "../resources/fonts/Arial.ttf"),
     mRenderer(),
@@ -70,12 +71,13 @@ void GLSandbox::run()
         // Do the shading pass
         mRenderer.processGBuffer(mCamera.Position, mLights);
 
-        // Render the geometry that will use forward rendering
-        renderForward();
-
         // End the renderer, which produces the final scene from the g-buffer
         mRenderer.endFrame(mSkymap);
         // mRenderer.endFrame(mSkymap, mAuxElements);
+
+        // Render the geometry that uses forward rendering, after the deferred
+        // renderer is done
+        renderForward();
 
         // Update the window, swapping the buffers
         mApplication.updateWindow();
@@ -107,4 +109,19 @@ void GLSandbox::run()
     }
 
     std::cout << "Execution stopped\n";
+}
+
+// Destructor
+GLSandbox::~GLSandbox()
+{
+    // Delete the skymap
+    delete mSkymap;
+
+    // Delete the elementary objects
+    for ( auto object : mElementaryObjects )
+        delete object;
+
+    // Delete the lights
+    for ( auto light : mLights ) 
+        delete light;
 }

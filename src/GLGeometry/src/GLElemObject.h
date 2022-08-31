@@ -30,6 +30,9 @@ namespace GLGeometry
                 // glGenBuffers(1, &mEBO);
             }
 
+            // Destructor
+            virtual ~GLElemObject() = default;
+
             // Function to set the model matrix
             void setModelMatrix(const glm::vec3& translation, const float& rotationAngle, 
                                 const glm::vec3& rotationAxis, const glm::vec3& scale)

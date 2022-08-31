@@ -364,7 +364,6 @@ namespace GLBase
 
     // Method to call at the end of the frame
     void DeferredRenderer::endFrame(GLGeometry::GLCubemap* skyMap)
-    // void DeferredRenderer::endFrame(GLGeometry::GLCubemap* skyMap, GLGeometry::GLAuxElements auxElements)
     {
         // glDepthMask(GL_FALSE);
         // Enable stencil testing for drawing the skymap

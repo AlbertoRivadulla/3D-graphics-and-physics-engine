@@ -3,6 +3,7 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include "Physics.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -14,7 +15,6 @@ class GLSandbox
     //==============================
 
     private:
-
         
     //==============================
     // Basic implementation of the class
@@ -63,6 +63,9 @@ class GLSandbox
 
         // Cubemap for the sky
         GLCubemap* mSkymap;
+
+        // Class containing all the objects with collisions and/or dynamics
+        Physics::DynamicsWorld mPhysicsWorld;
             
         // Value of the time elapsed since the last frame. This needs to be updated 
         // every frame
@@ -93,6 +96,9 @@ class GLSandbox
     public:
         // Constructor
         GLSandbox(int width, int height, const char* title, float scaling=1.f);
+
+        // Destructor
+        ~GLSandbox();
 
         // Start the application's loop
         void run();

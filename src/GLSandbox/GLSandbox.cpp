@@ -96,6 +96,9 @@ void GLSandbox::setupApplication()
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene()
 {
+    // Update the objects in the physics world
+    mPhysicsWorld.step();
+
     // // Set the camera to be orthographic
     // mCamera.setOrthographic();
 
@@ -123,6 +126,19 @@ void GLSandbox::updateScene()
 
     // Move the spot light
     mLights[1]->setPosition( { 3. * glm::sin((float)glfwGetTime()), 4., 0. } );
+
+    /*
+       Add elements to mPhysicsWorld
+       -----------------------------------------------
+       - Create the RigidBody or CollisionBody, as pointers (using "new ...")
+       - Add its GLObject to the list mElementaryObjects
+       - Add it to mPhysicsWorld, either with .addRigidBody or .addCollisionBody
+
+       The objects are deleted from memory automatically, by the destructor of 
+       mPhsyicsWorld
+    */
+
+
 }
 
 // Render the geometry that will use deferred rendering
@@ -159,12 +175,7 @@ void GLSandbox::renderDeferred()
     mElementaryObjects[4]->draw();
 
     // Draw all the objects with physics
-    // =====================================
-    //
-    //
-    //
-    //
-    // =====================================
+    mPhysicsWorld.draw(mGPassShaders[0]);
 }
 
 // Render the geometry that will use forward rendering
@@ -200,7 +211,7 @@ void GLSandbox::renderForward()
         mAuxElements.drawPoint(light->getPosition(), mView, mProjection);
     }
 
-    // Write text to the screen
-    mTextRenderer.renderText( std::to_string(mDeltaTime), 100., 100., 1., glm::vec3( 0., 0.5, 0. ) );
-    mTextRenderer.renderText( "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2, 0.2f, 0.2f));
+    // // Write text to the screen
+    // mTextRenderer.renderText( std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3( 0.f, 0.5f, 0.f ) );
+    // mTextRenderer.renderText( "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
 }

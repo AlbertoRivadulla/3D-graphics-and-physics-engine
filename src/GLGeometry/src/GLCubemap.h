@@ -32,6 +32,7 @@ namespace GLGeometry
             // Function to render a flat sky
             void drawFlat();
 
+
         private:
             // VAO and VBO for the screen quad
             unsigned int mScreenVAO;
@@ -45,6 +46,21 @@ namespace GLGeometry
 
             // Method to load a cubemap from a file
             void loadCubemap(const std::string& texturesPath);
+
+        // --------------------------------------------------------------------
+        // The following two functions are not used, but need to be implemented
+        // as they are declared as virtual in its parent class GLObject
+        public:
+            // Function to set the model matrix
+            void setModelMatrix(const glm::vec3& translation, const float& rotationAngle, 
+                                const glm::vec3& rotationAxis, const glm::vec3& scale)
+            {}
+
+            // Function to read the model matrix
+            glm::mat4 getModelMatrix()
+            {
+                return glm::mat4( 0.f );
+            }
     };
 }
 

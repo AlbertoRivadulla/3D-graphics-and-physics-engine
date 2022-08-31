@@ -16,6 +16,7 @@ set(INCLUDE
     ${PROJECT_SOURCE_DIR}/src/GLBase
     ${PROJECT_SOURCE_DIR}/src/GLGeometry
     ${PROJECT_SOURCE_DIR}/src/GLSandbox
+    ${PROJECT_SOURCE_DIR}/src/Physics
 
     # If the main application only imports GLBase, and this itself imports all
     # needed dependencies, the following two lines should not be necessary
@@ -38,8 +39,10 @@ add_executable(main ${SOURCES})
 add_subdirectory(src/GLBase)
 # The subdirectory of the library GLGeometry, created by me
 add_subdirectory(src/GLGeometry)
+# The subdirectory of the library Physics, created by me
+add_subdirectory(src/Physics)
 # Link to the libraries
-target_link_libraries(main GLBase GLGeometry)
+target_link_libraries(main GLBase GLGeometry Physics)
 
 # Get rid of the cmake_install.cmake file created
 set(CMAKE_SKIP_INSTALL_RULES True)

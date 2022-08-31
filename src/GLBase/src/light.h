@@ -52,6 +52,9 @@ namespace GLBase
             virtual void setupShadowMap() = 0;
 
         public:
+            // Destructor
+            virtual ~Light() = default;
+
             // Method to get the position of the light
             inline glm::vec3 getPosition()
             {

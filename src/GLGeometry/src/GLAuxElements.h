@@ -128,7 +128,3 @@ namespace GLGeometry
 }
 
 #endif
-
-
-
-

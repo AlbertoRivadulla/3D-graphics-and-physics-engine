@@ -119,6 +119,7 @@ namespace GLGeometry
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         // Activate the shader
         mTextShader.use();
         // Bind the texture and vertex array
