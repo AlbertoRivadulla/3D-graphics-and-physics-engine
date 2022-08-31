@@ -22,7 +22,7 @@ namespace Physics
             void addCollisionBody( CollisionBody* collisionBody );
 
             // Draw the objects in the current frame, to the G-buffer
-            void draw( const Shader& defaultShader );
+            void draw( Shader& defaultShader );
 
         protected:
             // Vector of pointer to CollisionBody objects
@@ -44,7 +44,7 @@ namespace Physics
             void addRigidBody( RigidBody* rigidBody );
 
             // Update the objects in the current frame
-            void step();
+            void step( float deltaTime );
 
             // Draw the objects in the current frame, to the G-buffer
             void draw( Shader& defaultShader );

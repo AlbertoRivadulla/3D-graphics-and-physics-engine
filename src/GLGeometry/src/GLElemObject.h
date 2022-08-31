@@ -44,6 +44,15 @@ namespace GLGeometry
                                                glm::normalize(rotationAxis));
                 mModelMatrix = glm::scale(mModelMatrix, scale);
             }
+            void setModelMatrix(const glm::vec3& translation, 
+                                const glm::mat4 rotationMatrix, 
+                                const glm::vec3& scale)
+            {
+                mModelMatrix = glm::mat4(1.f);
+                mModelMatrix = glm::translate(mModelMatrix, translation);
+                mModelMatrix = mModelMatrix * rotationMatrix;
+                mModelMatrix = glm::scale(mModelMatrix, scale);
+            }
 
             // Function to read the model matrix
             glm::mat4 getModelMatrix()

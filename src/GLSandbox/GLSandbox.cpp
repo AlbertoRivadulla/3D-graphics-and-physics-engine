@@ -3,6 +3,7 @@
 using namespace GLBase;
 using namespace GLGeometry;
 using namespace GLUtils;
+using namespace Physics;
 
 //==============================
 // Methods of the GLSandbox class that depend on the scene to render
@@ -71,6 +72,31 @@ void GLSandbox::setupScene()
     mMaterials.push_back(Material( {0., 0., 1.}, 1.0 ));
     mMaterials.push_back(Material( {0., 1., 1.}, 1.0 ));
     mMaterials.push_back(Material( {0., 1., 0.}, 0.5 ));
+
+    /*
+       Add elements to mPhysicsWorld
+       -----------------------------------------------
+       - Create the RigidBody or CollisionBody, as pointers (using "new ...")
+       - Add it to mPhysicsWorld, either with .addRigidBody or .addCollisionBody
+           - This also adds its GLObject to the list mElementaryObjects
+
+       The objects are deleted from memory automatically, by the destructor of 
+       mPhsyicsWorld
+    */
+
+    // Add a sphere
+    // The arguments of the constructor are position, scale, mass
+    RigidBody* sphere = new RigidBody( { 0., 4., 0. }, 
+                                       { 3., 3., 3. },
+                                       45.f, { 1., 0., 0. },
+                                       1.f,
+                                       { 0., 0., 0. } );
+    sphere->addGeometry( new GLCube(), mElementaryObjects );
+    // sphere->addGeometry( new GLSphere(16), mElementaryObjects );
+    sphere->addMaterial( new Material( {1., 1., 0.5}, 0.1 ) );
+    mPhysicsWorld.addRigidBody( sphere );
+
+
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -79,6 +105,10 @@ void GLSandbox::setupApplication()
 {
     // Pass a pointer to the camera
     mApplication.setCamera(&mCamera);
+
+    // // Set the camera to be orthographic
+    // mCamera.setOrthographic();
+
     // Pass a pointer to the input handler
     mApplication.setInputHandler(&mInputHandler);
     // // Configure the frustum of the camera
@@ -97,10 +127,7 @@ void GLSandbox::setupApplication()
 void GLSandbox::updateScene()
 {
     // Update the objects in the physics world
-    mPhysicsWorld.step();
-
-    // // Set the camera to be orthographic
-    // mCamera.setOrthographic();
+    mPhysicsWorld.step( mDeltaTime );
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();
@@ -126,19 +153,6 @@ void GLSandbox::updateScene()
 
     // Move the spot light
     mLights[1]->setPosition( { 3. * glm::sin((float)glfwGetTime()), 4., 0. } );
-
-    /*
-       Add elements to mPhysicsWorld
-       -----------------------------------------------
-       - Create the RigidBody or CollisionBody, as pointers (using "new ...")
-       - Add its GLObject to the list mElementaryObjects
-       - Add it to mPhysicsWorld, either with .addRigidBody or .addCollisionBody
-
-       The objects are deleted from memory automatically, by the destructor of 
-       mPhsyicsWorld
-    */
-
-
 }
 
 // Render the geometry that will use deferred rendering

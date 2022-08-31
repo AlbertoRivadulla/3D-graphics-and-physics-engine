@@ -12,15 +12,11 @@ namespace Physics
     CollisionWorld::CollisionWorld()
     {
 
-        std::cout << "Initializing collisionworld" << std::endl;
-
     }
 
     // Destructor
     CollisionWorld::~CollisionWorld()
     {
-        std::cout << "Destroying collisionworld" << std::endl;
-
         for ( auto body : mCollisionBodies )
             delete body;
 
@@ -33,9 +29,11 @@ namespace Physics
     }
 
     // Draw the objects in the current frame, to the G-buffer
-    void CollisionWorld::draw( const Shader& defaultShader )
+    void CollisionWorld::draw( Shader& defaultShader )
     {
-
+        // Draw all the collision bodies
+        for ( auto collisionBody : mCollisionBodies )
+            collisionBody->draw( defaultShader );
     }
 
     //--------------------------------------------------------------------------
@@ -44,19 +42,14 @@ namespace Physics
     // Constructor
     DynamicsWorld::DynamicsWorld()
     {
-        
-        std::cout << "Initializing dynamicsworld" << std::endl;
 
     }
 
     // Destructor
     DynamicsWorld::~DynamicsWorld()
     {
-        std::cout << "Destroying dynamicsworld" << std::endl;
-
         for ( auto body : mRigidBodies )
             delete body;
-
     }
 
     // Add a RigidBody
@@ -66,14 +59,20 @@ namespace Physics
     }
 
     // Update the objects in the current frame
-    void DynamicsWorld::step()
+    void DynamicsWorld::step( float deltaTime )
     {
+        // std::cout << "step" << std::endl;
+
+
+        // Move the dynamic objects
+        for ( auto body : mRigidBodies )
+            body->updateMovement( deltaTime );
     }
 
     // Draw the objects in the current frame, to the G-buffer
     void DynamicsWorld::draw( Shader& defaultShader )
     {
-        std::cout << "Drawing from DynamicsWorld" << std::endl;
+        // std::cout << "draw" << std::endl;
 
         // Draw all the collision bodies
         for ( auto collisionBody : mCollisionBodies )

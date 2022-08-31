@@ -11,6 +11,9 @@ using namespace GLBase;
 
 namespace Physics
 {
+    // Constants
+    const float RAD_TO_DEG = 180.f / M_PI;
+
     // Struct that describes the collision points between two objects A and B
     struct CollisionPoints
     {
@@ -26,7 +29,9 @@ namespace Physics
     {
         public:
             // Constructor
-            CollisionBody();
+            // CollisionBody( glm::vec3 position, glm::vec3 scale );
+            CollisionBody( glm::vec3 position, glm::vec3 scale,
+                           float rotationAngle, glm::vec3 rotationAxis );
 
             // Destructor
             ~CollisionBody();
@@ -34,11 +39,22 @@ namespace Physics
             // // Add collider
             // void addCollider( Collider* collider );
 
-            // Add geometrical object
-            void addGeometricalObject( GLElemObject* object );
+            // Add geometrical object, and copy it to the list of elementary objects of
+            // the GLSandbox class
+            void addGeometry( GLElemObject* objectPtr, 
+                              std::vector<GLElemObject*>& elemObjs );
 
             // Add material
             void addMaterial( Material* material );
+
+            // Set position
+            void setPosition( glm::vec3 position );
+
+            // Set Scale
+            void setScale( glm::vec3 scale );
+
+            // Set rotation
+            // void setRotation( float angle, glm::vec3 axis );
 
             // Draw
             void draw( Shader& shader );
@@ -47,7 +63,7 @@ namespace Physics
             // Position, scale and Rotation
             glm::vec3 mPosition;
             glm::vec3 mScale;
-            glm::mat4 mRotation;
+            glm::mat4 mRotationMatrix;
 
             // Collider
             // Collider* mCollider;
@@ -65,15 +81,30 @@ namespace Physics
     {
         public:
             // Constructor
-            RigidBody();
+            RigidBody( glm::vec3 position, glm::vec3 scale,
+                       float rotationAngle, glm::vec3 rotationAxis,
+                       float mass, glm::vec3 velocity = {0.f, 0.f, 0.f} );
 
-            // Update transform
+            // Set velocity
+            void setVelocity( glm::vec3 velocity );
+
+            // Set mass 
+            void setMass( float mass );
+
+            // Update movement
+            void updateMovement( float deltaTime );
 
         private:
             // Variables for dynamics
             float mMass;
+            float mMassInver;
             glm::vec3 mVelocity;
+            glm::vec3 mAngularVelocity;
             glm::vec3 mForce;
+            glm::vec3 mTorque;
+
+            // Gravity acceleration
+            glm::vec3 mGravity;
     };
 }
 
