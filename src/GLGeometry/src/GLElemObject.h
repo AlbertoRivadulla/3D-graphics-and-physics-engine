@@ -15,6 +15,9 @@ namespace GLGeometry
             // Not all derived classes will have a EBO!
             // unsigned int mEBO;
 
+            // Data of the mesh
+            std::vector<GLBase::Vertex> mVertices;
+
             // Model matrix
             glm::mat4 mModelMatrix;
 
@@ -45,7 +48,7 @@ namespace GLGeometry
                 mModelMatrix = glm::scale(mModelMatrix, scale);
             }
             void setModelMatrix(const glm::vec3& translation, 
-                                const glm::mat4 rotationMatrix, 
+                                const glm::mat4& rotationMatrix, 
                                 const glm::vec3& scale)
             {
                 mModelMatrix = glm::mat4(1.f);
@@ -58,6 +61,19 @@ namespace GLGeometry
             glm::mat4 getModelMatrix()
             {
                 return mModelMatrix;
+            }
+
+            // Function to get the positions of the vertices
+            std::vector<glm::vec3> getVertices()
+            {
+                // Initialize the vector
+                std::vector<glm::vec3> vertices( mVertices.size() );
+
+                // Store all the positions of the vertices
+                for ( int i = 0; i < mVertices.size(); ++i )
+                    vertices[ i ] = mVertices[ i ].Position;
+
+                return vertices;
             }
 
             // // Function to render

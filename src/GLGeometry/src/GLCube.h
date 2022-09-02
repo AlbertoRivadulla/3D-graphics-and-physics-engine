@@ -12,7 +12,7 @@ namespace GLGeometry
     {
         private:
             // Data of the mesh
-            std::vector<Vertex> mVertices;
+            // std::vector<Vertex> mVertices;
             std::vector<unsigned int> mIndices;
 
         public:

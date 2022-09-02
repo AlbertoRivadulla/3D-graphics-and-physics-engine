@@ -57,7 +57,7 @@ namespace GLGeometry
 
             mVertices.push_back(thisVertex);
         }
-        // Add a vertes in the cusp
+        // Add a vertex in the cusp
         thisVertex.Position = glm::vec3(0., 0.5, 0.);
         // thisVertex.Normal = glm::vec3(0., 1., 0.);
         thisVertex.Normal = glm::vec3(0., 0., 0.);

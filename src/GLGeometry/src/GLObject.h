@@ -18,11 +18,11 @@ namespace GLGeometry
             virtual void draw() = 0;
 
             // Function to set the model matrix
-            virtual void setModelMatrix(const glm::vec3& translation, const float& rotationAngle, 
-                                        const glm::vec3& rotationAxis, const glm::vec3& scale) = 0;
+            // virtual void setModelMatrix(const glm::vec3& translation, const float& rotationAngle, 
+            //                             const glm::vec3& rotationAxis, const glm::vec3& scale) = 0;
 
             // Function to read the model matrix
-            virtual glm::mat4 getModelMatrix() = 0;
+            // virtual glm::mat4 getModelMatrix() = 0;
     };
 }
 

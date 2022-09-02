@@ -5,6 +5,7 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include "Colliders.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -28,6 +29,12 @@ namespace Physics
     class CollisionBody
     {
         public:
+            // Collider
+            Collider* mCollider;
+
+            // Model matrix 
+            glm::mat4 mModelMatrix;
+
             // Constructor
             // CollisionBody( glm::vec3 position, glm::vec3 scale );
             CollisionBody( glm::vec3 position, glm::vec3 scale,
@@ -36,13 +43,13 @@ namespace Physics
             // Destructor
             ~CollisionBody();
 
-            // // Add collider
-            // void addCollider( Collider* collider );
-
             // Add geometrical object, and copy it to the list of elementary objects of
             // the GLSandbox class
             void addGeometry( GLElemObject* objectPtr, 
                               std::vector<GLElemObject*>& elemObjs );
+
+            // Add collider
+            void addCollider( Collider* collider );
 
             // Add material
             void addMaterial( Material* material );
@@ -54,7 +61,10 @@ namespace Physics
             void setScale( glm::vec3 scale );
 
             // Set rotation
-            // void setRotation( float angle, glm::vec3 axis );
+            void setRotation( float angle, glm::vec3 axis );
+
+            // Method to compute a model matrix 
+            void computeModelMatrix();
 
             // Draw
             void draw( Shader& shader );
@@ -65,14 +75,11 @@ namespace Physics
             glm::vec3 mScale;
             glm::mat4 mRotationMatrix;
 
-            // Collider
-            // Collider* mCollider;
+            // Geometrical object
+            GLElemObject* mGeometryObject;
 
             // Material
             Material* mMaterial;
-
-            // Geometrical object
-            GLElemObject* mGeometryObject;
     };
 
 

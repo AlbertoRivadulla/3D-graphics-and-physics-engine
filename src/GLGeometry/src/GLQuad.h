@@ -15,7 +15,7 @@ namespace GLGeometry
             unsigned int mEBO;
 
             // Data of the mesh
-            std::vector<Vertex> mVertices;
+            // std::vector<Vertex> mVertices;
             std::vector<unsigned int> mIndices;
 
         public:
