@@ -14,10 +14,12 @@ namespace GLGeometry
     //==============================
 
     // Constructor
+    // GLTextRenderer::GLTextRenderer( const int scrWidth, const int scrHeight, 
+    //                                 const char* fontPath, int height ) : 
     GLTextRenderer::GLTextRenderer( const int scrWidth, const int scrHeight, 
-                                    const char* fontPath, int height ) : 
-        mTextShader( "../shaders/GLGeometry/textVertex.glsl",
-                     "../shaders/GLGeometry/textFragment.glsl" )
+                                    const std::string fontPath, int height ) : 
+        mTextShader( std::string(BASE_DIR_SHADERS) + "/GLGeometry/textVertex.glsl",
+                     std::string(BASE_DIR_SHADERS) + "/GLGeometry/textFragment.glsl" )
     {
         // Initialize freetype
         FT_Library ft;
@@ -26,7 +28,7 @@ namespace GLGeometry
 
         // Load the font
         FT_Face face;
-        if (FT_New_Face(ft, fontPath, 0, &face))
+        if (FT_New_Face(ft, fontPath.c_str(), 0, &face))
             std::cout << "ERROR::FREETYPE: Failed to load font at " << fontPath << std::endl;  
 
         // Setup the pixel font size

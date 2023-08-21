@@ -12,7 +12,8 @@ namespace GLBase
             unsigned int ID;
 
             // Constructor that reads and builds the shader from files.
-            Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
+            // Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
+            Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
 
             // Use/activate the shader
             void use();

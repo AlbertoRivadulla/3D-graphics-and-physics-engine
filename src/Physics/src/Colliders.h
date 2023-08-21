@@ -65,6 +65,12 @@ namespace Physics
             void computeAABBTransformed( const std::vector<glm::vec4>& vertices,
                                          const glm::mat4& modelMatrix,
                                          std::vector<glm::vec3>& corners );
+
+            // // Method to find the furthest point in a given direction, needed for 
+            // // the GJK algorithm
+            // virtual glm::vec3 findFurthestPoint( const glm::vec3& direction ) const = 0;
+            // // Method to compute the support point with another collider
+            // glm::vec3 support( const Collider* other, const glm::vec3& d ) const;
     };
 
     // Sphere collider
@@ -94,6 +100,10 @@ namespace Physics
             float mRadius;
             // Center of the sphere
             glm::vec3 mCenter;
+
+            // // Method to find the furthest point in a given direction, needed for 
+            // // the GJK algorithm
+            // glm::vec3 findFurthestPoint( const glm::vec3& direction ) const;
     };
 
     // Plane collider
@@ -130,6 +140,10 @@ namespace Physics
             std::vector<glm::vec3> mTangent;
             // Dimensions
             std::vector<float> mDimensions;
+
+            // // Method to find the furthest point in a given direction, needed for 
+            // // the GJK algorithm
+            // glm::vec3 findFurthestPoint( const glm::vec3& direction ) const;
     };
 
     // Generic convex collider
@@ -159,6 +173,10 @@ namespace Physics
 
             // Compute the AABB in model space from a vector of vertices
             void computeAABB( GLElemObject* elemObject );
+
+            // // Method to find the furthest point in a given direction, needed for 
+            // // the GJK algorithm
+            // glm::vec3 findFurthestPoint( const glm::vec3& direction ) const;
     };
 
 };

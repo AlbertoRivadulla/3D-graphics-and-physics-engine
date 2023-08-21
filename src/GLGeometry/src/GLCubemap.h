@@ -14,11 +14,11 @@ namespace GLGeometry
             // The default path for the textures is
             //      ../resources/textures/skybox
             GLCubemap(const std::string& texturesPath, 
-                      const char* vertexShaderPath = "../shaders/GLGeometry/skyboxVertex.glsl",
-                      const char* fragmentShaderPath = "../shaders/GLGeometry/skyboxFragment.glsl");
+                      const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+                      const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragment.glsl");
             // Constructor without textures
-            GLCubemap(const char* vertexShaderPath = "../shaders/GLGeometry/skyboxVertex.glsl",
-                      const char* fragmentShaderPath = "../shaders/GLGeometry/skyboxFragmentFlat.glsl");
+            GLCubemap(const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+                      const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
 
             // Setup the screen quad
             void setupScreenQuad();

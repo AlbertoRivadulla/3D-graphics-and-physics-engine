@@ -3,7 +3,8 @@
 namespace GLBase
 {
     // Constructor that reads and builds the shader from files.
-    Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+    // Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+    Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath)
     {
         // Read the shaders from the files.
 
@@ -39,7 +40,7 @@ namespace GLBase
             fragmentCode = fShaderStream.str();
             
             // If the geometry path is present, load the geometry shader too
-            if (geometryPath != nullptr)
+            if (geometryPath != "")
             {
                 gShaderFile.open(geometryPath);
                 std::stringstream gShaderStream;
@@ -50,7 +51,7 @@ namespace GLBase
         }
         catch (std::ifstream::failure e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << geometryPath << std::endl;
         }
         const char* vShaderCode { vertexCode.c_str() };
         const char* fShaderCode { fragmentCode.c_str() };
@@ -79,7 +80,7 @@ namespace GLBase
         checkCompileErrors(fragment, "FRAGMENT");
 
         // If the geometry shader is given, compile it
-        if (geometryPath != nullptr)
+        if (geometryPath != "")
         {
             const char* gShaderCode { geometryCode.c_str() };
             geometry = glCreateShader(GL_GEOMETRY_SHADER);
@@ -93,7 +94,7 @@ namespace GLBase
         // Attach the shaders to the program, and link them
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
-        if (geometryPath != nullptr)
+        if (geometryPath != "")
             glAttachShader(ID, geometry);
         glLinkProgram(ID); 
         // Check for linking errors
@@ -102,7 +103,7 @@ namespace GLBase
         // Once the shaders are linked in the program, we don't need the shader objects.
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-        if (geometryPath != nullptr)
+        if (geometryPath != "")
             glDeleteShader(geometry);
     }
 

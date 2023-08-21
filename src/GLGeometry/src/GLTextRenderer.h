@@ -31,8 +31,10 @@ namespace GLGeometry
     {
         public:
             // Constructor
+            // GLTextRenderer( const int scrWidth, const int scrHeight, 
+            //                 const char* fontPath, int height = 48 );
             GLTextRenderer( const int scrWidth, const int scrHeight, 
-                            const char* fontPath, int height = 48 );
+                            const std::string fontPath, int height = 48 );
 
             // Render a string of text
             void renderText( const std::string& text, float x, const float y,

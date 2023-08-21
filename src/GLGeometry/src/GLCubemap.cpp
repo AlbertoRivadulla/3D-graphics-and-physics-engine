@@ -5,8 +5,8 @@ using namespace GLBase;
 namespace GLGeometry
 {
     // Constructor
-    GLCubemap::GLCubemap(const std::string& texturesPath, const char* vertexShaderPath,
-                      const char* fragmentShaderPath) :
+    GLCubemap::GLCubemap(const std::string& texturesPath, const std::string& vertexShaderPath,
+                      const std::string& fragmentShaderPath) :
         mShader(vertexShaderPath, fragmentShaderPath)
     {
         // Load the textures
@@ -20,7 +20,7 @@ namespace GLGeometry
         setupScreenQuad();
     }
     // Constructor without textures
-    GLCubemap::GLCubemap(const char* vertexShaderPath, const char* fragmentShaderPath) :
+    GLCubemap::GLCubemap(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) :
         mShader(vertexShaderPath, fragmentShaderPath)
     {
         // No textures to load, if no path for them is given

@@ -10,9 +10,9 @@ namespace GLGeometry
     
     // Constructor
     GLAuxElements::GLAuxElements(int width, int height) :
-        mPointShader("../shaders/GLGeometry/pointVertex.glsl", "../shaders/GLGeometry/pointFragment.glsl",
-                "../shaders/GLGeometry/pointGeometry.glsl"),
-        mLineShader("../shaders/GLGeometry/lineVertex.glsl", "../shaders/GLGeometry/lineFragment.glsl")
+        mPointShader(std::string(BASE_DIR_SHADERS) + "/GLGeometry/pointVertex.glsl", std::string(BASE_DIR_SHADERS) + "/GLGeometry/pointFragment.glsl",
+                std::string(BASE_DIR_SHADERS) + "/GLGeometry/pointGeometry.glsl"),
+        mLineShader(std::string(BASE_DIR_SHADERS) + "/GLGeometry/lineVertex.glsl", std::string(BASE_DIR_SHADERS) + "/GLGeometry/lineFragment.glsl")
     {
         // Set the number of vertices in each circle of the cylinder
         mNrVerticesCylinder = 16;
