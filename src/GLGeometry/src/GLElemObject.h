@@ -3,6 +3,7 @@
 
 #include "GLGeometry.h"
 #include "GLObject.h"
+#include "utils.h"
 
 namespace GLGeometry
 {

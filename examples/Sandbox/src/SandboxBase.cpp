@@ -8,7 +8,7 @@ GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mApplication(width, height, title),
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
-    mCamera(width, height, glm::vec3(0., 0., 0.)),
+    mCamera(width, height, glm::vec3(1., 0., 0.)),
     mPhysicsWorld(),
     mAuxElements(width, height),
     // mTextRenderer(width, height, BASE_DIR_RESOURCES + "/fonts/Arial.ttf"),

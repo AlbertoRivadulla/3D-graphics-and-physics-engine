@@ -1,5 +1,4 @@
 #include "GLSandbox.h"
-#include "examples/Sandbox/constants.h"
 
 using namespace GLBase;
 // using namespace GLGeometry;
@@ -12,7 +11,7 @@ GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mCamera(width, height, glm::vec3(0., 0., 0.)),
     mPhysicsWorld(),
     mAuxElements(width, height),
-    mTextRenderer(width, height, BASE_DIR_RESOURCES + "/fonts/Arial.ttf"),
+    mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
     mRenderer(),
     mLightingShader ( mRenderer.getLightingShader() ) // Reference to the G-pass shader of the renderer
 {

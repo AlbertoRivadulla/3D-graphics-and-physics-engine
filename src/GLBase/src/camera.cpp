@@ -1,4 +1,5 @@
 #include "GLBase.h"
+#include "utils.h"
 
 namespace GLBase
 {

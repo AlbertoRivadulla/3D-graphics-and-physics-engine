@@ -8,6 +8,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 # Name of the project
 project(project)
 
+# Define base directories of shaders and resources as preprocessor macros
+add_compile_definitions(BASE_DIR_RESOURCES="${PROJECT_SOURCE_DIR}/resources")
+add_compile_definitions(BASE_DIR_SHADERS="${PROJECT_SOURCE_DIR}/shaders")
+
 # Create a variable with all the include directories
 set(INCLUDE
     ${PROJECT_SOURCE_DIR}

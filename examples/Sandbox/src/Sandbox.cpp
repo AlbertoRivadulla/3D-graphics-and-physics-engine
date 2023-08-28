@@ -29,8 +29,8 @@ void GLSandbox::setupScene()
     // Set the position of the camera
     mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
 
-    // Load a shader
-    mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl", std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
+    // // Load a shader
+    // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl", std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
 
     // Load a shader for the geometry pass
     mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertex.glsl",
@@ -52,12 +52,12 @@ void GLSandbox::setupScene()
                                             {10., 10., 10.},  // Position
                                             {-1., -1., -1.},  // Direction
                                             1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
-    // // Add a spotlight
-    // mLights.push_back(new SpotLight( {0., 1., 0.},            // Color
-    //                                  {0., 4., 0.},            // Position
-    //                                  {0., -1., 0.},           // Direction
-    //                                  60.f, 90.f,              // Angles
-    //                                  20.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
+    // Add a spotlight
+    mLights.push_back(new SpotLight( {0., 1., 0.},            // Color
+                                     {0., 4., 0.},            // Position
+                                     {0., -1., 0.},           // Direction
+                                     60.f, 90.f,              // Angles
+                                     20.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
     // // Add some point lights
     // for (int i = 0; i < 10; ++i)
     // {
@@ -132,8 +132,6 @@ void GLSandbox::setupScene()
     cube->addCollider( new ConvexCollider( new GLCube() ) );
     cube->addMaterial( new Material( {0., 0., 1.}, 0.1 ) );
     mPhysicsWorld.addRigidBody( cube );
-
-
 }
 
 // Pass pointers to objects to the application, for the input processing

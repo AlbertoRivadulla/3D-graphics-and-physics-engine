@@ -18,6 +18,10 @@ namespace Physics
         if (rotationAngle != 0.)
             mRotationMatrix = glm::rotate( mRotationMatrix, glm::radians(rotationAngle), 
                                            glm::normalize(rotationAxis) );
+
+        // Compute the model matrix 
+        // mModelMatrix = computeModelMatrix( mPosition, mRotationMatrix, mScale );
+        computeModelMatrix();
     }
 
     // Destructor
@@ -38,9 +42,6 @@ namespace Physics
         mGeometryObject = objectPtr;
         // Store the pointer also in the list of elementary objects in the scene
         elemObjs.push_back( objectPtr );
-
-        // Compute the model matrix of the geometry object
-        computeModelMatrix();
     }
 
     // Add collider
@@ -72,9 +73,10 @@ namespace Physics
     {
         mPosition = position;
 
-        // Update the model matrix of the geometry object
+        // Update the model matrix 
         // mModelMatrix = computeModelMatrix( mPosition, mRotationMatrix, mScale );
         computeModelMatrix();
+
     }
 
     // Set Scale
@@ -107,14 +109,11 @@ namespace Physics
     //                                              const glm::vec3& scale )
     void CollisionBody::computeModelMatrix()
     {
-        // mModelMatrix = glm::mat4( 1.f );
-        // mModelMatrix = glm::translate(mModelMatrix, mPosition);
-        // mModelMatrix = mModelMatrix * mRotationMatrix;
-        // mModelMatrix = glm::scale(mModelMatrix, mScale);
-        // // return modelMatrix;
-
-        // Compute the model matrix for the geometry object
-        mGeometryObject->setModelMatrix( mPosition, mRotationMatrix, mScale );
+        mModelMatrix = glm::mat4( 1.f );
+        mModelMatrix = glm::translate(mModelMatrix, mPosition);
+        mModelMatrix = mModelMatrix * mRotationMatrix;
+        mModelMatrix = glm::scale(mModelMatrix, mScale);
+        // return modelMatrix;
     }
 
     // Draw
@@ -130,8 +129,8 @@ namespace Physics
         // mGeometryObject->setModelMatrix( mPosition, mRotationMatrix, mScale );
         //////////////////////////
         //////////////////////////
-        shader.setMat4( "model", mGeometryObject->getModelMatrix() );
-        // shader.setMat4( "model", mModelMatrix );
+        // shader.setMat4( "model", mGeometryObject->getModelMatrix() );
+        shader.setMat4( "model", mModelMatrix );
 
         // Configure the material in the shader
         mMaterial->configShader( shader );

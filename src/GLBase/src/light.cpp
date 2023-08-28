@@ -1,4 +1,5 @@
 #include "light.h"
+#include "utils.h"
 
 using namespace GLGeometry;
 
