@@ -31,8 +31,6 @@ namespace GLGeometry
     {
         public:
             // Constructor
-            // GLTextRenderer( const int scrWidth, const int scrHeight, 
-            //                 const char* fontPath, int height = 48 );
             GLTextRenderer( const int scrWidth, const int scrHeight, 
                             const std::string fontPath, int height = 48 );
 
@@ -53,7 +51,6 @@ namespace GLGeometry
 
             // Method to load the characters into the map
             void loadCharacters( FT_Face& face );
-
     };
 }
 

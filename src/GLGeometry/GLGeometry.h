@@ -32,3 +32,4 @@
 #include "GLPolyhedron.h"
 
 #include "GLTextRenderer.h"
+#include "GLGUIRenderer.h"

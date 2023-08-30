@@ -12,7 +12,7 @@ namespace Physics
     // Constructor
     Collider::Collider()
     {
-        std::cout << "collider" << std::endl;
+        // std::cout << "collider" << std::endl;
 
     }
 

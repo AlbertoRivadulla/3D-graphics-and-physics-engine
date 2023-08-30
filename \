@@ -19,13 +19,6 @@ using namespace Physics;
 //  - Create lights
 void GLSandbox::setupScene()
 {
-    // Create the pixels for the GUI, and initalize them all to zero
-    mGUIWidth = mScrWidth / 4;
-    mGUIHeight = mScrHeight / 4;
-    mGUIPixels = new unsigned char[ mGUIWidth * mGUIHeight * 4 ];
-    for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
-        mGUIPixels[i] = 0;
-
     // Create the cubemap for the sky
     mSkymap = new GLCubemap();
 
@@ -59,12 +52,12 @@ void GLSandbox::setupScene()
                                             {10., 10., 10.},  // Position
                                             {-1., -1., -1.},  // Direction
                                             1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
-    // // Add a spotlight
-    // mLights.push_back(new SpotLight( {0., 1., 0.},            // Color
-    //                                  {0., 4., 0.},            // Position
-    //                                  {0., -1., 0.},           // Direction
-    //                                  60.f, 90.f,              // Angles
-    //                                  20.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
+    // Add a spotlight
+    mLights.push_back(new SpotLight( {0., 1., 0.},            // Color
+                                     {0., 4., 0.},            // Position
+                                     {0., -1., 0.},           // Direction
+                                     60.f, 90.f,              // Angles
+                                     20.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
     // // Add some point lights
     // for (int i = 0; i < 10; ++i)
     // {
@@ -72,7 +65,7 @@ void GLSandbox::setupScene()
     //                                       {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f, 10.f * getRandom0To1() - 5.f}, 
     //                                       0.2f, 0.01f, 0.02f ) );
     // }
-
+    //
     // // Create some materials
     // mMaterials.push_back(Material( {1., 1., 0.}, 1.0 ));
     // mMaterials.push_back(Material( {1., 0., 0.}, 1.0 ));
@@ -268,30 +261,32 @@ void GLSandbox::renderForward()
     // }
 
 
-    //-------------------------------------------------------------------------
+
+
+    //-----------------------------------------------------
     // GUI and text
 
-    // Set the pixels of the GUI to zero
-    for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
-        mGUIPixels[i] = 0;
-    // Draw a red rectangle in the lowest corner
-    for ( unsigned int x = 0; x < mGUIWidth; ++x )
-    {
-        for ( unsigned int y = 0; y < mGUIHeight; ++y )
-        {
-            unsigned int index = ( y * ( mGUIWidth ) + x ) * 4;
-            mGUIPixels[index + 0] = 255; // Red
-            mGUIPixels[index + 1] = 0;   // Green
-            mGUIPixels[index + 2] = 0;   // Blue
-            mGUIPixels[index + 3] = 128; // Alpha (fully opaque)
+    // // Clear the GUI
+    // mGUIRenderer.clearGUI();
+
+    unsigned char pixels[100 * 100 * 4];
+
+    // Fill the pixel data with your desired colors
+    for (unsigned int y = 0; y < 100; ++y) {
+        for (unsigned int x = 0; x < 100; ++x) {
+            unsigned int index = (y * 100 + x) * 4;
+            pixels[index + 0] = 255; // Red
+            pixels[index + 1] = 0;   // Green
+            pixels[index + 2] = 0;   // Blue
+            pixels[index + 3] = 128; // Alpha (fully opaque)
         }
     }
 
+
     // Draw the GUI elements
-    mGUIRenderer.pixelsToTexture( mGUIPixels, mGUIWidth, mGUIHeight, 0, mScrHeight - mGUIHeight );
     mGUIRenderer.renderGUI();
 
-    // Write text to the screen
-    // mTextRenderer.renderText( std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3( 0.f, 0.5f, 0.f ) );
-    // mTextRenderer.renderText( "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
+    // // Write text to the screen
+    mTextRenderer.renderText( std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3( 0.f, 0.5f, 0.f ) );
+    mTextRenderer.renderText( "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
 }

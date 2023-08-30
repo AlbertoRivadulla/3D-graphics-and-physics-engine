@@ -14,8 +14,6 @@ namespace GLGeometry
     //==============================
 
     // Constructor
-    // GLTextRenderer::GLTextRenderer( const int scrWidth, const int scrHeight, 
-    //                                 const char* fontPath, int height ) : 
     GLTextRenderer::GLTextRenderer( const int scrWidth, const int scrHeight, 
                                     const std::string fontPath, int height ) : 
         mTextShader( std::string(BASE_DIR_SHADERS) + "/GLGeometry/textVertex.glsl",
@@ -120,7 +118,11 @@ namespace GLGeometry
                                      const float scale, glm::vec3 color )
     {
         glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Set the index of the texture that will be used for the glyphs
+        mTextShader.setInt( "glyphTexture", 0 );
 
         // Activate the shader
         mTextShader.use();
@@ -171,5 +173,8 @@ namespace GLGeometry
         // Unbind the VAO and texture
         glBindVertexArray( 0 );
         glBindTexture( GL_TEXTURE_2D, 0 );
+
+        // Enable depth test again
+        glEnable(GL_DEPTH_TEST);
     }
 }

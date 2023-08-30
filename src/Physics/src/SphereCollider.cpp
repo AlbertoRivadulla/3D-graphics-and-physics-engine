@@ -12,7 +12,7 @@ namespace Physics
     SphereCollider::SphereCollider() : 
         mRadius { 1.f }
     {
-        std::cout << "sphere collider" << std::endl;
+        // std::cout << "sphere collider" << std::endl;
 
         // Compute the AABB in model space
         mAABB.cornersModel.push_back( glm::vec3( -0.5f, -0.5f, -0.5f ) );

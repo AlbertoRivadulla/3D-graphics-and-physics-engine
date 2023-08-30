@@ -7,12 +7,13 @@ using namespace GLBase;
 GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mApplication(width, height, title),
     mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
+    mScrWidth { width }, mScrHeight { height },
     mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
     mCamera(width, height, glm::vec3(1., 0., 0.)),
     mPhysicsWorld(),
     mAuxElements(width, height),
-    // mTextRenderer(width, height, BASE_DIR_RESOURCES + "/fonts/Arial.ttf"),
     mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
+    mGUIRenderer(width, height),
     mRenderer(),
     mLightingShader ( mRenderer.getLightingShader() ) // Reference to the G-pass shader of the renderer
 {
@@ -98,11 +99,14 @@ void GLSandbox::run()
             mFrameCounter = 0;
             mTotalTime = 0;
 
-            // Change the title of the application
-            mApplication.setTitle(ss.str().c_str());
+            // // Change the title of the application
+            // mApplication.setTitle(ss.str().c_str());
+
+            // Print the frametime to the console
+            std::cout << ss.str() << '\n';
         }
 
-        // // Wait for the use to press a key
+        // // Wait for the user to press a key
         // do 
         // {
         //     std::cout << '\n' << "Press a key to continue...";

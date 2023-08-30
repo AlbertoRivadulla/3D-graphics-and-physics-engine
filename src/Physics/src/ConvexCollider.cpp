@@ -11,7 +11,7 @@ namespace Physics
     // Constructor with a GLElemObject as argument
     ConvexCollider::ConvexCollider( GLElemObject* elemObject )
     {
-        std::cout << "convex collider" << std::endl;
+        // std::cout << "convex collider" << std::endl;
 
         // Compute the AABB in model space, from the vertices of the GLElemObject
         mAABB.cornersModel.push_back( glm::vec3( -0.5f, -0.5f, -0.5f ) );

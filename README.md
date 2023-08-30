@@ -2,15 +2,17 @@
 
 ### TO DO
 
-- The objects in the physics world need to be taken into account when computing the shadow map, in SandboxBase.cpp
-
 
 ### Next steps 
 
 - 
 
+### Future work
+
+- Implement batch rendering or some other optimization to draw text to the
+screen.
+
 
 ### Notes
 
-- The code to make the updates of the objects with physics slower is located in the file PhysicsWorld.cpp
 

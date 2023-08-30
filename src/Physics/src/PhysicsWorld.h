@@ -47,7 +47,7 @@ namespace Physics
 
             // Update the objects in the current frame
             void step( float deltaTime );
-            //
+
             // // Draw the objects in the current frame, to the G-buffer
             // void draw( Shader& defaultShader );
 

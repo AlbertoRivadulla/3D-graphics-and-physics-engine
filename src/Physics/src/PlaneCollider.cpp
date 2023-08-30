@@ -11,7 +11,7 @@ namespace Physics
     // Constructor
     PlaneCollider::PlaneCollider()
     {
-        std::cout << "plane collider" << std::endl;
+        // std::cout << "plane collider" << std::endl;
 
         // Compute the AABB in model space
         mAABB.cornersModel.push_back( glm::vec3( -0.5f, 0.f, -0.5f ) );

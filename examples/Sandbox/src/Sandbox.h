@@ -15,6 +15,10 @@ class GLSandbox
     //==============================
 
     private:
+        // Pixels for the GUI
+        int mGUIWidth;
+        int mGUIHeight;
+        unsigned char* mGUIPixels;
         
     //==============================
     // Basic implementation of the class
@@ -41,6 +45,8 @@ class GLSandbox
         GLAuxElements mAuxElements;
         // Object used to draw text to the screen
         GLTextRenderer mTextRenderer;
+        // Object used to draw a GUI to the screen
+        GLGUIRenderer mGUIRenderer;
 
         // Projection and view matrices
         glm::mat4 mProjection;
@@ -75,6 +81,10 @@ class GLSandbox
         int mFrameCounter;
         float mTotalTime;
         
+        // Screen width and height
+        int mScrWidth;
+        int mScrHeight;
+
         // Setup the scene
         void setupScene();
 
@@ -86,7 +96,7 @@ class GLSandbox
 
         // // Main render logic
         // void render();
-        //
+
         // Render the geometry that will use deferred rendering
         void renderDeferred();
 

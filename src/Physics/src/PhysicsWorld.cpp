@@ -79,10 +79,10 @@ namespace Physics
         */
 
         // Update the movement after a certain amount of frames
-        if ( mCounter++ == 10 )
-        {
-            std::cout << "step" << std::endl;
-            mCounter = 0;
+        // if ( mCounter++ == 10 )
+        // {
+        //     // std::cout << "step" << std::endl;
+        //     mCounter = 0;
 
             // Apply forces on the objects
             //
@@ -93,25 +93,25 @@ namespace Physics
                 body->updateMovement( deltaTime );
 
             // Check for collisions between pairs of objects
-            for ( auto bodyA : mCollisionBodies )
-            {
-                for ( auto bodyB : mCollisionBodies )
-                {
-                    // If they are the same, break the loop
-                    if ( bodyA == bodyB )
-                        break;
-                    // If they are not the same, check for collisions between their
-                    // AABB
-                    // if ( bodyA->mCollider->checkCollisionAABB( bodyB->mCollider ) )
-                    if ( bodyA->mCollider->findCollision( bodyB->mCollider ) )
-                    {
-                        std::cout << "Collision between" << std::endl;
-
-                        // Check for collision between their finer colliders
-                    }
-
-                }
-            }
+            // for ( auto bodyA : mCollisionBodies )
+            // {
+            //     for ( auto bodyB : mCollisionBodies )
+            //     {
+            //         // If they are the same, break the loop
+            //         if ( bodyA == bodyB )
+            //             break;
+            //         // If they are not the same, check for collisions between their
+            //         // AABB
+            //         // if ( bodyA->mCollider->checkCollisionAABB( bodyB->mCollider ) )
+            //         if ( bodyA->mCollider->findCollision( bodyB->mCollider ) )
+            //         {
+            //             std::cout << "Collision between" << std::endl;
+            //
+            //             // Check for collision between their finer colliders
+            //         }
+            //
+            //     }
+            // }
             //
             //
 
@@ -119,7 +119,7 @@ namespace Physics
             // Solve constraints
             //
             //
-        }
+        // }
     }
 
     // // Draw the objects in the current frame, to the G-buffer

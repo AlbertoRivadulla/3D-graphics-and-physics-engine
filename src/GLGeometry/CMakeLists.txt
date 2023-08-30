@@ -51,6 +51,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCubemap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLAuxElements.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTextRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLGUIRenderer.cpp
 )
 
 # Create the library

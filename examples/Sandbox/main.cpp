@@ -9,7 +9,7 @@ const unsigned int SCR_HEIGHT = 720;
 int main()
 {
     // Create the sandbox
-    GLSandbox sandbox(SCR_WIDTH, SCR_HEIGHT, "Title");
+    GLSandbox sandbox(SCR_WIDTH, SCR_HEIGHT, "Sandbox", 1.f);
 
     // Start the application
     sandbox.run();
