@@ -45,12 +45,14 @@ namespace GLBase
         // Properties
         glm::vec3 albedo;
         float spec;
+        float emissive;
 
         // Constructor
-        Material(glm::vec3 alb, float specular)
+        Material(glm::vec3 alb, float specular, float emiss = 0)
         {
             albedo = alb;
             spec = specular;
+            emissive = emiss;
         }
 
         // Method to pass the material information to a shader.
@@ -58,6 +60,7 @@ namespace GLBase
         {
             shader.setVec3("material.albedo", albedo);
             shader.setFloat("material.spec", spec);
+            shader.setFloat("material.emissive", emissive);
         }
     };
 }

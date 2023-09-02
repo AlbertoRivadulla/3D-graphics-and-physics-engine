@@ -117,15 +117,15 @@ namespace GLBase
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 
                                mGPositionTexture, 0);
-        // 2 - Normal texture
-        glGenTextures(1, &mGNormalTexture);
-        glBindTexture(GL_TEXTURE_2D, mGNormalTexture);
+        // 2 - Normal and emissive texture
+        glGenTextures(1, &mGNormalEmissTexture);
+        glBindTexture(GL_TEXTURE_2D, mGNormalEmissTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0, 
                      GL_RGBA, GL_FLOAT, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 
-                               mGNormalTexture, 0);
+                               mGNormalEmissTexture, 0);
         // 3 - Albedo and specular texture
         glGenTextures(1, &mGAlbedoSpecTexture);
         glBindTexture(GL_TEXTURE_2D, mGAlbedoSpecTexture);
@@ -158,7 +158,7 @@ namespace GLBase
         // Configure the textures in the shader for the lighting pass
         mLightingPassShader.use();
         mLightingPassShader.setInt("gPosition", 0);
-        mLightingPassShader.setInt("gNormal", 1);
+        mLightingPassShader.setInt("gNormalEmiss", 1);
         mLightingPassShader.setInt("gAlbedoSpec", 2);
     }
 
@@ -347,7 +347,7 @@ namespace GLBase
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mGPositionTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, mGNormalTexture);
+        glBindTexture(GL_TEXTURE_2D, mGNormalEmissTexture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, mGAlbedoSpecTexture);
         // glBindTexture(GL_TEXTURE_2D, mDepthRBO);

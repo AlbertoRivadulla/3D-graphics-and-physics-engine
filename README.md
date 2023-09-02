@@ -9,7 +9,7 @@ The graphics are rendered using OpenGL, by means of the open source GLFW library
 
 - Deferred rendering
     - The properties of each object are given by its material, which specifies
-    the albedo color and specular intensity.
+    the albedo color, specular and emissive intensities.
 - Different light sources
     - Directional lights
     - Point lights

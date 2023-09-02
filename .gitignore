@@ -1,6 +1,6 @@
 compile_commands.json
 build
-resources/*
+resources/textures/skybox
 src/.ccls
 .cache/
 .obsidian/

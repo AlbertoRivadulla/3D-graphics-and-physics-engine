@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 layout (location = 0) out vec4 FragColor;
 // out vec4 FragColor;
@@ -7,7 +7,7 @@ in vec2 TexCoords;
 
 // Uniforms with the information from the Geometry pass
 uniform sampler2D gPosition;
-uniform sampler2D gNormal;
+uniform sampler2D gNormalEmiss;
 uniform sampler2D gAlbedoSpec;
 
 // Maximum cascade levels for the directional light
@@ -76,7 +76,8 @@ uniform SpotLight spotLights[NR_MAX_SPOT_LIGHTS];
 uniform PointLight pointLights[NR_MAX_POINT_LIGHTS];
 
 // Light space matrices for the cascaded shadow maps
-layout (std140, binding = 0) uniform LightSpaceMatrices
+// layout (std140, binding = 0) uniform LightSpaceMatrices
+layout (std140) uniform LightSpaceMatrices
 {
     // This allows for a maximum of 8 cascades
     mat4 lightSpaceMatrices[16];
@@ -201,110 +202,117 @@ void main()
     // Get the data from the g-buffer textures
     vec3 FragPos   = texture(gPosition, TexCoords).rgb;
     float Depth    = texture(gPosition, TexCoords).a;
-    vec3 Normal    = normalize( texture(gNormal, TexCoords).rgb );
+    vec3 Normal    = normalize( texture(gNormalEmiss, TexCoords).rgb );
+    float Emissive = texture(gNormalEmiss, TexCoords).a;
     vec3 Albedo    = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
 
-    // Ambient lighting
-    vec3 lighting = ambientLightColor * Albedo;
-
-    // Compute the lighting due to the directional lights
-    // for (int i = 0; i < nrDirLights; ++i)
-    // {
-        // Attenuation of the light
-        vec3 fragToLight = dirLights[0].position - FragPos;
-        float attenuation = dirLights[0].intensity / (1. 
-                            + dirLights[0].kLinear * length(fragToLight)
-                            + dirLights[0].kQuadratic * dot(fragToLight, fragToLight));
-
-        // Diffuse contribution
-        vec3 lightDirection = -1. * dirLights[0].direction;
-        vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
-
-        // Specular contribution, with the Blinn-Phong model
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 halfwayDir = normalize(-dirLights[0].direction + viewDir);
-        // Intensity of the specular component
-        float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
-        // Color of the specular component
-        vec3 specular = specIntensity * Albedo;
-
-        // Compute the shadow
-        float shadow = shadowComputationDirLight(FragPos, Normal, Depth, dirLights[0]);
-
-        // Sum the two contributions to the total light
-        lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * dirLights[0].color;
-    // }
-
-    // Compute the lighting due to the spot lights
-    for (int i = 0; i < nrSpotLights; ++i)
+    // If the pixel has an emissive component, the color is simply that of the
+    // albedo multiplied by the emissive factor
+    if (Emissive > 0.)
     {
-        // Position of the fragment with respect to the light
-        vec3 fragToLight = spotLights[i].position - FragPos;
-        // Direction of the light, as in a point light
-        vec3 lightDirection = normalize(fragToLight);
-        // Angle between the center of the light direction and the vector from the
-        // light to the fragment
-        float cosTheta = -1. * dot(spotLights[i].direction, lightDirection);
-
-        // Attenuation of the light
-        float attenuation = spotLights[i].intensity / (1. 
-                            + spotLights[i].kLinear * length(fragToLight)
-                            + spotLights[i].kQuadratic * dot(fragToLight, fragToLight));
-        // The attenuation must be zero if the angle theta is outside the bound
-        // of the light source
-        // Do a smooth transition from one to zero, in the region between angleInner and angleOuter
-        attenuation *= clamp( (cosTheta - spotLights[i].cosAngleOuter) / 
-                              (spotLights[i].cosAngleInner - spotLights[i].cosAngleOuter),
-                              0., 1.);
-
-        // Diffuse contribution
-        vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
-
-        // Specular contribution, with the Blinn-Phong model
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 halfwayDir = normalize(lightDirection + viewDir);
-        // Intensity of the specular component
-        float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
-        // Color of the specular component
-        vec3 specular = specIntensity * Albedo;
-
-        // Compute the shadow
-        float shadow = shadowComputationSpotLight(FragPos, Normal, Depth, spotLights[i]);
-
-        // Sum the two contributions to the total light
-        lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * spotLights[i].color;
+        FragColor = vec4(Albedo * Emissive, 1.);
     }
-
-    // Compute the lighting due to the point lights
-    for (int i = 0; i < nrPointLights; ++i)
+    else
     {
-        // Attenuation of the light
-        vec3 fragToLight = pointLights[i].position - FragPos;
-        float attenuation = pointLights[i].intensity / (1. 
-                            + pointLights[i].kLinear * length(fragToLight)
-                            + pointLights[i].kQuadratic * dot(fragToLight, fragToLight));
+        // Ambient lighting
+        vec3 lighting = ambientLightColor * Albedo;
 
-        // Diffuse contribution
-        vec3 lightDirection = normalize(fragToLight);
-        vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
+        // Compute the lighting due to the directional lights
+        // for (int i = 0; i < nrDirLights; ++i)
+        // {
+            // Attenuation of the light
+            vec3 fragToLight = dirLights[0].position - FragPos;
+            float attenuation = dirLights[0].intensity / (1. 
+                                + dirLights[0].kLinear * length(fragToLight)
+                                + dirLights[0].kQuadratic * dot(fragToLight, fragToLight));
 
-        // Specular contribution, with the Blinn-Phong model
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 halfwayDir = normalize(lightDirection + viewDir);
-        // Intensity of the specular component
-        float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
-        // Color of the specular component
-        vec3 specular = specIntensity * Albedo;
+            // Diffuse contribution
+            vec3 lightDirection = -1. * dirLights[0].direction;
+            vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
 
-        // Sum the two contributions to the total light, multiplied by the 
-        // color of the light
-        lighting += attenuation * ( diffuse + specular ) * pointLights[i].color;
+            // Specular contribution, with the Blinn-Phong model
+            vec3 viewDir = normalize(viewPos - FragPos);
+            vec3 halfwayDir = normalize(-dirLights[0].direction + viewDir);
+            // Intensity of the specular component
+            float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
+            // Color of the specular component
+            vec3 specular = specIntensity * Albedo;
+
+            // Compute the shadow
+            float shadow = shadowComputationDirLight(FragPos, Normal, Depth, dirLights[0]);
+
+            // Sum the two contributions to the total light
+            lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * dirLights[0].color;
+        // }
+
+        // Compute the lighting due to the spot lights
+        for (int i = 0; i < nrSpotLights; ++i)
+        {
+            // Position of the fragment with respect to the light
+            vec3 fragToLight = spotLights[i].position - FragPos;
+            // Direction of the light, as in a point light
+            vec3 lightDirection = normalize(fragToLight);
+            // Angle between the center of the light direction and the vector from the
+            // light to the fragment
+            float cosTheta = -1. * dot(spotLights[i].direction, lightDirection);
+
+            // Attenuation of the light
+            float attenuation = spotLights[i].intensity / (1. 
+                                + spotLights[i].kLinear * length(fragToLight)
+                                + spotLights[i].kQuadratic * dot(fragToLight, fragToLight));
+            // The attenuation must be zero if the angle theta is outside the bound
+            // of the light source
+            // Do a smooth transition from one to zero, in the region between angleInner and angleOuter
+            attenuation *= clamp( (cosTheta - spotLights[i].cosAngleOuter) / 
+                                  (spotLights[i].cosAngleInner - spotLights[i].cosAngleOuter),
+                                  0., 1.);
+
+            // Diffuse contribution
+            vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
+
+            // Specular contribution, with the Blinn-Phong model
+            vec3 viewDir = normalize(viewPos - FragPos);
+            vec3 halfwayDir = normalize(lightDirection + viewDir);
+            // Intensity of the specular component
+            float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
+            // Color of the specular component
+            vec3 specular = specIntensity * Albedo;
+
+            // Compute the shadow
+            float shadow = shadowComputationSpotLight(FragPos, Normal, Depth, spotLights[i]);
+
+            // Sum the two contributions to the total light
+            lighting += attenuation * (1. - shadow) * ( diffuse + specular ) * spotLights[i].color;
+        }
+
+        // Compute the lighting due to the point lights
+        for (int i = 0; i < nrPointLights; ++i)
+        {
+            // Attenuation of the light
+            vec3 fragToLight = pointLights[i].position - FragPos;
+            float attenuation = pointLights[i].intensity / (1. 
+                                + pointLights[i].kLinear * length(fragToLight)
+                                + pointLights[i].kQuadratic * dot(fragToLight, fragToLight));
+
+            // Diffuse contribution
+            vec3 lightDirection = normalize(fragToLight);
+            vec3 diffuse = max(dot(lightDirection, Normal), 0.) * Albedo;
+
+            // Specular contribution, with the Blinn-Phong model
+            vec3 viewDir = normalize(viewPos - FragPos);
+            vec3 halfwayDir = normalize(lightDirection + viewDir);
+            // Intensity of the specular component
+            float specIntensity = Specular * pow(max(dot(Normal, halfwayDir), 0.), 32.); 
+            // Color of the specular component
+            vec3 specular = specIntensity * Albedo;
+
+            // Sum the two contributions to the total light, multiplied by the 
+            // color of the light
+            lighting += attenuation * ( diffuse + specular ) * pointLights[i].color;
+        }
+
+        // Return the sum of all contributions
+        FragColor = vec4(lighting, 1.);
     }
-
-    // Return the sum of all contributions
-    FragColor = vec4(lighting, 1.);
-
-    // Specular = texture(gAlbedoSpec, TexCoords).r;
-    // FragColor = vec4(vec3(Specular), 1.);
 }

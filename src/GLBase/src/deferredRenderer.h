@@ -84,7 +84,7 @@ namespace GLBase
             unsigned int mGBuffer;
             // Texture attachments for the G-buffer
             unsigned int mGPositionTexture;
-            unsigned int mGNormalTexture;
+            unsigned int mGNormalEmissTexture;
             unsigned int mGAlbedoSpecTexture;
 
             // Data for the lighting pass

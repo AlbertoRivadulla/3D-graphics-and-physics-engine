@@ -125,6 +125,7 @@ void GLSandbox::setupScene()
     sphere2->addGeometry( new GLSphere(16), mElementaryObjects );
     sphere2->addCollider( new SphereCollider() );
     sphere2->addMaterial( new Material( {0., 1., 0.}, 0.1 ) );
+    // sphere2->addMaterial( new Material( {0., 1., 0.}, 0., 1. ) );
     mPhysicsWorld.addRigidBody( sphere2 );
 
     // // Add a cube
