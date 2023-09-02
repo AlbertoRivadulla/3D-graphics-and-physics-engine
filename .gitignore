@@ -4,4 +4,7 @@ resources/*
 src/.ccls
 .cache/
 .obsidian/
+examples/*/build
+examples/*/.cache
+examples/*/compile_commands.json
 
