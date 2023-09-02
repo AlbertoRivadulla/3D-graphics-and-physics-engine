@@ -271,25 +271,25 @@ void GLSandbox::renderForward()
     //-------------------------------------------------------------------------
     // GUI and text
 
-    // Set the pixels of the GUI to zero
-    for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
-        mGUIPixels[i] = 0;
-    // Draw a red rectangle in the lowest corner
-    for ( unsigned int x = 0; x < mGUIWidth; ++x )
-    {
-        for ( unsigned int y = 0; y < mGUIHeight; ++y )
-        {
-            unsigned int index = ( y * ( mGUIWidth ) + x ) * 4;
-            mGUIPixels[index + 0] = 255; // Red
-            mGUIPixels[index + 1] = 0;   // Green
-            mGUIPixels[index + 2] = 0;   // Blue
-            mGUIPixels[index + 3] = 128; // Alpha (fully opaque)
-        }
-    }
-
-    // Draw the GUI elements
-    mGUIRenderer.pixelsToTexture( mGUIPixels, mGUIWidth, mGUIHeight, 0, mScrHeight - mGUIHeight );
-    mGUIRenderer.renderGUI();
+    // // Set the pixels of the GUI to zero
+    // for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
+    //     mGUIPixels[i] = 0;
+    // // Draw a red rectangle in the lowest corner
+    // for ( unsigned int x = 0; x < mGUIWidth; ++x )
+    // {
+    //     for ( unsigned int y = 0; y < mGUIHeight; ++y )
+    //     {
+    //         unsigned int index = ( y * ( mGUIWidth ) + x ) * 4;
+    //         mGUIPixels[index + 0] = 255; // Red
+    //         mGUIPixels[index + 1] = 0;   // Green
+    //         mGUIPixels[index + 2] = 0;   // Blue
+    //         mGUIPixels[index + 3] = 128; // Alpha (fully opaque)
+    //     }
+    // }
+    //
+    // // Draw the GUI elements
+    // mGUIRenderer.pixelsToTexture( mGUIPixels, mGUIWidth, mGUIHeight, 0, mScrHeight - mGUIHeight );
+    // mGUIRenderer.renderGUI();
 
     // Write text to the screen
     // mTextRenderer.renderText( std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3( 0.f, 0.5f, 0.f ) );

@@ -1,18 +1,31 @@
-# OpenGL-base-library
+# Simple 3D game engine in OpenGL
 
-### TO DO
+A simple engine for 3-dimensional games and physics simulations written in C++.
+The graphics are rendered using OpenGL, by means of the open source GLFW library.
 
+## List of features
 
-### Next steps 
+### Graphics
 
-- 
+- Deferred rendering
+    - The properties of each object are given by its material, which specifies
+    the albedo color and specular intensity.
+- Different light sources
+    - Directional lights
+    - Point lights
+    - Spot lights
+- Cascaded shadow maps
+- Text and simple GUI rendering to the screen
 
-### Future work
+### Physics engine
 
-- Implement batch rendering or some other optimization to draw text to the
-screen.
+- Work in progress
 
+## Examples
 
-### Notes
+- Sandbox [link](examples/Sandbox)
 
+## References
 
+- [Learn OpenGL](https://learnopengl.com/)
+- "Game Physics Engine Development" by Ian Millington
