@@ -163,8 +163,8 @@ void GLSandbox::setupApplication()
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene()
 {
-    // Update the objects in the physics world
-    mPhysicsWorld.step( mDeltaTime );
+    // // Update the objects in the physics world
+    // mPhysicsWorld.step( mDeltaTime );
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();

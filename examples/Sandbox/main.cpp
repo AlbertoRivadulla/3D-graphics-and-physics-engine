@@ -1,6 +1,8 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Sandbox.h"
+#include "glm/matrix.hpp"
+#include "utils.h"
 
 // Settings
 const unsigned int SCR_WIDTH = 1280;

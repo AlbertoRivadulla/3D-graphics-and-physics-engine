@@ -11,6 +11,8 @@
 #include <map>
 #include <random>
 #include <ctime>
+#include <list>
+#include <iterator>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

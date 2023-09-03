@@ -34,7 +34,9 @@ void GLSandbox::setupScene()
     // mSkymap = new GLCubemap( "../resources/textures/skybox" );
 
     // Set the position of the camera
-    mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
+    // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
+    // mCamera.Position = glm::vec3(0.f, 1.5f, 10.f);
+    mCamera.Position = glm::vec3(0.f, 1.5f, 30.f);
 
     // // Load a shader
     // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl", std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
@@ -42,17 +44,6 @@ void GLSandbox::setupScene()
     // Load a shader for the geometry pass
     mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertex.glsl",
                                    std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragment.glsl"));
-
-    // // Create a quad
-    // mElementaryObjects.push_back(new GLQuad());
-    // // Create a cube
-    // mElementaryObjects.push_back(new GLCube());
-    // // Create a cylinder
-    // mElementaryObjects.push_back(new GLCylinder(32));
-    // // Create a sphere
-    // mElementaryObjects.push_back(new GLSphere(16));
-    // // Create a cone
-    // mElementaryObjects.push_back(new GLCone(32));
 
     // Add a directional light
     mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
@@ -64,25 +55,18 @@ void GLSandbox::setupScene()
     //                                  {0., 4., 0.},            // Position
     //                                  {0., -1., 0.},           // Direction
     //                                  60.f, 90.f,              // Angles
-    //                                  20.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
+    //                                  2.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
     // // Add some point lights
-    // for (int i = 0; i < 10; ++i)
+    // for (int i = 0; i < 2; ++i)
     // {
     //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(), getRandom0To1()}, 
     //                                       {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f, 10.f * getRandom0To1() - 5.f}, 
     //                                       0.2f, 0.01f, 0.02f ) );
     // }
 
-    // // Create some materials
-    // mMaterials.push_back(Material( {1., 1., 0.}, 1.0 ));
-    // mMaterials.push_back(Material( {1., 0., 0.}, 1.0 ));
-    // mMaterials.push_back(Material( {0., 0., 1.}, 1.0 ));
-    // mMaterials.push_back(Material( {0., 1., 1.}, 1.0 ));
-    // mMaterials.push_back(Material( {0., 1., 0.}, 0.5 ));
-
     /*
        Add elements to mPhysicsWorld
-       -----------------------------------------------
+       -------------------------------------------------------------------------
        - Create the RigidBody or CollisionBody, as pointers (using "new ...")
        - Add it to mPhysicsWorld, either with .addRigidBody or .addCollisionBody
            - This also adds its GLObject to the list mElementaryObjects
@@ -101,27 +85,27 @@ void GLSandbox::setupScene()
     plane->addMaterial( new Material( { 0.5, 0.5, 0. }, 0.1 ) );
     mPhysicsWorld.addCollisionBody( plane );
 
-    // Add a sphere
-    // The arguments of the constructor are position, scale, rotation angle, 
-    // rotation axis, mass, initial velocity
-    RigidBody* sphere = new RigidBody( { 0., 0., -1. }, 
-                                       { 1., 1., 1. },
-                                       45.f, { 1., 0., 0. },
-                                       1.f,
-                                       { 0., 5., 0. } );
-    sphere->addGeometry( new GLSphere(16), mElementaryObjects );
-    sphere->addCollider( new SphereCollider() );
-    sphere->addMaterial( new Material( {1., 0., 0.}, 0.1 ) );
-    mPhysicsWorld.addRigidBody( sphere );
+    // // Add a sphere
+    // // The arguments of the constructor are position, scale, rotation angle, 
+    // // rotation axis, mass, initial velocity
+    // RigidBody* sphere = new RigidBody( { 2., 0., -1. }, 
+    //                                    { 1., 1., 1. },
+    //                                    45.f, { 1., 0., 0. },
+    //                                    1.f,
+    //                                    { 0., 5., 0. } );
+    // sphere->addGeometry( new GLSphere(16), mElementaryObjects );
+    // sphere->addCollider( new SphereCollider() );
+    // sphere->addMaterial( new Material( {1., 0., 0.}, 0.1 ) );
+    // mPhysicsWorld.addRigidBody( sphere );
 
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle, 
     // rotation axis, mass, initial velocity
-    RigidBody* sphere2 = new RigidBody( { 0., 2., -1. }, 
-                                        { 2., 2., 2. },
+    RigidBody* sphere2 = new RigidBody( { -25., 2., -1. }, 
+                                        { 1., 1., 1. },
                                         45.f, { 1., 0., 0. },
                                         1.f,
-                                        { 0., 1., 0. } );
+                                        { 15., 15., 0. } );
     sphere2->addGeometry( new GLSphere(16), mElementaryObjects );
     sphere2->addCollider( new SphereCollider() );
     sphere2->addMaterial( new Material( {0., 1., 0.}, 0.1 ) );
@@ -140,6 +124,16 @@ void GLSandbox::setupScene()
     // cube->addCollider( new ConvexCollider( new GLCube() ) );
     // cube->addMaterial( new Material( {0., 0., 1.}, 0.1 ) );
     // mPhysicsWorld.addRigidBody( cube );
+
+    // // Add a particle system
+    // ParticleSystem* particleSystem = new ParticleSystem( { 0., 1., 0. },
+    //                                                      { 1., 1., 1. },
+    //                                                      0.f, { 1., 0., 0. },
+    //                                                      1.f,
+    //                                                      { 0., 0., 0. } );
+    // particleSystem->setParticleGeometry( new GLSphere(4), mElementaryObjects, &mGPassShaders[0] );
+    // particleSystem->setParticleGravity( { 0.f, -5.f, 0.f } );
+    // mPhysicsWorld.addParticleSystem( particleSystem );
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -178,24 +172,6 @@ void GLSandbox::updateScene()
 
     // Update the skymap
     mSkymap->setViewProjection(mView, mProjection);
-
-    // // Move the quad
-    // mElementaryObjects[0]->setModelMatrix(glm::vec3(0., -1., 0.), -90., glm::vec3(1.,0.,0.), glm::vec3(15.,15.,15.));
-    //
-    // // Move the cube
-    // mElementaryObjects[1]->setModelMatrix(glm::vec3(2.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
-    //
-    // // Move the cylinder
-    // mElementaryObjects[2]->setModelMatrix({3.,1.,0.}, 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
-    //
-    // // Move the sphere
-    // mElementaryObjects[3]->setModelMatrix(glm::vec3(-1.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
-    //
-    // // Move the cone
-    // mElementaryObjects[4]->setModelMatrix(glm::vec3(-3.,0.,0.), 0., glm::vec3(1.,0.,0.), glm::vec3(2.,2.,2.));
-
-    // // Move the spot light
-    // mLights[1]->setPosition( { 3. * glm::sin((float)glfwGetTime()), 10., 0. } );
 }
 
 // Render the geometry that will use deferred rendering
@@ -205,31 +181,6 @@ void GLSandbox::renderDeferred()
     mGPassShaders[0].use();
     mGPassShaders[0].setMat4("view", mView);
     mGPassShaders[0].setMat4("projection", mProjection);
-
-    // // Draw the quad
-    // mGPassShaders[0].setMat4("model", mElementaryObjects[0]->getModelMatrix());
-    // mMaterials[0].configShader(mGPassShaders[0]);
-    // mElementaryObjects[0]->draw();
-    //
-    // // Draw the cube
-    // mGPassShaders[0].setMat4("model", mElementaryObjects[1]->getModelMatrix());
-    // mMaterials[1].configShader(mGPassShaders[0]);
-    // mElementaryObjects[1]->draw();
-    //
-    // // Draw the cylinder
-    // mGPassShaders[0].setMat4("model", mElementaryObjects[2]->getModelMatrix());
-    // mMaterials[2].configShader(mGPassShaders[0]);
-    // mElementaryObjects[2]->draw();
-    //
-    // // Draw the sphere
-    // mGPassShaders[0].setMat4("model", mElementaryObjects[3]->getModelMatrix());
-    // mMaterials[3].configShader(mGPassShaders[0]);
-    // mElementaryObjects[3]->draw();
-    //
-    // // Draw the cone
-    // mGPassShaders[0].setMat4("model", mElementaryObjects[4]->getModelMatrix());
-    // mMaterials[4].configShader(mGPassShaders[0]);
-    // mElementaryObjects[4]->draw();
 
     // Draw all the objects with physics
     mPhysicsWorld.draw(mGPassShaders[0]);
@@ -261,7 +212,7 @@ void GLSandbox::renderForward()
     // // Draw a cone
     // mAuxElements.drawCone(glm::vec3(-2., 0., 0.), 0., glm::vec3(1., 0., 0.), glm::vec3(1., 1., 1.),
     //                            mView, mProjection);
-    //
+
     // // Draw points in the positions of the lights
     // for (auto light : mLights)
     // {

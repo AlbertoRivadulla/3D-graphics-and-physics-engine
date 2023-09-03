@@ -243,7 +243,8 @@ namespace GLBase
         mLightingPassShader.setInt("nrPointLights", countPointLights);
 
         // Set the ambient light color
-        mLightingPassShader.setVec3("ambientLightColor", ambientLightColor);
+        // mLightingPassShader.setVec3("ambientLightColor", ambientLightColor);
+        mLightingPassShader.setVec3("ambientLightColor", glm::vec3(1.,0.,0.));
     }
 
     // Method to call at the beginning of the frame

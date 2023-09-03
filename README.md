@@ -1,6 +1,7 @@
-# Simple 3D game engine in OpenGL
+# 3D graphics and physics engine
 
-A simple engine for 3-dimensional games and physics simulations written in C++.
+A simple engine for 3-dimensional games and physics simulations written from
+scratch in C++.
 The graphics are rendered using OpenGL, by means of the open source GLFW library.
 
 ## List of features
@@ -15,11 +16,13 @@ The graphics are rendered using OpenGL, by means of the open source GLFW library
     - Point lights
     - Spot lights
 - Cascaded shadow maps
+- Fog effect added in postprocessing
 - Text and simple GUI rendering to the screen
 
 ### Physics engine
 
-- Work in progress
+- Ballistic movement of objects
+- Particle system
 
 ## Examples
 

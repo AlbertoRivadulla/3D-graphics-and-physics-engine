@@ -23,6 +23,7 @@
 #include "GLGeometry.h"
 
 #include "PhysicsBody.h"
+#include "ParticleSystem.h"
 #include "PhysicsWorld.h"
 // #include "Colliders.h"
 // #include "CollisionSolver.h"

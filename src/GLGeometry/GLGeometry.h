@@ -10,6 +10,7 @@
 #include <cmath>
 #include <map>
 #include <random>
+#include <list>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -30,6 +31,7 @@
 #include "GLCylinder.h"
 #include "GLCone.h"
 #include "GLPolyhedron.h"
+#include "GLParticleSystem.h"
 
 #include "GLTextRenderer.h"
 #include "GLGUIRenderer.h"

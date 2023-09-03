@@ -48,6 +48,7 @@ set(LIBS PUBLIC
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PhysicsWorld.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PhysicsBody.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParticleSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Collider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SphereCollider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PlaneCollider.cpp

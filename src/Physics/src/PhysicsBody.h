@@ -92,26 +92,47 @@ namespace Physics
                        float rotationAngle, glm::vec3 rotationAxis,
                        float mass, glm::vec3 velocity = {0.f, 0.f, 0.f} );
 
-            // Set velocity
+            // Set velocity and acceleration
             void setVelocity( glm::vec3 velocity );
+            void setGravity( glm::vec3 gravity );
 
             // Set mass 
             void setMass( float mass );
+            void setInvMass( float invMass );
 
-            // Update movement
-            void updateMovement( float deltaTime );
+            // Set velocity damping
+            void setDamping( float damping );
 
-        private:
+            // // Update movement
+            // void updateMovement( float deltaTime );
+
+            // Integrate forward in time by the given duration
+            void integrate( float deltaTime );
+
+        protected:
             // Variables for dynamics
             float mMass;
             float mMassInver;
             glm::vec3 mVelocity;
-            glm::vec3 mAngularVelocity;
-            glm::vec3 mForce;
-            glm::vec3 mTorque;
-
+            // glm::vec3 mAcceleration;
             // Gravity acceleration
             glm::vec3 mGravity;
+
+            // Damping applied to linear motion, to ensure objects are not accelerated
+            // due to numerical inaccuracies
+            float mDamping;
+
+            // Accumulator for forces
+            glm::vec3 mForceAccum;
+            // glm::vec3 mTorqueAccum;
+
+
+            // // --------------------
+            //
+            // glm::vec3 mAngularVelocity;
+            // glm::vec3 mForce;
+            // glm::vec3 mTorque;
+
     };
 }
 

@@ -45,6 +45,9 @@ namespace Physics
             // Add a RigidBody
             void addRigidBody( RigidBody* rigidBody );
 
+            // Add a ParticleSystem
+            void addParticleSystem( ParticleSystem* particleSystem );
+
             // Update the objects in the current frame
             void step( float deltaTime );
 
@@ -52,8 +55,10 @@ namespace Physics
             // void draw( Shader& defaultShader );
 
         private:
-            // Vector of pointer to RigidBody objects
+            // Vector of pointers to RigidBody objects
             std::vector<RigidBody*> mRigidBodies;
+            // Vector of pointers to ParticleSystem objects
+            std::vector<ParticleSystem*> mParticleSystems;
     };
 }
 

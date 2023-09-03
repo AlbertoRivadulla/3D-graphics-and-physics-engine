@@ -20,7 +20,6 @@ namespace Physics
     {
         for ( auto body : mCollisionBodies )
             delete body;
-
     }
 
     // Add a CollisionBody
@@ -67,9 +66,18 @@ namespace Physics
         mCollisionBodies.push_back( rigidBody );
     }
 
+    // Add a ParticleSystem
+    void DynamicsWorld::addParticleSystem( ParticleSystem* particleSystem )
+    {
+        mParticleSystems.push_back( particleSystem );
+        mCollisionBodies.push_back( particleSystem );
+    }
+
     // Update the objects in the current frame
     void DynamicsWorld::step( float deltaTime )
     {
+        assert( deltaTime > 0.f );
+
         /*
            The steps of the simulation are:
             - Apply forces
@@ -90,7 +98,8 @@ namespace Physics
 
             // Move the dynamic objects
             for ( auto body : mRigidBodies )
-                body->updateMovement( deltaTime );
+                // body->updateMovement( deltaTime );
+                body -> integrate( deltaTime );
 
             // Check for collisions between pairs of objects
             // for ( auto bodyA : mCollisionBodies )
@@ -120,6 +129,10 @@ namespace Physics
             //
             //
         // }
+
+        // Update the particle systems
+        for ( auto particleSystem : mParticleSystems )
+            particleSystem -> integrate( deltaTime );
     }
 
     // // Draw the objects in the current frame, to the G-buffer

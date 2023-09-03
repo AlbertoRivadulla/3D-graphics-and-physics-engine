@@ -33,7 +33,7 @@ namespace GLBase
             }
 
             // Method to configure the lights in the shader
-            void configureLights(const std::vector<Light*> lights);
+            void configureLights(const std::vector<Light*> light, glm::vec3 ambientLightColors = {.1, .1, .1});
             // // Method to configure the light space matrices
             // // This needs to be called in each frame
             // void configureLightSpaceMatrices(const std::vector<Light*> lights);
