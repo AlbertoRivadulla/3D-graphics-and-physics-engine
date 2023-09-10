@@ -6,6 +6,48 @@ using namespace GLBase;
 namespace Physics
 {
     //--------------------------------------------------------------------------
+    // BodyForceRegistry class
+
+    // Register a pair body-force
+    void BodyForceRegistry::addBodyForce( RigidBody* body, ForceGenerator* force )
+    {
+        mRegistrations.push_back( BodyForceRegistration( body, force ) );
+    }
+
+    // Remove a pair body-force
+    // If the pair is not registrated, this will not do anything
+    void BodyForceRegistry::removeBodyForce( RigidBody* body, ForceGenerator* force )
+    {
+        // Look for the registration
+        for ( Registry::iterator regIter = mRegistrations.begin(); 
+              regIter != mRegistrations.end(); ++regIter )
+        {
+            if ( regIter->forceGenerator == force && regIter->rigidBody == body )
+            {
+                mRegistrations.erase( regIter );
+                return;
+            }
+        }
+    }
+
+    // Clear all the registrations
+    void BodyForceRegistry::clear()
+    {
+        mRegistrations.clear();
+    }
+
+    // Call the force generators to update the forces on the particles
+    void BodyForceRegistry::applyForces( float deltaTime )
+    {
+        for ( Registry::iterator regIter = mRegistrations.begin(); 
+              regIter != mRegistrations.end(); ++regIter )
+        {
+            regIter->forceGenerator->updateForce( regIter->rigidBody, deltaTime );
+        }
+    }
+
+
+    //--------------------------------------------------------------------------
     // CollisionWorld class
 
     // Constructor
@@ -68,6 +110,18 @@ namespace Physics
         mCollisionBodies.push_back( rigidBody );
     }
 
+    // Register a pair body-force
+    void DynamicsWorld::addBodyForce( RigidBody* body, ForceGenerator* force )
+    {
+        mBodyForceRegistry.addBodyForce( body, force );
+    }
+
+    // Remove a pair body-force
+    void DynamicsWorld::removeBodyForce( RigidBody* body, ForceGenerator* force )
+    {
+        mBodyForceRegistry.removeBodyForce( body, force );
+    }
+
     // Add a ParticleSystem
     void DynamicsWorld::addParticleSystem( ParticleSystem* particleSystem )
     {
@@ -88,15 +142,14 @@ namespace Physics
             - Solve constraints
         */
 
-        // Update the movement after a certain amount of frames
+        // // Update the movement after a certain amount of frames
         // if ( mCounter++ == 10 )
         // {
-        //     // std::cout << "step" << std::endl;
-        //     mCounter = 0;
+            // std::cout << "step" << std::endl;
+            mCounter = 0;
 
             // Apply forces on the objects
-            //
-            //
+            mBodyForceRegistry.applyForces( deltaTime );
 
             // Move the dynamic objects
             for ( auto body : mRigidBodies )

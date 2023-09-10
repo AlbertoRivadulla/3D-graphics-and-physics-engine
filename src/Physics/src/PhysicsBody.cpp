@@ -122,21 +122,7 @@ namespace Physics
     // void CollisionBody::draw( Shader& shader )
     void CollisionBody::draw()
     {
-        // // Activate the shader
-        // shader.use();
-        //
-        // // Set the model matrix of the object and configure it in the shader
-        // //////////////////////////
-        // //////////////////////////
-        // // mGeometryObject->setModelMatrix( mPosition, 0., glm::vec3(1., 0., 0.), mScale );
-        // // mGeometryObject->setModelMatrix( mPosition, mRotationMatrix, mScale );
-        // //////////////////////////
-        // //////////////////////////
-        // shader.setMat4( "model", mGeometryObject->getModelMatrix() );
-        // // shader.setMat4( "model", mModelMatrix );
-
-        // Configure the material in the shader
-        // mMaterial->configShader( shader );
+        // Configure the shader
         mMaterial->configShader( mGeometryObject->getModelMatrix() );
 
         // Draw the object
@@ -152,9 +138,8 @@ namespace Physics
                           float rotationAngle, glm::vec3 rotationAxis,
                           float mass, glm::vec3 velocity ) :
         CollisionBody( position, scale, rotationAngle, rotationAxis ),      // Initialize the base class explicitly
-        mVelocity { velocity }, mMass { mass }, mMassInver { 1.f / mass },
+        mVelocity { velocity }, mMassInver { 1.f / mass },
         // mAcceleration { glm::vec3( 0.f, 0.f, 0.f ) },
-        mGravity { glm::vec3( 0.f, -9.8f, 0.f ) },
         mDamping { 0.995f },
         mForceAccum { glm::vec3( 0.f, 0.f, 0.f ) }
         // mTorqueAccum { glm::vec3( 0.f, 0.f, 0.f ) },
@@ -163,7 +148,7 @@ namespace Physics
         // mForce { glm::vec3( 0.f, 0.f, 0.f ) }, 
         // mTorque { glm::vec3( 0.f, 0.f, 0.f ) }
     {
-        // mGravity = glm::vec3( 0., 0., 0. );
+        setMass( mass );
 
     }
 
@@ -171,10 +156,6 @@ namespace Physics
     void RigidBody::setVelocity( glm::vec3 velocity )
     {
         mVelocity = velocity;
-    }
-    void RigidBody::setGravity( glm::vec3 gravity )
-    {
-        mGravity = gravity;
     }
 
     // Set velocity damping
@@ -186,8 +167,16 @@ namespace Physics
     // Set mass 
     void RigidBody::setMass( float mass )
     {
-        mMass = mass;
-        mMassInver = 1.f / mass;
+        if ( mass < 0.f )
+        {
+            mMass = -1.f;
+            mMassInver = 0.f;
+        }
+        else
+        {
+            mMass = mass;
+            mMassInver = 1.f / mass;
+        }
     }
     void RigidBody::setInvMass( float invMass )
     {
@@ -198,45 +187,33 @@ namespace Physics
             mMass = 1.f / invMass;
     }
 
-    // // Update movement
-    // void RigidBody::updateMovement( float deltaTime )
-    // {
-    //     std::cout << "RigidBody::updateMovement deprecated" << std::endl;
-    //     // // Update velocity, adding the acceleration from the force and the gravity
-    //     // mVelocity += ( mForce * mMassInver + mGravity ) * deltaTime;
-    //     // // Update angular velocity
-    //     // mAngularVelocity += mTorque * mMassInver * deltaTime;
-    //     //
-    //     // // Update the position
-    //     // mPosition += mVelocity * deltaTime;
-    //     //
-    //     // // Compute the rotation angle and axis
-    //     // float angVelLength = glm::length( mAngularVelocity );
-    //     // if ( fabs(angVelLength) > 0.001 )
-    //     // {
-    //     //     float rotationAngle = RAD_TO_DEG * angVelLength * deltaTime;
-    //     //     // Update the rotation
-    //     //     mRotationMatrix = glm::rotate( mRotationMatrix, rotationAngle, 
-    //     //                                    mAngularVelocity / angVelLength );
-    //     // }
-    //     //
-    //     // // Update the model matrix 
-    //     // // computeModelMatrix( mPosition, mRotationMatrix, mScale );
-    //     // computeModelMatrix();
-    //     //
-    //     // // Move the collider
-    //     // mCollider->moveCollider( mModelMatrix );
-    //     //
-    //     // // Reset the net force and torque on the object
-    //     // mForce = glm::vec3( 0.f, 0.f, 0.f );
-    //     // mTorque = glm::vec3( 0.f, 0.f, 0.f );
-    // }
+    // Getters
+    float RigidBody::getMass()
+    {
+        return mMass;
+    }
+    glm::vec3 RigidBody::getVelocity()
+    {
+        return mVelocity;
+    }
+
+    // Check if it has infinite mass
+    bool RigidBody::hasInfiniteMass()
+    {
+        return mMassInver < 0.f;
+    }
+
+    // Add a force
+    void RigidBody::addForce( const glm::vec3& force )
+    {
+        mForceAccum += force;
+    }
 
     // Integrate forward in time by the given duration
     void RigidBody::integrate( float deltaTime )
     {
         // Compute acceleration from the force
-        glm::vec3 resultingAcc = mGravity + mForceAccum * mMassInver;
+        glm::vec3 resultingAcc = mForceAccum * mMassInver;
         // Update linear velocity
         mVelocity += resultingAcc * deltaTime;
         // Drag on the velocity, so it does not increase due to numerical errors

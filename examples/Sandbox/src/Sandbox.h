@@ -15,16 +15,19 @@ class GLSandbox
     //==============================
 
     private:
-        // Pixels for the GUI
-        int mGUIWidth;
-        int mGUIHeight;
-        unsigned char* mGUIPixels;
+        // Force generator of gravity (same for all objects)
+        Physics::ForceGenerator* mGravity;
         
     //==============================
     // Basic implementation of the class
     //==============================
 
     private:
+        // Pixels for the GUI
+        int mGUIWidth;
+        int mGUIHeight;
+        unsigned char* mGUIPixels;
+
         // Main application
         Application mApplication;
 
@@ -72,6 +75,9 @@ class GLSandbox
 
         // Class containing all the objects with collisions and/or dynamics
         Physics::DynamicsWorld mPhysicsWorld;
+
+        // List of forces
+        std::vector<Physics::ForceGenerator*> mForces;
             
         // Value of the time elapsed since the last frame. This needs to be updated 
         // every frame

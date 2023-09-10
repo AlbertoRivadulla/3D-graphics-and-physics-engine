@@ -51,7 +51,6 @@ namespace GLGeometry
 
             // Get a pointer to the list of particles
             std::list<GLParticle*>* getPointerToListOfParticles();
-            // std::list<GLParticle>* getPointerToListOfParticles();
 
             // Add a single particle
             void addParticle( glm::vec3 position, glm::vec3 velocity, glm::vec3 scale, 
@@ -60,13 +59,9 @@ namespace GLGeometry
             // Function to render
             void draw();
 
-            // List of particles
-            std::list<GLParticle*> mParticles;
-
         private:
             // List of particles
-            // std::list<GLParticle*> mParticles;
-            // std::list<GLParticle> mParticles;
+            std::list<GLParticle*> mParticles;
 
             // Pointer to the shader of the geometry pass
             Shader* mGPassShader;

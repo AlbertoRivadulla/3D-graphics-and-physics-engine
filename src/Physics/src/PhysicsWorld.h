@@ -2,12 +2,51 @@
 #define PHYSICS_WORLD_H
 
 #include "Physics.h"
+#include "PhysicsBody.h"
+#include "ForceGenerator.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
 
 namespace Physics
 {
+    // Registry for the forces that apply to each body in the world
+    class BodyForceRegistry
+    {
+        protected:
+            // One force and the particle it is applied to
+            struct BodyForceRegistration
+            {
+                RigidBody* rigidBody;
+                ForceGenerator* forceGenerator;
+                BodyForceRegistration( RigidBody* body, ForceGenerator* force )
+                {
+                    rigidBody = body;
+                    forceGenerator = force;
+                }
+            };
+
+            // List of all registrations
+            // I think this works the same for a vector or a linked list
+            // typedef std::vector<BodyForceRegistration> Registry;
+            typedef std::list<BodyForceRegistration> Registry;
+            Registry mRegistrations;
+
+        public:
+            // Register a pair body-force
+            void addBodyForce( RigidBody* body, ForceGenerator* force );
+
+            // Remove a pair body-force
+            // If the pair is not registrated, this will not do anything
+            void removeBodyForce( RigidBody* body, ForceGenerator* force );
+
+            // Clear all the registrations
+            void clear();
+
+            // Call the force generators to update the forces on the particles
+            void applyForces( float deltaTime );
+    };
+
     // The following class manages objects with collisions (CollisionBody)
     class CollisionWorld
     {
@@ -46,6 +85,12 @@ namespace Physics
             // Add a RigidBody
             void addRigidBody( RigidBody* rigidBody );
 
+            // Register a pair body-force
+            void addBodyForce( RigidBody* body, ForceGenerator* force );
+
+            // Remove a pair body-force
+            void removeBodyForce( RigidBody* body, ForceGenerator* force );
+
             // Add a ParticleSystem
             void addParticleSystem( ParticleSystem* particleSystem );
 
@@ -60,6 +105,9 @@ namespace Physics
             std::vector<RigidBody*> mRigidBodies;
             // Vector of pointers to ParticleSystem objects
             std::vector<ParticleSystem*> mParticleSystems;
+
+            // Registry of the forces applied to each body
+            BodyForceRegistry mBodyForceRegistry;
     };
 }
 

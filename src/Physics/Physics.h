@@ -24,6 +24,7 @@
 
 #include "PhysicsBody.h"
 #include "ParticleSystem.h"
+#include "ForceGenerator.h"
 #include "PhysicsWorld.h"
 // #include "Colliders.h"
 // #include "CollisionSolver.h"

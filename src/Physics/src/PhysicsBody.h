@@ -3,6 +3,7 @@
 
 // #include "Physics.h"
 
+// #include "ForceGenerator.h"
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Colliders.h"
@@ -67,7 +68,6 @@ namespace Physics
             void computeModelMatrix();
 
             // Draw
-            // void draw( Shader& shader );
             void draw();
 
         protected:
@@ -95,7 +95,6 @@ namespace Physics
 
             // Set velocity and acceleration
             void setVelocity( glm::vec3 velocity );
-            void setGravity( glm::vec3 gravity );
 
             // Set mass 
             void setMass( float mass );
@@ -104,8 +103,15 @@ namespace Physics
             // Set velocity damping
             void setDamping( float damping );
 
-            // // Update movement
-            // void updateMovement( float deltaTime );
+            // Getters
+            float getMass();
+            glm::vec3 getVelocity();
+
+            // Check if it has infinite mass
+            bool hasInfiniteMass();
+
+            // Add a force
+            void addForce( const glm::vec3& force );
 
             // Integrate forward in time by the given duration
             void integrate( float deltaTime );
@@ -116,8 +122,6 @@ namespace Physics
             float mMassInver;
             glm::vec3 mVelocity;
             // glm::vec3 mAcceleration;
-            // Gravity acceleration
-            glm::vec3 mGravity;
 
             // Damping applied to linear motion, to ensure objects are not accelerated
             // due to numerical inaccuracies

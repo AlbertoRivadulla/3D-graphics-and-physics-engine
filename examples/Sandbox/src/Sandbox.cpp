@@ -1,4 +1,5 @@
 #include "Sandbox.h"
+#include "ForceGenerator.h"
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -34,9 +35,9 @@ void GLSandbox::setupScene()
     // mSkymap = new GLCubemap( "../resources/textures/skybox" );
 
     // Set the position of the camera
-    mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
+    // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
     // mCamera.Position = glm::vec3(0.f, 1.5f, 10.f);
-    // mCamera.Position = glm::vec3(0.f, 1.5f, 30.f);
+    mCamera.Position = glm::vec3(0.f, 1.5f, 30.f);
 
     // // Load a shader
     // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl", std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
@@ -77,6 +78,9 @@ void GLSandbox::setupScene()
        mPhsyicsWorld
     */
 
+    // Setup force of gravity
+    mGravity = new Physics::GravityForceGenerator( { 0.f, -9.8f, 0.f } );
+
     // Add a plane
     // The arguments are position, scale, rotation angle and rotation axis
     CollisionBody* plane = new CollisionBody( { 0., -1., 0. },
@@ -94,15 +98,19 @@ void GLSandbox::setupScene()
                                        { 1., 1., 1. },
                                        0.f, { 1., 0., 0. },
                                        1.f,
-                                       { 0., 5., 0. } );
+                                       { 10., 0., 0. } );
     sphere->addGeometry( new GLSphere(16), mElementaryObjects );
     sphere->addCollider( new SphereCollider() );
     // sphere->addMaterial( new Material( mGPassShaders[0], {1., 0., 0.}, 0.1 ) );
     MaterialWithTextures* materialSphTextures = new MaterialWithTextures( mGPassShaders[1], {1., 0., 0.}, 0.1 );
     materialSphTextures->loadAlbedoTexture( std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg" );
     sphere->addMaterial( materialSphTextures );
-    // sphere->addMaterial( new MaterialWithTextures( mGPassShaders[1], {1., 0., 0.}, 0.1 ) );
     mPhysicsWorld.addRigidBody( sphere );
+    // Add a drag force to it
+    mForces.push_back( new DragForceGenerator( 0.1, 0.1 ) );
+    // mPhysicsWorld.addBodyForce( sphere, mForces[0] );
+    mPhysicsWorld.addBodyForce( sphere, mForces.back() );
+
 
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle, 
@@ -115,51 +123,36 @@ void GLSandbox::setupScene()
     sphere2->addGeometry( new GLSphere(16), mElementaryObjects );
     sphere2->addCollider( new SphereCollider() );
     sphere2->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.}, 0.1 ) );
-    // sphere2->addMaterial( new Material( {0., 1., 0.}, 0., 1. ) );
     mPhysicsWorld.addRigidBody( sphere2 );
+    // Add gravity to this object
+    mPhysicsWorld.addBodyForce( sphere2, mGravity );
 
-    // Add a cylinder
-    // The arguments of the constructor are position, scale, rotation angle, 
-    // rotation axis, mass, initial velocity
-    RigidBody* cylinder = new RigidBody( { -5., 2., -1. }, 
-                                        { 1., 1., 1. },
-                                        45.f, { 1., 0., 0. },
-                                        1.f,
-                                        { 15., 15., 0. } );
-    cylinder->addGeometry( new GLCylinder(16), mElementaryObjects );
-    cylinder->addCollider( new SphereCollider() );
-    // cylinder->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.}, 0.1 ) );
-    cylinder->addMaterial( materialSphTextures );
-    // sphere2->addMaterial( new Material( {0., 1., 0.}, 0., 1. ) );
-    mPhysicsWorld.addRigidBody( cylinder );
+    // // Add a cylinder
+    // // The arguments of the constructor are position, scale, rotation angle, 
+    // // rotation axis, mass, initial velocity
+    // RigidBody* cylinder = new RigidBody( { -5., 2., -1. }, 
+    //                                     { 1., 1., 1. },
+    //                                     45.f, { 1., 0., 0. },
+    //                                     1.f,
+    //                                     { 15., 15., 0. } );
+    // cylinder->addGeometry( new GLCylinder(16), mElementaryObjects );
+    // cylinder->addCollider( new SphereCollider() );
+    // // cylinder->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.}, 0.1 ) );
+    // cylinder->addMaterial( materialSphTextures );
+    // mPhysicsWorld.addRigidBody( cylinder );
 
-    // Add a cone
-    // The arguments of the constructor are position, scale, rotation angle, 
-    // rotation axis, mass, initial velocity
-    RigidBody* cone = new RigidBody( { 0., 2., -1. }, 
-                                     { 1., 1., 1. },
-                                     45.f, { 1., 0., 0. },
-                                     1.f,
-                                     { 15., 15., 0. } );
-    cone->addGeometry( new GLCone(32), mElementaryObjects );
-    cone->addCollider( new SphereCollider() );
-    // cylinder->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.}, 0.1 ) );
-    cone->addMaterial( materialSphTextures );
-    // sphere2->addMaterial( new Material( {0., 1., 0.}, 0., 1. ) );
-    mPhysicsWorld.addRigidBody( cone );
-
-    // Add a cube
-    // The arguments of the constructor are position, scale, rotation angle, 
-    // rotation axis, mass, initial velocity
-    RigidBody* cube = new RigidBody( { 0., 0., -1. }, 
-                                       { 1., 1., 1. },
-                                       0.f, { 1., 0., 0. },
-                                       1.f,
-                                       { 0., 3., 0. } );
-    cube->addGeometry( new GLCube(), mElementaryObjects );
-    cube->addCollider( new ConvexCollider( new GLCube() ) );
-    cube->addMaterial( new Material( mGPassShaders[0], {0., 0., 1.}, 0.1 ) );
-    mPhysicsWorld.addRigidBody( cube );
+    // // Add a cube
+    // // The arguments of the constructor are position, scale, rotation angle, 
+    // // rotation axis, mass, initial velocity
+    // RigidBody* cube = new RigidBody( { 0., 0., -1. }, 
+    //                                    { 1., 1., 1. },
+    //                                    0.f, { 1., 0., 0. },
+    //                                    1.f,
+    //                                    { 0., 3., 0. } );
+    // cube->addGeometry( new GLCube(), mElementaryObjects );
+    // cube->addCollider( new ConvexCollider( new GLCube() ) );
+    // cube->addMaterial( new Material( mGPassShaders[0], {0., 0., 1.}, 0.1 ) );
+    // mPhysicsWorld.addRigidBody( cube );
 
     // // Add a particle system
     // ParticleSystem* particleSystem = new ParticleSystem( mGPassShaders[0],
@@ -200,8 +193,8 @@ void GLSandbox::setupApplication()
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene()
 {
-    // // Update the objects in the physics world
-    // mPhysicsWorld.step( mDeltaTime );
+    // Update the objects in the physics world
+    mPhysicsWorld.step( mDeltaTime );
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();
