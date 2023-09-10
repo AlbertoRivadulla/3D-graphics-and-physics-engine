@@ -1,5 +1,6 @@
 #include "Sandbox.h"
 #include "ForceGenerator.h"
+#include "GLElemObject.h"
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -80,52 +81,66 @@ void GLSandbox::setupScene()
 
     // Setup force of gravity
     mGravity = new Physics::GravityForceGenerator( { 0.f, -9.8f, 0.f } );
+    // mGravity = new Physics::GravityForceGenerator( { 0.f, 0.f, 0.f } );
+    // mGravity = new Physics::GravityForceGenerator( { 0.f, -1.f, 0.f } );
 
-    // Add a plane
-    // The arguments are position, scale, rotation angle and rotation axis
-    CollisionBody* plane = new CollisionBody( { 0., -1., 0. },
-                                              { 100., 100., 100. }, 
-                                              -90., { 1., 0., 0. } );
-    plane->addGeometry( new GLQuad(), mElementaryObjects );
-    plane->addCollider( new PlaneCollider() );
-    plane->addMaterial( new Material( mGPassShaders[0], { 0.5, 0.5, 0. }, 0.1 ) );
-    mPhysicsWorld.addCollisionBody( plane );
+    // // Add a plane
+    // // The arguments are position, scale, rotation angle and rotation axis
+    // CollisionBody* plane = new CollisionBody( { 0., -1., 0. },
+    //                                           { 100., 100., 100. }, 
+    //                                           -90., { 1., 0., 0. } );
+    // plane->addGeometry( new GLQuad(), mElementaryObjects );
+    // plane->addCollider( new PlaneCollider() );
+    // plane->addMaterial( new Material( mGPassShaders[0], { 0.5, 0.5, 0. }, 0.1 ) );
+    // mPhysicsWorld.addCollisionBody( plane );
 
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle, 
     // rotation axis, mass, initial velocity
-    RigidBody* sphere = new RigidBody( { 2., 0., -1. }, 
+    RigidBody* sphere = new RigidBody( { 0., 10., 0. }, 
                                        { 1., 1., 1. },
                                        0.f, { 1., 0., 0. },
                                        1.f,
-                                       { 10., 0., 0. } );
-    sphere->addGeometry( new GLSphere(16), mElementaryObjects );
+                                       { 0., 0., 0. } );
+    // sphere->addGeometry( new GLSphere(16), mElementaryObjects );
+    sphere->addGeometryNotDrawn( new GLObjectPlaceholder() );
     sphere->addCollider( new SphereCollider() );
     // sphere->addMaterial( new Material( mGPassShaders[0], {1., 0., 0.}, 0.1 ) );
     MaterialWithTextures* materialSphTextures = new MaterialWithTextures( mGPassShaders[1], {1., 0., 0.}, 0.1 );
     materialSphTextures->loadAlbedoTexture( std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg" );
     sphere->addMaterial( materialSphTextures );
-    mPhysicsWorld.addRigidBody( sphere );
-    // Add a drag force to it
-    mForces.push_back( new DragForceGenerator( 0.1, 0.1 ) );
-    // mPhysicsWorld.addBodyForce( sphere, mForces[0] );
-    mPhysicsWorld.addBodyForce( sphere, mForces.back() );
+    // mPhysicsWorld.addRigidBody( sphere );
+    mPhysicsWorld.addRigidBodyNotDrawn( sphere );
+    // // Add gravity to this object
+    // mPhysicsWorld.addBodyForce( sphere, mGravity );
 
+    // // Add a drag force to it
+    // mForces.push_back( new DragForceGenerator( 0.1, 0.1 ) );
+    // // mPhysicsWorld.addBodyForce( sphere, mForces[0] );
+    // mPhysicsWorld.addBodyForce( sphere, mForces.back() );
 
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle, 
     // rotation axis, mass, initial velocity
-    RigidBody* sphere2 = new RigidBody( { -25., 2., -1. }, 
+    RigidBody* sphere2 = new RigidBody( { 0., 5., 0. }, 
                                         { 1., 1., 1. },
                                         45.f, { 1., 0., 0. },
                                         1.f,
-                                        { 15., 15., 0. } );
+                                        { 0., 0., 0. } );
     sphere2->addGeometry( new GLSphere(16), mElementaryObjects );
     sphere2->addCollider( new SphereCollider() );
     sphere2->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.}, 0.1 ) );
     mPhysicsWorld.addRigidBody( sphere2 );
     // Add gravity to this object
     mPhysicsWorld.addBodyForce( sphere2, mGravity );
+
+    // Join it to the other sphere with a spring
+    mForces.push_back( new SpringForceGenerator( sphere, 5.f, 0.5f, 0.5f ) );
+    mPhysicsWorld.addBodyForce( sphere2, mForces.back() );
+
+    // // Join it to the other sphere with a bungee
+    // mForces.push_back( new BungeeForceGenerator( sphere, 5.f, 10.f ) );
+    // mPhysicsWorld.addBodyForce( sphere2, mForces.back() );
 
     // // Add a cylinder
     // // The arguments of the constructor are position, scale, rotation angle, 

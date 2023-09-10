@@ -110,6 +110,16 @@ namespace Physics
         mCollisionBodies.push_back( rigidBody );
     }
 
+    // Add a RigidBody that is not drawn
+    void DynamicsWorld::addRigidBodyNotDrawn( RigidBody* rigidBody )
+    {
+        mRigidBodies.push_back( rigidBody );
+
+        // Add it also to the list of collision bodies, to check for collisions and
+        // draw
+        mCollisionBodiesNotDrawn.push_back( rigidBody );
+    }
+
     // Register a pair body-force
     void DynamicsWorld::addBodyForce( RigidBody* body, ForceGenerator* force )
     {
@@ -142,9 +152,10 @@ namespace Physics
             - Solve constraints
         */
 
-        // // Update the movement after a certain amount of frames
+        // Update the movement after a certain amount of frames
         // if ( mCounter++ == 10 )
-        // {
+        if ( mCounter++ == 0 )
+        {
             // std::cout << "step" << std::endl;
             mCounter = 0;
 
@@ -153,8 +164,7 @@ namespace Physics
 
             // Move the dynamic objects
             for ( auto body : mRigidBodies )
-                // body->updateMovement( deltaTime );
-                body -> integrate( deltaTime );
+                body->integrate( deltaTime );
 
             // Check for collisions between pairs of objects
             // for ( auto bodyA : mCollisionBodies )
@@ -183,7 +193,7 @@ namespace Physics
             // Solve constraints
             //
             //
-        // }
+        }
 
         // Update the particle systems
         for ( auto particleSystem : mParticleSystems )

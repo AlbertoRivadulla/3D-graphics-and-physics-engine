@@ -41,6 +41,45 @@ namespace Physics
             float mK1;
             float mK2;
     };
+
+    // Spring force generator
+    class SpringForceGenerator : public ForceGenerator
+    {
+        public:
+            SpringForceGenerator( RigidBody* other, float springConst, 
+                                  float dampingCoeff, float restLength );
+
+            virtual void updateForce( RigidBody* rigidBody, float deltaTime );
+
+        private:
+            // The body at the other end of the spring
+            RigidBody* mOtherBody;
+            // Spring constant
+            float mSpringConst;
+            // Damping coefficient
+            float mDampingCoeff;
+            // Rest lenght
+            float mRestLength;
+    };
+
+    // Bungee force generator
+    // This is a spring that only exerts a force when it is stretched
+    class BungeeForceGenerator : public ForceGenerator
+    {
+        public:
+            BungeeForceGenerator( RigidBody* other, float springConst, 
+                                  float restLength );
+
+            virtual void updateForce( RigidBody* rigidBody, float deltaTime );
+
+        private:
+            // The body at the other end of the spring
+            RigidBody* mOtherBody;
+            // Spring constant
+            float mSpringConst;
+            // Rest lenght
+            float mRestLength;
+    };
 }
 
 #endif

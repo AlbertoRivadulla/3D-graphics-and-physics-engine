@@ -67,6 +67,8 @@ namespace Physics
         protected:
             // Vector of pointer to CollisionBody objects
             std::vector<CollisionBody*> mCollisionBodies;
+            // Vector of pointer to CollisionBody objects that are not drawn
+            std::vector<CollisionBody*> mCollisionBodiesNotDrawn;
 
             // Used to slow down simulations
             int mCounter;
@@ -84,6 +86,9 @@ namespace Physics
 
             // Add a RigidBody
             void addRigidBody( RigidBody* rigidBody );
+
+            // Add a RigidBody that is not drawn
+            void addRigidBodyNotDrawn( RigidBody* rigidBody );
 
             // Register a pair body-force
             void addBodyForce( RigidBody* body, ForceGenerator* force );

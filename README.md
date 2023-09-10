@@ -11,6 +11,7 @@ The graphics are rendered using OpenGL, by means of the open source GLFW library
 - Deferred rendering
     - The properties of each object are given by its material, which specifies
     the albedo color, specular and emissive intensities.
+    - Also possible to add textures for the albedo color.
 - Different light sources
     - Directional lights
     - Point lights
@@ -23,6 +24,10 @@ The graphics are rendered using OpenGL, by means of the open source GLFW library
 
 - Ballistic movement of objects
 - Particle system
+- Force generators
+    - Gravity
+    - Drag
+    <!-- - Spring-like forces (in the center of mass) -->
 
 ## Examples
 

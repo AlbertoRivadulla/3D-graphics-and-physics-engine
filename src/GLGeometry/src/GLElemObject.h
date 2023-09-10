@@ -80,6 +80,29 @@ namespace GLGeometry
             // // Function to render
             // virtual void draw() = 0;
     };
+
+    class GLObjectPlaceholder : public GLElemObject
+    {
+        private:
+            // // This class will use an element buffer object
+            // unsigned int mEBO;
+
+            // // Data of the mesh
+            // // std::vector<Vertex> mVertices;
+            // std::vector<unsigned int> mIndices;
+            //
+            // // Number of vertices in each circle
+            // int mNrVertices;
+
+        public:
+            // Constructor
+            GLObjectPlaceholder()
+            {}
+
+            // Function to render
+            void draw()
+            {}
+    };
 }
 
 #endif

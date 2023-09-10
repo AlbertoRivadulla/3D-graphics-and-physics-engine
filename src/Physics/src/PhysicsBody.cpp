@@ -44,6 +44,16 @@ namespace Physics
         computeModelMatrix();
     }
 
+    // Add a geometrical object that will not be drawn
+    void CollisionBody::addGeometryNotDrawn( GLElemObject* objectPtr )
+    {
+        // Store the pointer to the geometry as a member object
+        mGeometryObject = objectPtr;
+
+        // Compute the model matrix of the geometry object
+        computeModelMatrix();
+    }
+
     // Add collider
     void CollisionBody::addCollider( Collider* collider )
     {
@@ -100,6 +110,12 @@ namespace Physics
         // Update the model matrix 
         // mModelMatrix = computeModelMatrix( mPosition, mRotationMatrix, mScale );
         computeModelMatrix();
+    }
+
+    // Getters
+    glm::vec3 CollisionBody::getPosition()
+    {
+        return mPosition;
     }
 
     // Method to compute a model matrix 
@@ -209,6 +225,13 @@ namespace Physics
         mForceAccum += force;
     }
 
+    // Set the accumulators to zero
+    void RigidBody::clearAccumulators()
+    {
+        mForceAccum = glm::vec3( 0.f, 0.f, 0.f );
+        // mTorqueAccum = glm::vec3( 0.f, 0.f, 0.f );
+    }
+
     // Integrate forward in time by the given duration
     void RigidBody::integrate( float deltaTime )
     {
@@ -230,7 +253,6 @@ namespace Physics
         mCollider->moveCollider( mModelMatrix );
 
         // Reset the net force and torque on the object
-        mForceAccum = glm::vec3( 0.f, 0.f, 0.f );
-        // mTorqueAccum = glm::vec3( 0.f, 0.f, 0.f );
+        clearAccumulators();
     }
 }

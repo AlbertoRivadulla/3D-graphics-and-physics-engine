@@ -48,21 +48,21 @@ namespace Physics
             // the GLSandbox class
             void addGeometry( GLElemObject* objectPtr, 
                               std::vector<GLElemObject*>& elemObjs );
+            void addGeometryNotDrawn( GLElemObject* objectPtr );
 
             // Add collider
             void addCollider( Collider* collider );
-
             // Add material
             void addMaterial( Material* material );
-
             // Set position
             void setPosition( glm::vec3 position );
-
             // Set Scale
             void setScale( glm::vec3 scale );
-
             // Set rotation
             void setRotation( float angle, glm::vec3 axis );
+
+            // Getters
+            glm::vec3 getPosition();
 
             // Method to compute a model matrix 
             void computeModelMatrix();
@@ -130,6 +130,9 @@ namespace Physics
             // Accumulator for forces
             glm::vec3 mForceAccum;
             // glm::vec3 mTorqueAccum;
+
+            // Set the accumulators to zero
+            void clearAccumulators();
 
 
             // // --------------------
