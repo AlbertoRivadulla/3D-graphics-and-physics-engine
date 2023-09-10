@@ -22,7 +22,8 @@ namespace Physics
             void addCollisionBody( CollisionBody* collisionBody );
 
             // Draw the objects in the current frame, to the G-buffer
-            void draw( Shader& defaultShader );
+            // void draw( Shader& defaultShader );
+            void draw();
 
         protected:
             // Vector of pointer to CollisionBody objects

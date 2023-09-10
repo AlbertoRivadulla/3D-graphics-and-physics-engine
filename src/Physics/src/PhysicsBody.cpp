@@ -119,23 +119,25 @@ namespace Physics
     }
 
     // Draw
-    void CollisionBody::draw( Shader& shader )
+    // void CollisionBody::draw( Shader& shader )
+    void CollisionBody::draw()
     {
-        // Activate the shader
-        shader.use();
-
-        // Set the model matrix of the object and configure it in the shader
-        //////////////////////////
-        //////////////////////////
-        // mGeometryObject->setModelMatrix( mPosition, 0., glm::vec3(1., 0., 0.), mScale );
-        // mGeometryObject->setModelMatrix( mPosition, mRotationMatrix, mScale );
-        //////////////////////////
-        //////////////////////////
-        shader.setMat4( "model", mGeometryObject->getModelMatrix() );
-        // shader.setMat4( "model", mModelMatrix );
+        // // Activate the shader
+        // shader.use();
+        //
+        // // Set the model matrix of the object and configure it in the shader
+        // //////////////////////////
+        // //////////////////////////
+        // // mGeometryObject->setModelMatrix( mPosition, 0., glm::vec3(1., 0., 0.), mScale );
+        // // mGeometryObject->setModelMatrix( mPosition, mRotationMatrix, mScale );
+        // //////////////////////////
+        // //////////////////////////
+        // shader.setMat4( "model", mGeometryObject->getModelMatrix() );
+        // // shader.setMat4( "model", mModelMatrix );
 
         // Configure the material in the shader
-        mMaterial->configShader( shader );
+        // mMaterial->configShader( shader );
+        mMaterial->configShader( mGeometryObject->getModelMatrix() );
 
         // Draw the object
         mGeometryObject->draw();

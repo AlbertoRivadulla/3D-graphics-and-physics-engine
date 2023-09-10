@@ -4,8 +4,10 @@ namespace GLGeometry
 {
     // Constructor
     GLSphere::GLSphere(int nrVertices) : 
-        mNrVertices { nrVertices }
+        mNrVertices { nrVertices + 1 }
     {
+        float pi = glm::pi<float>();
+
         // Create the Element buffer object
         glGenBuffers(1, &mEBO);
 
@@ -13,12 +15,16 @@ namespace GLGeometry
         mVertices.reserve(2 * (mNrVertices * mNrVertices - mNrVertices + 1));
         mIndices.reserve(3 * 4 * mNrVertices * (mNrVertices - 1));
 
+        // mVertices.reserve(2 * (mNrVertices * mNrVertices + 1));
+        // mIndices.reserve(3 * 4 * mNrVertices * (mNrVertices));
+
         // Generate the mVertices
         Vertex thisVertex;
-        // Upper cusp
+        // North pole
         thisVertex.Position = glm::vec3(0., 0.5, 0.);
         thisVertex.Normal = glm::vec3(0., 0.5, 0.);
-        thisVertex.TexCoords = glm::vec2(0., 0.);
+        thisVertex.TexCoords = glm::vec2(0.5, 0.99);
+        // thisVertex.TexCoords = glm::vec2(0., 0.);
         mVertices.push_back(thisVertex);
         // Loop vertically
         for (int t = 1; t < mNrVertices; ++t)
@@ -27,24 +33,26 @@ namespace GLGeometry
             for (int p = 0; p < 2 * mNrVertices; ++p)
             {
                 float x { 0.5f * glm::sin(glm::pi<float>() * (float)t / mNrVertices) *
-                                         glm::cos(glm::pi<float>() * (float)p / mNrVertices) };
+                                         glm::cos(glm::pi<float>() * (float)p / (mNrVertices - 0.5f) ) };
                 float y { 0.5f * glm::cos(glm::pi<float>() * (float)t / mNrVertices) };
                 float z { 0.5f * glm::sin(glm::pi<float>() * (float)t / mNrVertices) *
-                                         glm::sin(glm::pi<float>() * (float)p / mNrVertices) };
+                                         glm::sin(glm::pi<float>() * (float)p / (mNrVertices - 0.5f) ) };
 
                 thisVertex.Position = glm::vec3(x, y, z);
                 thisVertex.Normal = glm::vec3(x, y, z);
-                thisVertex.TexCoords = glm::vec2(0., 0.);
+                // Texture coordinates from a cylindrical projection
+                thisVertex.TexCoords = glm::vec2( p / ( 2.f*mNrVertices - 1.f ),
+                                                  0.99 * ( y + 0.5f )
+                                                );
 
                 mVertices.push_back(thisVertex);
             }
         }
-        // Lower cusp
+        // South pole
         thisVertex.Position = glm::vec3(0., -0.5, 0.);
         thisVertex.Normal = glm::vec3(0., -0.5, 0.);
-        thisVertex.TexCoords = glm::vec2(0., 0.);
+        thisVertex.TexCoords = glm::vec2(0.5, 0.);
         mVertices.push_back(thisVertex);
-
 
         // Generate the mIndices for the EBO
         // Join the upper cusp
@@ -55,6 +63,7 @@ namespace GLGeometry
             mIndices.push_back(p);
         }
         // Loop horizontally
+        // for (int p = 0; p < 2 * mNrVertices; ++p)
         for (int p = 0; p < 2 * mNrVertices; ++p)
         {
             // Loop vertically
@@ -79,6 +88,41 @@ namespace GLGeometry
             mIndices.push_back(p + 1 + (mNrVertices - 2) * 2 * mNrVertices);
             mIndices.push_back((p + 1) % (2 * mNrVertices) + 1 + (mNrVertices - 2) * 2 * mNrVertices);
         }
+
+        // // Generate the mIndices for the EBO
+        // // Join the upper cusp
+        // for (int p = 1; p < 2 * mNrVertices + 2; ++p)
+        // {
+        //     mIndices.push_back(0);
+        //     mIndices.push_back(p % (2 * mNrVertices) + 1);
+        //     mIndices.push_back(p);
+        // }
+        // // Loop horizontally
+        // // for (int p = 0; p < 2 * mNrVertices; ++p)
+        // for (int p = 0; p < 2 * mNrVertices; ++p)
+        // {
+        //     // Loop vertically
+        //     for (int t = 0; t < mNrVertices - 2; ++t)
+        //     {
+        //         // Triangles pointing down
+        //         mIndices.push_back(p + t * (2 * mNrVertices) + 1);
+        //         mIndices.push_back((p + 1) % (2 * mNrVertices) + t * (2 * mNrVertices) + 1);
+        //         mIndices.push_back(p + (t + 1) * (2 * mNrVertices) + 1);
+        //
+        //         // Triangles pointing up
+        //         mIndices.push_back((p + 1) % (2 * mNrVertices) + t * (2 * mNrVertices) + 1);
+        //         mIndices.push_back((p + 1) % (2 * mNrVertices) + (t + 1) * (2 * mNrVertices) + 1);
+        //         mIndices.push_back(p + (t + 1) * (2 * mNrVertices) + 1);
+        //     }
+        // }
+        // // Join the lower cusp
+        // for (int p = 0; p < 2 * mNrVertices; ++p)
+        // {
+        //     // Vertical lines
+        //     mIndices.push_back(2 * (mNrVertices * mNrVertices - mNrVertices + 1) - 1);
+        //     mIndices.push_back(p + 1 + (mNrVertices - 2) * 2 * mNrVertices);
+        //     mIndices.push_back((p + 1) % (2 * mNrVertices) + 1 + (mNrVertices - 2) * 2 * mNrVertices);
+        // }
 
         // Bind the VAO and the VBO (as a vertex buffer)
         glBindVertexArray(mVAO);

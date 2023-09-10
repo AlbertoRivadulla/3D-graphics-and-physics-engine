@@ -23,6 +23,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "utils.h"
 #include "application.h"
 #include "light.h"
 #include "deferredRenderer.h"
@@ -31,4 +32,3 @@
 #include "model.h"
 #include "mesh.h"
 #include "shader.h"
-#include "utils.h"

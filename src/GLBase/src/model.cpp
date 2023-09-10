@@ -207,7 +207,6 @@ namespace GLBase
         return loadTexture(pathWithDirectory.c_str());
     }
 
-
     // Function to load a texture
     unsigned int loadTexture(const char *path, bool sRGB, bool hasAlpha)
     {
@@ -286,7 +285,6 @@ namespace GLBase
         // Reture the ID of the generated texture
         return textureID;
     }
-
 
     // Function to load a cubemap
     unsigned int loadCubemap(std::vector<std::string> faces)

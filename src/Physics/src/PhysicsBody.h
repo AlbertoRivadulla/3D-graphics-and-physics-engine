@@ -67,7 +67,8 @@ namespace Physics
             void computeModelMatrix();
 
             // Draw
-            void draw( Shader& shader );
+            // void draw( Shader& shader );
+            void draw();
 
         protected:
             // Position, scale and Rotation

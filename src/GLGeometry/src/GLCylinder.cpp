@@ -6,7 +6,7 @@ namespace GLGeometry
 {
     // Constructor
     GLCylinder::GLCylinder(int nrVerticesCircle) : 
-        mNrVertices { nrVerticesCircle }
+        mNrVertices { nrVerticesCircle + 1 }
     {
         // Create the Element buffer object
         glGenBuffers(1, &mEBO);
@@ -22,13 +22,13 @@ namespace GLGeometry
             {
                 Vertex thisVertex;
                 // Spatial coordinates, which are also the components of the normal
-                float x { 0.5f * glm::cos(2.f * glm::pi<float>() * (float)angle / mNrVertices) };
-                float z { 0.5f * glm::sin(2.f * glm::pi<float>() * (float)angle / mNrVertices) };
+                float x { 0.5f * glm::cos(2.f * glm::pi<float>() * (float)angle / (mNrVertices-1)) };
+                float z { 0.5f * glm::sin(2.f * glm::pi<float>() * (float)angle / (mNrVertices-1)) };
                 thisVertex.Position = glm::vec3(x, (float)y - 0.5, z);
                 // Normal vector
                 thisVertex.Normal = glm::vec3(x, 0., z);
                 // Texture coordinates
-                thisVertex.TexCoords = glm::vec2(angle / (float)mNrVertices, y);
+                thisVertex.TexCoords = glm::vec2(angle / ((float)mNrVertices-1.f), y);
                 // Texture index
                 thisVertex.TexIndex = 0;
 
@@ -42,8 +42,8 @@ namespace GLGeometry
             {
                 Vertex thisVertex;
                 // Spatial coordinates, which are also the components of the normal
-                float x { 0.5f * glm::cos(2.f * glm::pi<float>() * (float)angle / mNrVertices) };
-                float z { 0.5f * glm::sin(2.f * glm::pi<float>() * (float)angle / mNrVertices) };
+                float x { 0.5f * glm::cos(2.f * glm::pi<float>() * (float)angle / (mNrVertices-1)) };
+                float z { 0.5f * glm::sin(2.f * glm::pi<float>() * (float)angle / (mNrVertices-1)) };
                 thisVertex.Position = glm::vec3(x, (float)y - 0.5, z);
                 // Normal vector
                 thisVertex.Normal = glm::vec3(0., 2. * ((float)y - 0.5), 0.);

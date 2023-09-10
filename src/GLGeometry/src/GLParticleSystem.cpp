@@ -41,7 +41,7 @@ namespace GLGeometry
         {
             mGPassShader->setMat4( "model", particle->modelMatrix );
             // Configure the material in the shader
-            particle->material->configShader( *mGPassShader );
+            particle->material->configShader( particle->modelMatrix );
 
             // Draw the object
             mGeometryObject->draw();

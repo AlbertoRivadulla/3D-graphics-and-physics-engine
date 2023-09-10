@@ -29,12 +29,14 @@ namespace Physics
     }
 
     // Draw the objects in the current frame, to the G-buffer
-    void CollisionWorld::draw( Shader& defaultShader )
+    // void CollisionWorld::draw( Shader& defaultShader )
+    void CollisionWorld::draw()
     {
         // Draw all the collision bodies
         for ( auto collisionBody : mCollisionBodies )
         {
-            collisionBody->draw( defaultShader );
+            // collisionBody->draw( defaultShader );
+            collisionBody->draw();
         }
     }
 

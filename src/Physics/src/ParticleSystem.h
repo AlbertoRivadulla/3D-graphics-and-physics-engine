@@ -16,7 +16,7 @@ namespace Physics
     {
         public:
             // Constructor
-            ParticleSystem( glm::vec3 position, glm::vec3 scale,
+            ParticleSystem( Shader& shader, glm::vec3 position, glm::vec3 scale,
                        float rotationAngle, glm::vec3 rotationAxis,
                        float mass, glm::vec3 velocity = {0.f, 0.f, 0.f} );
 
@@ -54,7 +54,8 @@ namespace Physics
             GLParticleSystem* mParticleSystemGL;
             // Pointer to the list of particles
             std::list<GLParticle*>* mParticles;
-            // std::list<GLParticle>* mParticles;
+            // Pointer to the shader for the G pass
+            Shader* mGPassShader;
             // Gravity of particles
             glm::vec3 mParticleGravity;
 

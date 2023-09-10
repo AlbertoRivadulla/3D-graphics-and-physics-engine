@@ -9,7 +9,7 @@ namespace Physics
 {
 
     // Constructor
-    ParticleSystem::ParticleSystem( glm::vec3 position, glm::vec3 scale,
+    ParticleSystem::ParticleSystem( Shader& shader, glm::vec3 position, glm::vec3 scale,
                float rotationAngle, glm::vec3 rotationAxis,
                float mass, glm::vec3 velocity ) :
         CollisionBody( position, scale, rotationAngle, rotationAxis ),      // Initialize the base class explicitly
@@ -17,10 +17,11 @@ namespace Physics
         mGravity { glm::vec3( 0.f, 0.f, 0.f ) },
         mDamping { 0.995f },
         mForceAccum { glm::vec3( 0.f, 0.f, 0.f ) },
-        mParticleCount { 0 }
+        mParticleCount { 0 },
+        mGPassShader { &shader }
     {
         // Placeholder for the material
-        mMaterial = new Material( {0.f, 0.f, 0.f}, 0.f );
+        mMaterial = new Material( shader, {0.f, 0.f, 0.f}, 0.f );
     }
 
     // Set the geometry of a single particle
@@ -99,7 +100,7 @@ namespace Physics
             addParticle( glm::vec3( -2.f + 4.f*GLUtils::getRandom0To1(), 15.f*GLUtils::getRandom0To1(), -2.f + 4.f*GLUtils::getRandom0To1() ),
                            0.5f * glm::vec3( 1.f, 1.f, 1.f ),
                            1.f + 5.f * GLUtils::getRandom0To1(),
-                           new Material( { GLUtils::getRandom0To1(), GLUtils::getRandom0To1(), GLUtils::getRandom0To1() }, 0.5f, 1.f ) );
+                           new Material( *mGPassShader, { GLUtils::getRandom0To1(), GLUtils::getRandom0To1(), GLUtils::getRandom0To1() }, 0.5f, 1.f ) );
         
         if ( mParticleCount == 0 )
             return;
