@@ -11,7 +11,7 @@ namespace GLBase
 
     // Constructor
     Application::Application(int width, int height, const char* title) :
-        mWidth { width }, mHeight { height }, mShouldClose { false }
+        mShouldClose { false }, mWidth { width }, mHeight { height }
     {
         // Initialize GLFW
         glfwInit();
@@ -21,10 +21,13 @@ namespace GLBase
         // and the second argument is the value
         // List of configurations: https://www.glfw.org/docs/latest/window.html#window_hints
         // Tell GLFW to use OpenGL 3.3
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         // Tell GLFW explicitly to use the core profile.
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
         // Needed for Mac Os.
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 

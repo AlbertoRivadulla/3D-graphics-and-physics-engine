@@ -14,7 +14,7 @@ namespace GLBase
                  float attenLinear, float attenQuadratic, int shadowRes,
                  LightType lightType) :
         mLightType { lightType },
-        mColor { color }, mPosition { position },
+        mPosition { position }, mColor { color }, 
         mIntensity { intensity }, mAttenLinear { attenLinear },
         mAttenQuadratic { attenQuadratic }, mShadowMapResolution { shadowRes }
 
@@ -32,12 +32,12 @@ namespace GLBase
                                        glm::vec3 direction, float intensity, 
                                        float attenLinear, float attenQuadratic,
                                        int shadowRes, unsigned int nrShadowCascadeLevels) :
+        Light( color, position, intensity, attenLinear, attenQuadratic, shadowRes,
+               LIGHT_DIRECTIONAL ),
         mDirection { glm::normalize(direction) }, 
         mNrShadowCascadeLevels { nrShadowCascadeLevels },
         mLightSpaceMatrices(nrShadowCascadeLevels),
-        mShadowCascadeDistances(nrShadowCascadeLevels + 1),
-        Light( color, position, intensity, attenLinear, attenQuadratic, shadowRes,
-               LIGHT_DIRECTIONAL )
+        mShadowCascadeDistances(nrShadowCascadeLevels + 1)
     {
         // Set the near plane of the first frustum to -101, so we know that it needs
         // to be modified
@@ -326,9 +326,9 @@ namespace GLBase
                          float angleInner, float angleOuter,
                          float intensity, float attenLinear, float attenQuadratic, 
                          int shadowRes) :
-        mDirection { glm::normalize(direction) },
         Light( color, position, intensity, attenLinear, attenQuadratic, shadowRes,
-               LIGHT_SPOT )
+               LIGHT_SPOT ),
+        mDirection { glm::normalize(direction) }
     {
         // Outer angle
         mAngleOuter = glm::radians(angleOuter);

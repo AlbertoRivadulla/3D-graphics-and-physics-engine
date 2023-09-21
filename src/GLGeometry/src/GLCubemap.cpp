@@ -145,6 +145,7 @@ namespace GLGeometry
             // Generate the texture from the loaded data, in the corresponding face
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height,
                          0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free( data );
         }
         // Specify the wrapping and filtering methods for the cubemap texture.
         // The R dimension corresponds to the tird dimension, z.

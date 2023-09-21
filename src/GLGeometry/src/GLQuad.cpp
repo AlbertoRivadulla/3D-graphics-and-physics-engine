@@ -5,7 +5,7 @@ using namespace GLBase;
 namespace GLGeometry
 {
     // Constructor
-    GLQuad::GLQuad() : mIndices(6), mEBO { 0 }
+    GLQuad::GLQuad() : mEBO { 0 }, mIndices(6)
     {
         // Create the Element buffer object
         glGenBuffers(1, &mEBO);

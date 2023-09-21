@@ -70,6 +70,12 @@ namespace Physics
         mCollisionBodies.push_back( collisionBody );
     }
 
+    // Add a terrain
+    void CollisionWorld::addTerrain( Terrain* terrain )
+    {
+        mTerrain = terrain;
+    }
+
     // Draw the objects in the current frame, to the G-buffer
     // void CollisionWorld::draw( Shader& defaultShader )
     void CollisionWorld::draw()
@@ -80,6 +86,12 @@ namespace Physics
             // collisionBody->draw( defaultShader );
             collisionBody->draw();
         }
+    }
+
+    // Draw the terrain
+    void CollisionWorld::drawTerrain()
+    {
+        mTerrain->draw();
     }
 
     //--------------------------------------------------------------------------
@@ -98,6 +110,9 @@ namespace Physics
         // vector of collision bodies
         // for ( auto body : mRigidBodies )
         //     delete body;
+
+        // Delete the terrain
+        delete mTerrain;
     }
 
     // Add a RigidBody
@@ -189,6 +204,8 @@ namespace Physics
             //
             //
 
+            // Check also for collisions with the terrain
+
 
             // Solve constraints
             //
@@ -198,6 +215,7 @@ namespace Physics
         // Update the particle systems
         for ( auto particleSystem : mParticleSystems )
             particleSystem -> integrate( deltaTime );
+
     }
 
     // // Draw the objects in the current frame, to the G-buffer

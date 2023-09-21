@@ -13,7 +13,7 @@ namespace GLGeometry
         GLParticle( glm::vec3 posVal, glm::vec3 velVal, glm::vec3 scaleVal, 
                     float maxAgeVal, Material* materialVal ) :
             position { posVal }, velocity { velVal }, scale { scaleVal }, 
-            age { 0.f }, maxAge { maxAgeVal }, material { materialVal }
+            material { materialVal}, age { 0.f }, maxAge { maxAgeVal }
         {
             computeModelMatrix();
         }

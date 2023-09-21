@@ -19,6 +19,7 @@ The graphics are rendered using OpenGL, by means of the open source GLFW library
 - Cascaded shadow maps
 - Fog effect added in postprocessing
 - Text and simple GUI rendering to the screen
+- Drawing terrain from a heightmap using tessellation shaders
 
 ### Physics engine
 

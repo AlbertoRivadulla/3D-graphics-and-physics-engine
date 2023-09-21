@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 # to provide code completion in Neovim
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
+set(CMAKE_CXX_FLAGS "-O3 -Wall")
+
 # Name of the project
 project(Sandbox)
 

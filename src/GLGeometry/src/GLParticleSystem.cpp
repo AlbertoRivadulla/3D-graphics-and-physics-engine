@@ -8,7 +8,7 @@ namespace GLGeometry
 {
     // Constructor
     GLParticleSystem::GLParticleSystem(GLElemObject* geometryObject, Shader* GPassShader) :
-        mGeometryObject { geometryObject }, mGPassShader { GPassShader }
+        mGPassShader { GPassShader }, mGeometryObject { geometryObject }
     {
     }
 

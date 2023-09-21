@@ -4,6 +4,7 @@
 #include "Physics.h"
 #include "PhysicsBody.h"
 #include "ForceGenerator.h"
+#include "Terrain.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -60,15 +61,24 @@ namespace Physics
             // Add a CollisionBody
             void addCollisionBody( CollisionBody* collisionBody );
 
+            // Add a terrain
+            void addTerrain( Terrain* terrain );
+
             // Draw the objects in the current frame, to the G-buffer
             // void draw( Shader& defaultShader );
             void draw();
+
+            // Draw the terrain
+            void drawTerrain();
 
         protected:
             // Vector of pointer to CollisionBody objects
             std::vector<CollisionBody*> mCollisionBodies;
             // Vector of pointer to CollisionBody objects that are not drawn
             std::vector<CollisionBody*> mCollisionBodiesNotDrawn;
+
+            // Terrain
+            Terrain* mTerrain;
 
             // Used to slow down simulations
             int mCounter;

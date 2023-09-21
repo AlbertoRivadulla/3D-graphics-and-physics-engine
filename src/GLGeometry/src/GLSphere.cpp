@@ -6,7 +6,7 @@ namespace GLGeometry
     GLSphere::GLSphere(int nrVertices) : 
         mNrVertices { nrVertices + 1 }
     {
-        float pi = glm::pi<float>();
+        // float pi = glm::pi<float>();
 
         // Create the Element buffer object
         glGenBuffers(1, &mEBO);

@@ -53,6 +53,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLAuxElements.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTextRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GLGUIRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTerrainPatch.cpp
 )
 
 # Create the library

@@ -24,8 +24,6 @@ namespace Physics
     // Destructor
     CollisionBody::~CollisionBody()
     {
-        // The variable mGeometryObject is already deleted by the destructor
-
         delete mMaterial;
         // delete mCollider;
     }
@@ -154,7 +152,8 @@ namespace Physics
                           float rotationAngle, glm::vec3 rotationAxis,
                           float mass, glm::vec3 velocity ) :
         CollisionBody( position, scale, rotationAngle, rotationAxis ),      // Initialize the base class explicitly
-        mVelocity { velocity }, mMassInver { 1.f / mass },
+        mMassInver { 1.f / mass },
+        mVelocity { velocity }, 
         // mAcceleration { glm::vec3( 0.f, 0.f, 0.f ) },
         mDamping { 0.995f },
         mForceAccum { glm::vec3( 0.f, 0.f, 0.f ) }

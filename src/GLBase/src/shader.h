@@ -14,8 +14,10 @@ namespace GLBase
             unsigned int ID;
 
             // Constructor that reads and builds the shader from files.
-            // Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
-            Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
+            // Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
+            Shader(const std::string& vertexPath, const std::string& fragmentPath, 
+                   const std::string& geometryPath = "",
+                   const std::string& tessCtrlPath = "", const std::string& tessEvalPath = "");
 
             // Use/activate the shader
             void use();
@@ -61,6 +63,10 @@ namespace GLBase
             spec = specular;
             emissive = emiss;
         }
+
+        // Destructor
+        virtual ~Material()
+        {}
 
         // Method to pass the material information to a shader.
         // void configShader(const Shader& shader)

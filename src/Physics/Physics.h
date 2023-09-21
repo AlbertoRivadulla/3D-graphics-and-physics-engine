@@ -22,6 +22,7 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 
+#include "Terrain.h"
 #include "PhysicsBody.h"
 #include "ParticleSystem.h"
 #include "ForceGenerator.h"

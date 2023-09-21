@@ -7,17 +7,17 @@ namespace GLBase
 {
     // Constructor
     DeferredRenderer::DeferredRenderer() :
-        mScreenPostprocessingShader(std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadVertex.glsl", 
-                      std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadPostproFragment.glsl"),
-        mLightingPassShader(std::string(BASE_DIR_SHADERS) + "/GLBase/defLightingPassVertex.glsl", 
-                            std::string(BASE_DIR_SHADERS) + "/GLBase/defLightingPassFragment.glsl"),
         mShadowMapDirectionalShader(std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapCascadedVertex.glsl", 
                                     std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapCascadedFragment.glsl",
                                     std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapCascadedGeometry.glsl"),
         mShadowMapPointShader(std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapVertex.glsl", 
                                     std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapFragment.glsl"),
         mShadowMapSpotShader(std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotVertex.glsl", 
-                                    std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotFragment.glsl")
+                                    std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotFragment.glsl"),
+        mLightingPassShader(std::string(BASE_DIR_SHADERS) + "/GLBase/defLightingPassVertex.glsl", 
+                            std::string(BASE_DIR_SHADERS) + "/GLBase/defLightingPassFragment.glsl"),
+        mScreenPostprocessingShader(std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadVertex.glsl", 
+                      std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadPostproFragment.glsl")
     {
         // Color to clear the window
         glClearColor(1.f, 0.f, 1.f, 1.0f);

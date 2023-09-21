@@ -19,8 +19,9 @@ uniform sampler2D gPosition;
 float getFogFactorLinear(float d)
 {
     // Values between which the fog effect appears
-    const float FogMax = 100.0;
-    const float FogMin = 40.0;
+    const float FogMax = 400.0;
+    // const float FogMin = 40.0;
+    const float FogMin = 100.0;
 
     return clamp(1. - (FogMax - d) / (FogMax - FogMin), 0., 1.);
 }
@@ -31,7 +32,7 @@ float getFogFactorExponential(float d)
     // Parameters for the fog
     const float density = 0.01;
     // const float gradient = 1.5;
-    const float gradient = 2.;
+    const float gradient = 20.;
 
     return clamp( 1. - exp(-pow((d * density), gradient)), 0., 1. );
 }

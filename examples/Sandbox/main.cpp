@@ -19,8 +19,6 @@ int main()
     return 0;
 }
 
-
-
 /*
    - The code to make the updates of the objects with physics slower is located in
      the file PhysicsWorld.cpp

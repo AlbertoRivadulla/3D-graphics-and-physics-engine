@@ -9,14 +9,14 @@ namespace GLBase
 
     // Constructor with vector values
     Camera::Camera( int width, int height, glm::vec3 position, glm::vec3 up, 
-                    float yaw, float pitch) 
-        : Front { glm::vec3(0., 0., -1.) }, MovementSpeed { SPEED },
-          MouseSensitivity { SENSITIVITY }, Fov { FOV },  
-          Position { position }, WorldUp { up }, Yaw { yaw }, Pitch { pitch },
-          mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
+                    float yaw, float pitch) :
           mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. },
-          mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
+          Position { position }, Front { glm::vec3(0., 0., -1.) }, 
+          WorldUp { up }, Yaw { yaw }, Pitch { pitch }, Fov { FOV },
           mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this),
+          MovementSpeed { SPEED }, MouseSensitivity { SENSITIVITY },  
+          mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
+          mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
           mIsOrthographic { false }
     {
         updateCameraVectors();
@@ -24,14 +24,14 @@ namespace GLBase
 
     // Constructor with scalar values
     Camera::Camera( int width, int height, float posX, float posY, float posZ, 
-                    float upX, float upY, float upZ, float yaw, float pitch) 
-        : Front { glm::vec3(0., 0., -1.) }, MovementSpeed { SPEED },
-          MouseSensitivity { SENSITIVITY }, Fov { FOV },  
-          Position { glm::vec3(posX, posY, posZ) }, WorldUp { glm::vec3(upX, upY, upZ)},
-          Yaw { yaw }, Pitch { pitch }, mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
-          mWidth { width }, mHeight { height }, mNear { 0.1f }, mFar { 100.f },
-          mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
+                    float upX, float upY, float upZ, float yaw, float pitch) :
+          mWidth { width }, mHeight { height }, mNear { 0.1 }, mFar { 100. },
+          Position { glm::vec3(posX, posY, posZ) }, Front { glm::vec3(0., 0., -1.) }, 
+          WorldUp { glm::vec3(upX, upY, upZ)}, Yaw { yaw }, Pitch { pitch }, Fov { FOV },
           mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this),
+          MovementSpeed { SPEED }, MouseSensitivity { SENSITIVITY },  
+          mLastX { 0. }, mLastY { 0. }, mFirstMouse { true },
+          mOrthoHalfWidth { 3.f * (float)width / (float)height }, mOrthoHalfHeight { 3.f },
           mIsOrthographic { false }
     {
         updateCameraVectors();

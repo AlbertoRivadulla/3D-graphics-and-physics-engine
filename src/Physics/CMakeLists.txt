@@ -54,6 +54,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PlaneCollider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ConvexCollider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ForceGenerator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Terrain.cpp
 )
 
 # Create the library

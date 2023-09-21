@@ -1,6 +1,8 @@
 #include "Sandbox.h"
 #include "ForceGenerator.h"
 #include "GLElemObject.h"
+#include "PhysicsBody.h"
+#include "utils.h"
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -84,6 +86,24 @@ void GLSandbox::setupScene()
     // mGravity = new Physics::GravityForceGenerator( { 0.f, 0.f, 0.f } );
     // mGravity = new Physics::GravityForceGenerator( { 0.f, -1.f, 0.f } );
 
+    // // Add a terrain
+    // Terrain* terrain = new Terrain( &mElementaryObjects );
+    // terrain->addPatchFromTexture( std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.25f, 0.4f, -15.f );
+    // terrain->addMaterial( new Material( mGPassShaders[0], {0.5, 0.5, 0.2}, 0.1 ) );
+    // // MaterialWithTextures* materialTerrain = new MaterialWithTextures( mGPassShaders[1], {1., 0., 0.}, 0.1 );
+    // // materialTerrain->loadAlbedoTexture( std::string(BASE_DIR_RESOURCES) + "/textures/wood.png" );
+    // // terrain->addMaterial( materialTerrain );
+    // mPhysicsWorld.addTerrain( terrain );
+
+    // Add a terrain with to be drawn with the tesselation shader
+    Terrain* terrain = new Terrain( &mElementaryObjects );
+    terrain->addPatchFromTextureTessellated( std::string(BASE_DIR_RESOURCES) 
+                                             + "/textures/heightmaps/iceland_heightmap.png", 
+                                             0.5f, 1.f, -30.f );
+    terrain->addMaterial( new Material( terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1 ) );
+    mGPassShaders.push_back( terrain->getTessellationShader() );
+    mPhysicsWorld.addTerrain( terrain );
+
     // // Add a plane
     // // The arguments are position, scale, rotation angle and rotation axis
     // CollisionBody* plane = new CollisionBody( { 0., -1., 0. },
@@ -102,15 +122,15 @@ void GLSandbox::setupScene()
                                        0.f, { 1., 0., 0. },
                                        1.f,
                                        { 0., 0., 0. } );
-    // sphere->addGeometry( new GLSphere(16), mElementaryObjects );
-    sphere->addGeometryNotDrawn( new GLObjectPlaceholder() );
+    sphere->addGeometry( new GLSphere(16), mElementaryObjects );
+    // sphere->addGeometryNotDrawn( new GLObjectPlaceholder() );
     sphere->addCollider( new SphereCollider() );
     // sphere->addMaterial( new Material( mGPassShaders[0], {1., 0., 0.}, 0.1 ) );
     MaterialWithTextures* materialSphTextures = new MaterialWithTextures( mGPassShaders[1], {1., 0., 0.}, 0.1 );
     materialSphTextures->loadAlbedoTexture( std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg" );
     sphere->addMaterial( materialSphTextures );
-    // mPhysicsWorld.addRigidBody( sphere );
-    mPhysicsWorld.addRigidBodyNotDrawn( sphere );
+    mPhysicsWorld.addRigidBody( sphere );
+    // mPhysicsWorld.addRigidBodyNotDrawn( sphere );
     // // Add gravity to this object
     // mPhysicsWorld.addBodyForce( sphere, mGravity );
 
@@ -193,8 +213,8 @@ void GLSandbox::setupApplication()
 
     // Pass a pointer to the input handler
     mApplication.setInputHandler(&mInputHandler);
-    // // Configure the frustum of the camera
-    // mCamera.setFrustum(0.1f, 50.f);
+    // Configure the frustum of the camera
+    mCamera.setFrustum(0.1f, 200.f);
 
     // Pass pointers to the input handler of the camera
     mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
@@ -230,8 +250,10 @@ void GLSandbox::renderDeferred()
         GPassShader.setMat4("projection", mProjection);
     }
 
+    // Draw also the terrain
+    mPhysicsWorld.drawTerrain();
+
     // Draw all the objects with physics
-    // mPhysicsWorld.draw(mGPassShaders[0]);
     mPhysicsWorld.draw();
 }
 

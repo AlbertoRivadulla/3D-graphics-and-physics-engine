@@ -15,9 +15,9 @@ namespace GLGeometry
 
     // Constructor
     GLGUIRenderer::GLGUIRenderer( const int scrWidth, const int scrHeight ) :
+        mWidth { scrWidth }, mHeight { scrHeight },
         mGUIShader( std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIVertex.glsl",
-                     std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIFragment.glsl" ),
-        mWidth { scrWidth }, mHeight { scrHeight }
+                     std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIFragment.glsl" )
         
     {
         // Generate the texture for the GUI

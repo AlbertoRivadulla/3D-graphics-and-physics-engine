@@ -6,16 +6,16 @@ using namespace GLBase;
 // Constructor
 GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mApplication(width, height, title),
-    mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
-    mScrWidth { width }, mScrHeight { height },
-    mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
+    mRenderer(),
+    mLightingShader ( mRenderer.getLightingShader() ), // Reference to the G-pass shader of the renderer
     mCamera(width, height, glm::vec3(1., 0., 0.)),
-    mPhysicsWorld(),
     mAuxElements(width, height),
     mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
     mGUIRenderer(width, height),
-    mRenderer(),
-    mLightingShader ( mRenderer.getLightingShader() ) // Reference to the G-pass shader of the renderer
+    mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
+    mPhysicsWorld(),
+    mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
+    mScrWidth { width }, mScrHeight { height }
 {
     // Get the actual resolution for the window.
     // This is needed in case we are using a "retina" display, where the resolution
@@ -89,7 +89,8 @@ void GLSandbox::run()
         // Add one to the counter
         ++mFrameCounter;
         // Every 60 frames, print the amount of time that each of them takes
-        if (mFrameCounter % 60 == 0)
+        // if (mFrameCounter % 60 == 0)
+        if (mFrameCounter % 300 == 0)
         {
             std::stringstream ss;
             // std::cout << "Average frame duration: " << mTotalTime * 1000 / mFrameCounter << " ms\n";
