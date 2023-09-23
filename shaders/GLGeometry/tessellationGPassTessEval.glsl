@@ -2,6 +2,7 @@
 layout(quads, fractional_odd_spacing, ccw) in;
 
 uniform sampler2D heightMap;
+uniform sampler2D normalMap;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -30,7 +31,8 @@ void main()
     vec2 texCoord = (t1 - t0) * v + t0;
 
     // Height at the point in the patch, from the heightmap texture
-    Height = texture(heightMap, texCoord).y * 64.0 - 16.0;
+    /* Height = texture(heightMap, texCoord).r * 64.0 - 16.0; */
+    Height = texture(heightMap, texCoord).r;
 
     // Position coordinates of the control points
     vec4 p00 = gl_in[0].gl_Position;
@@ -48,13 +50,13 @@ void main()
     vec4 p1 = (p11 - p10) * u + p10;
     vec4 p = (p1 - p0) * v + p0 + normal * Height;
 
-    // vs_out.FragPos = vec3(model * vec4(aPos, 1.));
-    // vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
-    // vs_out.TexCoords = aTexCoords;
-    // gl_Position = projection * view * vec4(vs_out.FragPos, 1.);
-
     Position = vec3(model * vec4( p.xyz, 1. ));
     gl_Position = projection * view * vec4( Position, 1. );
-    Normal = normal.xyz;
+
+    // Normal to the vertex from the normal map
+    // Normal = texture( normalMap.xyz, texCoord );
+    Normal = texture( normalMap, texCoord ).xyz;
+    // Normal = normal.xyz;
+    // Normal = vec3( 0., 1., 0. );
 }
 

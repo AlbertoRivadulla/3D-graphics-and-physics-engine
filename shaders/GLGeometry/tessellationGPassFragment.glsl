@@ -33,28 +33,17 @@ void main()
     // Output also the z value in the alpha channel of the texture
     gPosition = vec4(Position, gl_FragCoord.z / gl_FragCoord.w);
     // Normal of the fragment
-    gNormalEmiss.rgb = normalize(Normal);
-    // gNormalEmiss.rgb = vec3(0., 1., 0.);
+    gNormalEmiss.rgb = Normal;
     // Emissive values
-    // gNormalEmiss.a = material.emissive;
-    gNormalEmiss.a = 0.;
+    gNormalEmiss.a = material.emissive;
+    // gNormalEmiss.a = 0.;
     // Color of the fragment
     gAlbedoSpec.rgb = material.albedo;
-    // gAlbedoSpec.rgb = Normal;
     // Specular intensity of the fragment
     gAlbedoSpec.a = material.spec;
+
+    // gNormalEmiss.rgb = vec3(0.,1.,0.);
+    // float h = Height;
+    // gAlbedoSpec.rgb = vec3( h,h,h );
+    // gAlbedoSpec.rgb = Normal;
 }
-
-
-
-// #version 410 core
-// 
-// in float Height;
-// 
-// out vec4 FragColor;
-// 
-// void main()
-// {
-//     float h = (Height + 16)/64.0f;
-//     FragColor = vec4(h, h, h, 1.0);
-// }

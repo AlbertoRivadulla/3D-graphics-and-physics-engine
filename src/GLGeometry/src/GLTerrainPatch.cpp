@@ -32,6 +32,17 @@ namespace GLGeometry
                                                  -0.5f * width + j );
                 thisVertex.Normal = glm::vec3( 0.f, 1.f, 0.f );
                 thisVertex.TexCoords = glm::vec2( (float)i / width, (float)j / height );
+
+                // Compute the normal, only for the vertices outside the edges of the grid
+                if ( i > 0 && i < height-1 && j > 0 && j < width-1 )
+                {
+
+                    thisVertex.Normal[0] = 0.5f * ( data[(j-1 + width*i)*nChannels] - data[(j+1 + width*i)*nChannels] );
+                    thisVertex.Normal[1] = 1.f;
+                    thisVertex.Normal[2] = 0.5f * ( data[(j + width*(i-1))*nChannels] - data[(j + width*(i+1))*nChannels] );
+                    thisVertex.Normal = glm::normalize( thisVertex.Normal );
+                }
+
                 mVertices.push_back(thisVertex);
             }
         }

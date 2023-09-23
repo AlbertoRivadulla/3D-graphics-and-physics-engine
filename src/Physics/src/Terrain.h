@@ -16,10 +16,18 @@ namespace Physics
         public:
             // Constructor
             Terrain( std::vector<GLElemObject*>* elementaryObjects );
+            // Destructor
+            ~Terrain();
 
             // Add a terrain patch from an image
-            void addPatchFromTexture( const std::string& heightmapTexPath, float hScale, float vScale, float yShift=0.f);
-            void addPatchFromTextureTessellated( const std::string& heightmapTexPath, float hScale, float vScale, float yShift=0.f);
+            void addPatchFromTexture( const std::string& heightmapTexPath, 
+                                      float hScale, float vScale, float yShift=0.f);
+            void addPatchPlaneTessellated( float hScale, float vScale, float yShift=0.f);
+            void addPatchFromTextureTessellated( const std::string& heightmapTexPath, 
+                                                 float hScale, float vScale, float yShift=0.f);
+            void addPatchFromHeightDataTessellated( float* heightMapData,
+                                                    int width, int height, float hScale, 
+                                                    float vScale, float yShift=0.f);
 
             // Add material
             void addMaterial( Material* material );
@@ -31,11 +39,15 @@ namespace Physics
             void draw();
 
         private:
-            // List of elementary objects in the corresponding sandbox
-            std::vector<GLElemObject*>* mElementaryObjects;
+            // // List of elementary objects in the corresponding sandbox
+            // std::vector<GLElemObject*>* mElementaryObjects;
 
-            // Heightmap texture
+            // Height map and Normal map texture
             unsigned int mHeightmapTex;
+            unsigned int mNormalmapTex;
+            // Data for the height and normal maps
+            float* mDataHeight;
+            float* mDataNormal;
 
             // Material
             Material* mMaterial;
@@ -45,6 +57,10 @@ namespace Physics
 
             // Shader for tessellation
             Shader mTessellationShader;
+
+            // Compute the normal map given an array of data for the height map
+            void computeNormalmapData( float* data, int width, int height,
+                                       float hScale, float vScale );
     };
 }
 
