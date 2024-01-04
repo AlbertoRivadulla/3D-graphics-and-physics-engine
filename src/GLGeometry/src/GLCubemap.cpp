@@ -5,8 +5,11 @@ using namespace GLBase;
 namespace GLGeometry
 {
     // Constructor
-    GLCubemap::GLCubemap(const std::string& texturesPath, const std::string& vertexShaderPath,
-                      const std::string& fragmentShaderPath) :
+    GLCubemap::GLCubemap(bool hasTexture,
+                         const std::string& texturesPath, 
+                         const std::string& vertexShaderPath,
+                         const std::string& fragmentShaderPath) :
+        mHasTexture { hasTexture },
         mShader(vertexShaderPath, fragmentShaderPath)
     {
         // Load the textures
@@ -21,6 +24,7 @@ namespace GLGeometry
     }
     // Constructor without textures
     GLCubemap::GLCubemap(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) :
+        mHasTexture { false },
         mShader(vertexShaderPath, fragmentShaderPath)
     {
         // No textures to load, if no path for them is given
@@ -103,6 +107,13 @@ namespace GLGeometry
         // Activate the shader
         mShader.use();
 
+        // If the skybox has a texture, bind it
+        if ( mHasTexture )
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTexture);
+        }
+
         // Draw the skybox quad
         glBindVertexArray(mScreenVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -140,6 +151,7 @@ namespace GLGeometry
         // Iterate over the faces
         for (int i = 0; i < sidesPaths.size(); ++i)
         {
+            std::cout << sidesPaths[i] << std::endl;
             // Load the data in each face
             data = stbi_load(sidesPaths[i].c_str(), &width, &height, &nrChannels, 0);
             // Generate the texture from the loaded data, in the corresponding face

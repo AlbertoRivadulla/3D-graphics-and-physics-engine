@@ -13,7 +13,8 @@ namespace GLGeometry
             // Constructor
             // The default path for the textures is
             //      ../resources/textures/skybox
-            GLCubemap(const std::string& texturesPath, 
+            GLCubemap(bool hasTexture,
+                      const std::string& texturesPath, 
                       const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
                       const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragment.glsl");
             // Constructor without textures
@@ -39,6 +40,7 @@ namespace GLGeometry
             unsigned int mScreenVBO;
 
             // Cubemap texture
+            bool mHasTexture;
             unsigned int mCubemapTexture;
 
             // Shader

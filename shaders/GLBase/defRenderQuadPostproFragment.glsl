@@ -30,9 +30,9 @@ float getFogFactorLinear(float d)
 float getFogFactorExponential(float d)
 {
     // Parameters for the fog
-    const float density = 0.01;
-    // const float gradient = 1.5;
-    const float gradient = 20.;
+    const float density = 0.001;
+    const float gradient = 1.5;
+    // const float gradient = 5.;
 
     return clamp( 1. - exp(-pow((d * density), gradient)), 0., 1. );
 }

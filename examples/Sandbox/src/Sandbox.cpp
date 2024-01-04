@@ -30,17 +30,18 @@ void GLSandbox::setupScene()
     for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
         mGUIPixels[i] = 0;
 
-    // Create the cubemap for the sky
-    mSkymap = new GLCubemap();
+    // // Create the cubemap for the sky
+    // mSkymap = new GLCubemap();
 
-    // // in GLCubemap.h and GLCubemap.cpp
-    // // Skymap with textures. To use this, comment the constructor without textures
-    // mSkymap = new GLCubemap( "../resources/textures/skybox" );
+    // Skymap with textures. To use this, comment the constructor without textures
+    // in GLCubemap.h and GLCubemap.cpp
+    mSkymap = new GLCubemap( true, std::string(BASE_DIR_RESOURCES) + "/textures/skybox" );
 
     // Set the position of the camera
     // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
     // mCamera.Position = glm::vec3(0.f, 1.5f, 10.f);
-    mCamera.Position = glm::vec3(0.f, 1.5f, 30.f);
+    // mCamera.Position = glm::vec3(0.f, 5.f, 20.f);
+    mCamera.Position = glm::vec3(20.f, -20.f, 30.f);
 
     // // Load a shader
     // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl", std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
@@ -57,17 +58,20 @@ void GLSandbox::setupScene()
                                             {-1., -1., -1.},  // Direction
                                             1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
     // // Add a spotlight
-    // mLights.push_back(new SpotLight( {0., 1., 0.},            // Color
-    //                                  {0., 4., 0.},            // Position
-    //                                  {0., -1., 0.},           // Direction
+    // mLights.push_back(new SpotLight( {1., 0., 1.},            // Color
+    //                                  {3., 6., 0.},            // Position
+    //                                  {-1., -1., 0.},           // Direction
+    //                                  // {0., 4., 0.},            // Position
+    //                                  // {0., -1., 0.},           // Direction
     //                                  60.f, 90.f,              // Angles
-    //                                  2.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
+    //                                  7.f, 0.05f, 0.1f) );     // Intensity, attenuation linear, attenuation quadratic
     // // Add some point lights
     // for (int i = 0; i < 2; ++i)
     // {
     //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(), getRandom0To1()}, 
     //                                       {10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f, 10.f * getRandom0To1() - 5.f}, 
-    //                                       0.2f, 0.01f, 0.02f ) );
+    //                                       // 0.2f, 0.01f, 0.02f ) );
+    //                                       2.f, 0.01f, 0.02f ) );
     // }
 
     /*
@@ -86,6 +90,10 @@ void GLSandbox::setupScene()
     // mGravity = new Physics::GravityForceGenerator( { 0.f, 0.f, 0.f } );
     // mGravity = new Physics::GravityForceGenerator( { 0.f, -1.f, 0.f } );
 
+    // -------------------------------------------------------------------------
+    // Terrain
+    // -------------------------------------------------------------------------
+
     // // Add a terrain
     // Terrain* terrain = new Terrain( &mElementaryObjects );
     // terrain->addPatchFromTexture( std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.25f, 0.4f, -15.f );
@@ -96,32 +104,33 @@ void GLSandbox::setupScene()
     // // terrain->addMaterial( materialTerrain );
     // mPhysicsWorld.addTerrain( terrain );
 
-    // // Add a terrain with to be drawn with the tesselation shader
-    // Terrain* terrain = new Terrain( &mElementaryObjects );
-    // terrain->addPatchFromTextureTessellated( std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f );
-    // terrain->addMaterial( new Material( terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1 ) );
-    // mGPassShaders.push_back( terrain->getTessellationShader() );
-    // mPhysicsWorld.addTerrain( terrain );
-
     // Add a terrain with to be drawn with the tesselation shader
-    int width = 200;
-    int height = 200;
-    float* heightData = new float[width * height];
-    for ( int i = 0; i < width; i++ )
-    {
-        for ( int j = 0; j < height; j++ )
-        {
-            float x = i - width/2.f;
-            float y = j - height/2.f;
-            heightData[ j*width + i ] = (150.f / ( 1.f + glm::sqrt( x*x + y*y ) ));
-        }
-    }
     Terrain* terrain = new Terrain( &mElementaryObjects );
-    terrain->addPatchFromHeightDataTessellated( heightData, width, height, 2.f, 20.f, -5.f );
-    // terrain->addPatchPlaneTessellated( 100.f, 1.f, 0.f );
+    // terrain->addPatchFromTextureTessellated( std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f );
+    terrain->addPatchFromTextureTessellated( std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/heightmap-02.jpg", 0.5f, 80.f, -80.f );
     terrain->addMaterial( new Material( terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1 ) );
     mGPassShaders.push_back( terrain->getTessellationShader() );
     mPhysicsWorld.addTerrain( terrain );
+
+    // // Add a terrain to be drawn with the tesselation shader
+    // int width = 200;
+    // int height = 200;
+    // float* heightData = new float[width * height];
+    // for ( int i = 0; i < width; i++ )
+    // {
+    //     for ( int j = 0; j < height; j++ )
+    //     {
+    //         float x = i - width/2.f;
+    //         float y = j - height/2.f;
+    //         heightData[ j*width + i ] = (150.f / ( 1.f + glm::sqrt( x*x + y*y ) ));
+    //     }
+    // }
+    // Terrain* terrain = new Terrain( &mElementaryObjects );
+    // terrain->addPatchFromHeightDataTessellated( heightData, width, height, 2.f, 20.f, -5.f );
+    // // terrain->addPatchPlaneTessellated( 100.f, 1.f, 0.f );
+    // terrain->addMaterial( new Material( terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1 ) );
+    // mGPassShaders.push_back( terrain->getTessellationShader() );
+    // mPhysicsWorld.addTerrain( terrain );
 
     // // Add a plane
     // // The arguments are position, scale, rotation angle and rotation axis
@@ -133,10 +142,14 @@ void GLSandbox::setupScene()
     // plane->addMaterial( new Material( mGPassShaders[0], { 0.5, 0.5, 0. }, 0.1 ) );
     // mPhysicsWorld.addCollisionBody( plane );
 
+    // -------------------------------------------------------------------------
+    // Objects with physics
+    // -------------------------------------------------------------------------
+
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle, 
     // rotation axis, mass, initial velocity
-    RigidBody* sphere = new RigidBody( { 0., 10., 0. }, 
+    RigidBody* sphere = new RigidBody( { 0., 5., 0. }, 
                                        { 1., 1., 1. },
                                        0.f, { 1., 0., 0. },
                                        1.f,
@@ -161,7 +174,7 @@ void GLSandbox::setupScene()
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle, 
     // rotation axis, mass, initial velocity
-    RigidBody* sphere2 = new RigidBody( { 0., 5., 0. }, 
+    RigidBody* sphere2 = new RigidBody( { 0., 2., 0. }, 
                                         { 1., 1., 1. },
                                         45.f, { 1., 0., 0. },
                                         1.f,
@@ -233,7 +246,8 @@ void GLSandbox::setupApplication()
     // Pass a pointer to the input handler
     mApplication.setInputHandler(&mInputHandler);
     // Configure the frustum of the camera
-    mCamera.setFrustum(0.1f, 200.f);
+    // mCamera.setFrustum(0.1f, 200.f);
+    mCamera.setFrustum(0.1f, 500.f);
 
     // Pass pointers to the input handler of the camera
     mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
