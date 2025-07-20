@@ -11,8 +11,6 @@ namespace Physics
     // Constructor with a GLElemObject as argument
     ConvexCollider::ConvexCollider( GLElemObject* elemObject )
     {
-        // std::cout << "convex collider" << std::endl;
-
         // Compute the AABB in model space, from the vertices of the GLElemObject
         mAABB.cornersModel.push_back( glm::vec3( -0.5f, -0.5f, -0.5f ) );
         mAABB.cornersModel.push_back( glm::vec3(  0.5f,  0.5f,  0.5f ) );
@@ -53,8 +51,6 @@ namespace Physics
     // Update the collider and AABB after a transformation
     void ConvexCollider::moveCollider( const glm::mat4& modelMatrix )
     {
-        // std::cout << "moving Convex" << std::endl;
-
         // Update the AABB
         computeAABBTransformed( mAABB.verticesModel, modelMatrix, mAABB.cornersWorld );
 
@@ -73,7 +69,8 @@ namespace Physics
         // Test collisions between AABBs
         if ( checkCollisionAABB( sphere ) )
         {
-            std::cout << "Collision convex sphere" << std::endl;
+            // TODO
+            LOG_DEBUG("Collision convex sphere");
             return true;
         }
 
@@ -89,10 +86,9 @@ namespace Physics
         // Test collision with the AABB
         if ( checkCollisionAABBPlane( plane ) )
         {
+            // TODO
             return true;
-
         }
-        // std::cout << "convex plane" << std::endl;
 
         //
         //
@@ -106,7 +102,8 @@ namespace Physics
         // Test collisions between AABBs
         if ( checkCollisionAABB( other ) )
         {
-            std::cout << "Collision convex convex" << std::endl;
+            // TODO
+            LOG_DEBUG("Collision convex convex");
             return true;
         }
 

@@ -40,7 +40,7 @@ namespace GLBase
         mWindow = glfwCreateWindow(width, height, title, NULL, NULL);
         if (mWindow == NULL)
         {
-            std::cout << "Failed to create GLFW window.\n";
+            LOG_ERROR("Failed to create GLFW window.");
             glfwTerminate();
         }
         glfwMakeContextCurrent( mWindow );
@@ -53,7 +53,7 @@ namespace GLBase
         // OpenGL function pointers, based on which OS we're compiling for
         if (!gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress) )
         {
-            std::cout << "Failed to initialize GLAD.\n";
+            LOG_ERROR("Failed to initialize GLAD.");
         }
 
         // Tell OpenGL the size of the rendering window
@@ -82,9 +82,9 @@ namespace GLBase
     // Destructor
     Application::~Application()
     {
-        std::cout << "Closing application... ";
+        LOG_INFO("Closing application...");
         glfwTerminate();
-        std::cout << "Application closed\n";
+        LOG_INFO("Application closed");
     }
 
     // Methods to get witdth and height

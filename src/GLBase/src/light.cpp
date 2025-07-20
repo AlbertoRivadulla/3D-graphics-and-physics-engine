@@ -103,7 +103,7 @@ namespace GLBase
         int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+            LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
             throw 0;
         }
         // glBindFramebuffer(GL_FRAMEBUFFER, 0);  
@@ -123,12 +123,7 @@ namespace GLBase
             // glUniformBlockBinding(mLightingPassShader.ID, lights_index, 2);
             // unsigned int lights_index = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");   
             // glUniformBlockBinding(mShadowShader->ID, lights_index, 0);
-            // std::cout << "algo" << std::endl;
             // mShadowShader->use();
-            // std::cout << mShadowShader->ID + 1 << std::endl;
-
-            // std::cout << "configured directional light" << std::endl;
-            // std::cout << mShadowShader->algo << std::endl;
         }
     }
 
@@ -386,7 +381,7 @@ namespace GLBase
         int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+            LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
             throw 0;
         }
         // glBindFramebuffer(GL_FRAMEBUFFER, 0);  
@@ -400,8 +395,6 @@ namespace GLBase
         const glm::mat4 lightView { glm::lookAt( mPosition,              // Position of the light
                                                  mPosition + mDirection, // Center of the frustum 
                                                  mUpDirection ) };       // Up vector
-
-    // std::cout << glm::to_string(mUpDirection) << std::endl;
 
         // Projection matrix for the light
         // This is simply a perspective projection, with the opening angle of the 

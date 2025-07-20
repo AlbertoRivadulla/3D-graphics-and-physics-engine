@@ -9,10 +9,10 @@ namespace GLBase
     // Constructor
     Model::Model(const std::string& path, bool gamma) : gammaCorrection { gamma }
     {
-        std::cout << "Loading model...\n";
+        LOG_INFO("Loading model...");
         // Load the model from the path given
         loadModel(path);
-        std::cout << "Model loaded.\n";
+        LOG_INFO("Model loaded.");
     }
 
     // Draw function
@@ -39,7 +39,7 @@ namespace GLBase
         // Check if the scene was loaded properly
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+            LOG_ERROR("ASSIMP::" << importer.GetErrorString());
             return;
         }
         // Retrieve the directory path of the given file path
@@ -278,7 +278,7 @@ namespace GLBase
         }
         else
         {
-            std::cout << "Failed to load the texture.\n";
+            LOG_ERROR("Failed to load the texture.");
         }
         stbi_image_free(data);
          
