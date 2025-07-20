@@ -174,7 +174,7 @@ namespace GLBase
             }
             else
             {
-                std::cout << "Failed to load the texture.\n";
+                LOG_ERROR("Failed to load the texture.");
             }
             stbi_image_free(data);
              
@@ -193,8 +193,8 @@ namespace GLBase
             hasTexNormal = true;
             texNormal = loadTexture( path.c_str(), sRGB, hasAlpha );
 
-            std::cout << "The logic for a normal map is still not implemented in the shader!" << std::endl;
-            std::cout << "This would require the computation beforehand of the tangent and bitangent vectors of the object" << std::endl;
+            LOG_WARNING("The logic for a normal map is still not implemented in the shader!");
+            LOG_WARNING("This would require the computation beforehand of the tangent and bitangent vectors of the object");
         }
 
         // Method to pass the material information to a shader.

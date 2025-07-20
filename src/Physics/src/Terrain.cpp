@@ -146,7 +146,7 @@ namespace Physics
         }
         else
         {
-            std::cout << "Failed to load the heightmap texture" << std::endl;
+            LOG_ERROR("Failed to load the heightmap texture");
         }
         stbi_image_free(data);
 
@@ -213,8 +213,7 @@ namespace Physics
     // Add material
     void Terrain::addMaterial( Material* material )
     {
-        std::cout << "Terrain::addMaterial should add the material to only one of the terrain patches" << std::endl;
-        std::cout << "NOTE" << std::endl;
+        LOG_WARNING("Terrain::addMaterial should add the material to only one of the terrain patches");
         mMaterial = material;
     }
 
@@ -239,9 +238,6 @@ namespace Physics
 
         // Draw the object
         mTerrainPatch->draw();
-
-        // std::cout << "draw the terrain patch " << std::endl;
-        // std::cout << "NOTE" << std::endl;
     }
 
     // Compute the normal map given an array of data for the height map

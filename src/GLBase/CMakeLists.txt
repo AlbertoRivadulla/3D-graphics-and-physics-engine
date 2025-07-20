@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.7)
-set(CMAKE_CXX_STANDARD 17)
+cmake_minimum_required(VERSION 3.16)
+set(CMAKE_CXX_STANDARD 20)
 
 # Find the GLFW library, needed for rendering to the screen with OpenGL
 find_package(glfw3 3.3 REQUIRED)
@@ -18,6 +18,8 @@ set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
 
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry
@@ -53,7 +55,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/light.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
 
     # Auxiliary source file needed for stb_image.h to work
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stb_image.cpp

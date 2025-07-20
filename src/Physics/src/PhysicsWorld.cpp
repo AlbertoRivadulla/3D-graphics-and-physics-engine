@@ -171,7 +171,6 @@ namespace Physics
         // if ( mCounter++ == 10 )
         if ( mCounter++ == 0 )
         {
-            // std::cout << "step" << std::endl;
             mCounter = 0;
 
             // Apply forces on the objects
@@ -194,7 +193,7 @@ namespace Physics
             //         // if ( bodyA->mCollider->checkCollisionAABB( bodyB->mCollider ) )
             //         if ( bodyA->mCollider->findCollision( bodyB->mCollider ) )
             //         {
-            //             std::cout << "Collision between" << std::endl;
+            //             LOG_INFO("Collision between");
             //
             //             // Check for collision between their finer colliders
             //         }
@@ -221,8 +220,6 @@ namespace Physics
     // // Draw the objects in the current frame, to the G-buffer
     // void DynamicsWorld::draw( Shader& defaultShader )
     // {
-    //     // std::cout << "draw" << std::endl;
-    //
     //     // Draw all the collision bodies
     //     for ( auto collisionBody : mCollisionBodies )
     //         collisionBody->draw( defaultShader );

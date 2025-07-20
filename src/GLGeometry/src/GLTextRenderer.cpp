@@ -22,12 +22,12 @@ namespace GLGeometry
         // Initialize freetype
         FT_Library ft;
         if (FT_Init_FreeType(&ft))
-            std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+            LOG_ERROR("FREETYPE: Could not init FreeType Library");
 
         // Load the font
         FT_Face face;
         if (FT_New_Face(ft, fontPath.c_str(), 0, &face))
-            std::cout << "ERROR::FREETYPE: Failed to load font at " << fontPath << std::endl;  
+            LOG_ERROR("FREETYPE: Failed to load font at " << fontPath);  
 
         // Setup the pixel font size
         // The second argument is the width, and the third one the height.
@@ -83,7 +83,7 @@ namespace GLGeometry
             // Load the character glyph
             if ( FT_Load_Char( face, ch, FT_LOAD_RENDER ) )
             {
-                std::cout << "ERROR::FREETYTPE: Failed to load Glyph " << ch << std::endl;
+                LOG_ERROR("FREETYTPE: Failed to load Glyph " << ch);
                 continue;
             }
 

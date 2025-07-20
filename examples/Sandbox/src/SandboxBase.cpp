@@ -29,7 +29,7 @@ GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling),
 
     // Seed a random number generator, with the function defined in utils.h
-    GLUtils::seedRandomGeneratorClock();
+    Utils::seedRandomGeneratorClock();
 
     // Setup the scene
     setupScene();
@@ -93,7 +93,6 @@ void GLSandbox::run()
         if (mFrameCounter % 300 == 0)
         {
             std::stringstream ss;
-            // std::cout << "Average frame duration: " << mTotalTime * 1000 / mFrameCounter << " ms\n";
             ss << "Average frame time: " << mTotalTime * 1000 / mFrameCounter << " ms - ";
             ss << "FPS: " << 1000. / (mTotalTime * 1000 / mFrameCounter);
             // Reset the variables
@@ -104,17 +103,17 @@ void GLSandbox::run()
             // mApplication.setTitle(ss.str().c_str());
 
             // Print the frametime to the console
-            std::cout << ss.str() << '\n';
+            LOG_INFO(ss.str());
         }
 
         // // Wait for the user to press a key
         // do 
         // {
-        //     std::cout << '\n' << "Press a key to continue...";
+        //     LOG_INFO('\n' << "Press a key to continue...");
         // } while (std::cin.get() != '\n');
     }
 
-    std::cout << "Execution stopped\n";
+    LOG_INFO("Execution stopped");
 }
 
 // Destructor
