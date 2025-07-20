@@ -7,6 +7,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 set(CMAKE_CXX_FLAGS "-O3 -Wall")
 
+# Set the log level (0=ERROR, 1=WARNING, 2=INFO, 3=DEBUG)
+add_compile_definitions(GLOBAL_LOG_LEVEL=3)
+
 # Name of the project
 project(Sandbox)
 
