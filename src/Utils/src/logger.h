@@ -11,6 +11,8 @@
 #include <sstream>
 #include <string>
 #include <ctime>
+#include <concepts>
+#include <cstddef>
 
 // Log levels
 #define LOG_LEVEL_ERROR   0
@@ -34,7 +36,14 @@ namespace Utils
 
     inline void logMessage(const char* logLevel, const std::string& message) 
     {
-        std::cout << "[" << getTimestamp() << "] [" << logLevel << "] " << message << std::endl;
+        // std::cout << "[" << getTimestamp() << "] ";
+        std::cout << "[" << logLevel << "] " << message << std::endl;
+    }
+
+    inline void logMessage(const char* logLevel, const std::string& message) 
+    {
+        // std::cout << "[" << getTimestamp() << "] ";
+        std::cout << "[" << logLevel << "] " << message << std::endl;
     }
 }
 
@@ -73,8 +82,31 @@ namespace Utils
     #define LOG_DEBUG(msg)
 #endif
 
-// TODO Make use of concepts
 template <typename T>
+concept Vector = requires(T obj, std::size_t i) {
+    { obj.length() } -> std::convertible_to<std::size_t>;
+    { obj[i] };
+};
+
+template <typename T>
+concept Matrix = requires(T obj, std::size_t i) {
+    { obj.length() } -> std::convertible_to<std::size_t>;
+    { obj[i] };
+    { obj[0].length() } -> std::convertible_to<std::size_t>;
+};
+
+template <Vector T>
+inline std::string printVector(const T& vector)
+{
+    std::ostringstream oss;
+    oss << "( ";
+    for ( int i = 0; i < vector.length(); ++i )
+        oss << vector[i] << " ";
+    oss << ")";
+    return oss.str();
+}
+
+template <Matrix T>
 inline std::string printMatrix(const T& matrix)
 {
     std::ostringstream oss;
@@ -86,18 +118,6 @@ inline std::string printMatrix(const T& matrix)
         oss << "]";
     }
 
-    return oss.str();
-}
-
-// TODO Make use of concepts
-template <typename T>
-inline std::string printVector(const T& vector)
-{
-    std::ostringstream oss;
-    oss << "( ";
-    for ( int i = 0; i < vector.length(); ++i )
-        oss << vector[i] << " ";
-    oss << ")";
     return oss.str();
 }
 
