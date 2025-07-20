@@ -40,44 +40,44 @@ namespace Utils
         std::cout << "[" << logLevel << "] " << message << std::endl;
     }
 
-    inline void logMessage(const char* logLevel, const std::string& message) 
+    inline void logMessage(std::ostream& ostream, const char* logLevel, const std::string& message) 
     {
-        // std::cout << "[" << getTimestamp() << "] ";
-        std::cout << "[" << logLevel << "] " << message << std::endl;
+        // ostream << "[" << getTimestamp() << "] ";
+        ostream << "[" << logLevel << "] " << message << std::endl;
     }
 }
 
-#define LOG_AT_LEVEL(level, msg) \
+#define LOG_AT_LEVEL(ostream, level, msg) \
     { \
         std::ostringstream oss; \
         oss << msg; \
-        Utils::logMessage(level, oss.str()); \
+        Utils::logMessage(ostream, level, oss.str()); \
     }
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_ERROR
     #define LOG_ERROR(msg) \
-        LOG_AT_LEVEL("ERROR", msg)
+        LOG_AT_LEVEL(std::cerr, "ERROR", msg)
 #else
     #define LOG_ERROR(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_WARNING
     #define LOG_WARNING(msg) \
-        LOG_AT_LEVEL("WARNING", msg)
+        LOG_AT_LEVEL(std::cout, "WARNING", msg)
 #else
     #define LOG_WARNING(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_INFO
     #define LOG_INFO(msg) \
-        LOG_AT_LEVEL("INFO", msg)
+        LOG_AT_LEVEL(std::cout, "INFO", msg)
 #else
     #define LOG_INFO(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_DEBUG
     #define LOG_DEBUG(msg) \
-        LOG_AT_LEVEL("DEBUG", msg)
+        LOG_AT_LEVEL(std::cout, "DEBUG", msg)
 #else
     #define LOG_DEBUG(msg)
 #endif
