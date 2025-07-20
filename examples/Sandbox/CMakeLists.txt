@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 20)
 
 # Obtain a file compile_commands.json used by ccls (through the plugin coc.nvim)
