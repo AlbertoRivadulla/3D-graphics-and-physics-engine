@@ -26,6 +26,7 @@ set(INCLUDE
     ${LIBRARY_SOURCE_DIR}/src/GLGeometry
     ${LIBRARY_SOURCE_DIR}/src/GLSandbox
     ${LIBRARY_SOURCE_DIR}/src/Physics
+    ${LIBRARY_SOURCE_DIR}/src/Utils
 
     # ${PROJECT_SOURCE_DIR}/src/GLBase
     # ${PROJECT_SOURCE_DIR}/src/GLGeometry

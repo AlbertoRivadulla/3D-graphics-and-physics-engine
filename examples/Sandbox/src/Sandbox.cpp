@@ -6,7 +6,7 @@
 
 using namespace GLBase;
 using namespace GLGeometry;
-using namespace GLUtils;
+using namespace Utils;
 using namespace Physics;
 
 //==============================
