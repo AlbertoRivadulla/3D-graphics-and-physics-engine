@@ -99,10 +99,10 @@ namespace Physics
     {
         // Add random particle
         if ( mParticleCount < 100 )
-            addParticle( glm::vec3( -2.f + 4.f*GLUtils::getRandom0To1(), 15.f*GLUtils::getRandom0To1(), -2.f + 4.f*GLUtils::getRandom0To1() ),
+            addParticle( glm::vec3( -2.f + 4.f*Utils::getRandom0To1(), 15.f*Utils::getRandom0To1(), -2.f + 4.f*Utils::getRandom0To1() ),
                            0.5f * glm::vec3( 1.f, 1.f, 1.f ),
-                           1.f + 5.f * GLUtils::getRandom0To1(),
-                           new Material( *mGPassShader, { GLUtils::getRandom0To1(), GLUtils::getRandom0To1(), GLUtils::getRandom0To1() }, 0.5f, 1.f ) );
+                           1.f + 5.f * Utils::getRandom0To1(),
+                           new Material( *mGPassShader, { Utils::getRandom0To1(), Utils::getRandom0To1(), Utils::getRandom0To1() }, 0.5f, 1.f ) );
         
         if ( mParticleCount == 0 )
             return;

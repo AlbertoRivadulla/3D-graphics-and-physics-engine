@@ -29,7 +29,7 @@ GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
     mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling),
 
     // Seed a random number generator, with the function defined in utils.h
-    GLUtils::seedRandomGeneratorClock();
+    Utils::seedRandomGeneratorClock();
 
     // Setup the scene
     setupScene();

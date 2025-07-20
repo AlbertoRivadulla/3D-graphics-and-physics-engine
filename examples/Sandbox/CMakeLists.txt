@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.7)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Obtain a file compile_commands.json used by ccls (through the plugin coc.nvim)
 # to provide code completion in Neovim
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 set(CMAKE_CXX_FLAGS "-O3 -Wall")
+
+# Set the log level (0=ERROR, 1=WARNING, 2=INFO, 3=DEBUG)
+add_compile_definitions(GLOBAL_LOG_LEVEL=3)
 
 # Name of the project
 project(Sandbox)
@@ -26,6 +29,7 @@ set(INCLUDE
     ${LIBRARY_SOURCE_DIR}/src/GLGeometry
     ${LIBRARY_SOURCE_DIR}/src/GLSandbox
     ${LIBRARY_SOURCE_DIR}/src/Physics
+    ${LIBRARY_SOURCE_DIR}/src/Utils
 
     # ${PROJECT_SOURCE_DIR}/src/GLBase
     # ${PROJECT_SOURCE_DIR}/src/GLGeometry
