@@ -151,7 +151,6 @@ namespace GLGeometry
         // Iterate over the faces
         for (int i = 0; i < sidesPaths.size(); ++i)
         {
-            std::cout << sidesPaths[i] << std::endl;
             // Load the data in each face
             data = stbi_load(sidesPaths[i].c_str(), &width, &height, &nrChannels, 0);
             // Generate the texture from the loaded data, in the corresponding face

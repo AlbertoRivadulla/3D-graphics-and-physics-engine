@@ -12,13 +12,10 @@ namespace Physics
     // Constructor
     Collider::Collider()
     {
-        // std::cout << "collider" << std::endl;
-
     }
 
     // Collider::~Collider()
     // {
-    //     std::cout << "destr collider" << std::endl;
     // }
 
     // Method to check for a collision with another object's AABB
