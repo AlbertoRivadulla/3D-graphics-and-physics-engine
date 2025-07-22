@@ -56,28 +56,28 @@ namespace Utils
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_ERROR
     #define LOG_ERROR(msg) \
-        LOG_AT_LEVEL(std::cerr, "ERROR", msg)
+        LOG_AT_LEVEL(std::cerr, "\033[31mERROR\033[0m", msg)
 #else
     #define LOG_ERROR(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_WARNING
     #define LOG_WARNING(msg) \
-        LOG_AT_LEVEL(std::cout, "WARNING", msg)
+        LOG_AT_LEVEL(std::cout, "\033[33mWARNING\033[0m", msg)
 #else
     #define LOG_WARNING(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_INFO
     #define LOG_INFO(msg) \
-        LOG_AT_LEVEL(std::cout, "INFO", msg)
+        LOG_AT_LEVEL(std::cout, "\033[36mINFO\033[0m", msg)
 #else
     #define LOG_INFO(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_DEBUG
     #define LOG_DEBUG(msg) \
-        LOG_AT_LEVEL(std::cout, "DEBUG", msg)
+        LOG_AT_LEVEL(std::cout, "\033[34mDEBUG\033[0m", msg)
 #else
     #define LOG_DEBUG(msg)
 #endif
