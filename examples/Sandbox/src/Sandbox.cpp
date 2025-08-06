@@ -32,10 +32,12 @@ void GLSandbox::setupScene()
 
     // // Create the cubemap for the sky
     // mSkymap = new GLCubemap();
+    mSkymap = new GLCubemap(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+                            std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
 
-    // Skymap with textures. To use this, comment the constructor without textures
-    // in GLCubemap.h and GLCubemap.cpp
-    mSkymap = new GLCubemap( true, std::string(BASE_DIR_RESOURCES) + "/textures/skybox" );
+    // // Skymap with textures. To use this, comment the constructor without textures
+    // // in GLCubemap.h and GLCubemap.cpp
+    // mSkymap = new GLCubemap( true, std::string(BASE_DIR_RESOURCES) + "/textures/skybox" );
 
     // Set the position of the camera
     // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
