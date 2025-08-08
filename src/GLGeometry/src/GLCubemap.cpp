@@ -81,34 +81,9 @@ namespace GLGeometry
         
         // Activate the shader
         mShader.use();
-        // Activate the skybox texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTexture);
-
-        // Draw the skybox quad
-        glBindVertexArray(mScreenVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        // Set again the depth function to LESS, and enable face culling
-        // glDepthFunc(GL_LESS);
-        // glCullFace(GL_BACK);
-    }
-
-    // Function to render a flat sky
-    void GLCubemap::drawFlat()
-    {
-        // Change face culling, since we are drawing the cube from inside
-        // glCullFace(GL_FRONT);
-
-        // The depth buffer of the skybox is filled with 1's, so we need to change 
-        // the depth function from LESS to LEQUAL
-        // glDepthFunc(GL_LEQUAL);
-        
-        // Activate the shader
-        mShader.use();
 
         // If the skybox has a texture, bind it
-        if ( mHasTexture )
+        if (mHasTexture)
         {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTexture);

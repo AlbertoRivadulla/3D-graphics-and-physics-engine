@@ -30,10 +30,6 @@ namespace GLGeometry
             // Function to render
             void draw();
 
-            // Function to render a flat sky
-            void drawFlat();
-
-
         private:
             // VAO and VBO for the screen quad
             unsigned int mScreenVAO;
