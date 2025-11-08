@@ -24,7 +24,7 @@ const float scatteringStrength = 3.;
 
 // The apparent size of the Sun in the Earth's atmosphere is ~0.54 deg = ~0.0094 rad
 const float sunAngularSize = 0.0094;
-const float bloomIntensity = 0.8;
+const float bloomIntensity = 0.6;
 const vec3 sunColor = vec3(1.0, 0.9, 0.6);
 const vec3 sunBloomColor = vec3(1.0, 0.8, 0.4);
 
@@ -104,10 +104,13 @@ vec3 sunDiskColor(float phi, float theta)
     // Sun core (bright circle)
     float sunCore = smoothstep(sunAngularSize, sunAngularSize * 0.8, angDist);
 
-    float bloom1 = exp(-angDist * 16.0) * bloomIntensity;
-    float bloom2 = exp(-angDist * 12.0) * bloomIntensity * 0.25;
-    float bloom3 = exp(-angDist * 8.0) * bloomIntensity * 0.0625;
-    float totalBloom = bloom1 + bloom2 + bloom3;
+    float scaledBloomIntensity = bloomIntensity * (1 + sin(sunTheta));
+
+    float bloom1 = exp(-angDist * 16.0);
+    float bloom2 = exp(-angDist * 12.0) * 0.25;
+    float bloom3 = exp(-angDist * 8.0) * 0.0625;
+    // float totalBloom = bloom1 + bloom2 + bloom3;
+    float totalBloom = scaledBloomIntensity * (bloom1 + bloom2 + bloom3);
     
     vec3 color = sunColor * sunCore + sunBloomColor * totalBloom;
 

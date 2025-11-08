@@ -37,8 +37,9 @@ void PlaneSim::setupScene()
     mSkymap = new GLCubemap();
     mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
                              std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentAtmosphere.glsl");
+    mSkymap->setSunPosition(-1.5f, 0.5f);
     // mSkymap->setSunPosition(-1.5f, 0.25f);
-    mSkymap->setSunPosition(-1.5f, 0.f);
+    // mSkymap->setSunPosition(-1.5f, 0.f);
     // mSkymap->setSunPosition(-1.5f, -0.25f);
     // mSkymap->setSunPosition(-1.5f, -1.25f);
     // mSkymap->setSunPosition(-1.5f, 1.25f);
