@@ -4,14 +4,13 @@ using namespace GLBase;
 
 namespace GLGeometry
 {
-    // Constructor
-    GLCubemap::GLCubemap(bool hasTexture,
-                         const std::string& texturesPath, 
+    void GLCubemap::setupWithTextures(const std::string& texturesPath, 
                          const std::string& vertexShaderPath,
-                         const std::string& fragmentShaderPath) :
-        mHasTexture { hasTexture },
-        mShader(vertexShaderPath, fragmentShaderPath)
+                         const std::string& fragmentShaderPath)
     {
+        mHasTexture = true;
+        mShader = Shader(vertexShaderPath, fragmentShaderPath);
+
         // Load the textures
         loadCubemap(texturesPath);
 
@@ -19,17 +18,14 @@ namespace GLGeometry
         mShader.use();
         mShader.setInt("skybox", 0);
 
-        // Setup the screen quad
         setupScreenQuad();
     }
-    // Constructor without textures
-    GLCubemap::GLCubemap(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) :
-        mHasTexture { false },
-        mShader(vertexShaderPath, fragmentShaderPath)
-    {
-        // No textures to load, if no path for them is given
 
-        // Setup the screen quad
+    void GLCubemap::setupNoTextures(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+    {
+        mHasTexture = false;
+        mShader = Shader(vertexShaderPath, fragmentShaderPath);
+
         setupScreenQuad();
     }
 
@@ -68,6 +64,12 @@ namespace GLGeometry
         mShader.use();
         mShader.setMat4("viewInv", glm::inverse(glm::mat4(glm::mat3(view))));
         mShader.setMat4("projectionInv", glm::inverse(projection));
+    }
+
+    void GLCubemap::setCameraPosition(glm::vec3& cameraPosition)
+    {
+        mShader.use();
+        mShader.setVec3("cameraPos", cameraPosition);
     }
 
     void GLCubemap::draw()

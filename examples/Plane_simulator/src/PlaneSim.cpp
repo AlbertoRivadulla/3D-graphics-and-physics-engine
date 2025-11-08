@@ -2,6 +2,7 @@
 #include "ForceGenerator.h"
 #include "GLElemObject.h"
 #include "PhysicsBody.h"
+#include "shader.h"
 #include "utils.h"
 
 using namespace GLBase;
@@ -33,12 +34,13 @@ void PlaneSim::setupScene()
         mGUIPixels[i] = 0;
 
     // Create the cubemap for the sky
-    mSkymap = new GLCubemap(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
-                            std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentAtmosphere.glsl");
+    mSkymap = new GLCubemap();
+    mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+                             std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentAtmosphere.glsl");
 
-    // // Skymap with textures. To use this, comment the constructor without textures
-    // // in GLCubemap.h and GLCubemap.cpp
-    // mSkymap = new GLCubemap( true, std::string(BASE_DIR_RESOURCES) + "/textures/skybox" );
+    // // Skymap with textures
+    // mSkymap = new GLCubemap();
+    // mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) + "/textures/skybox");
 
     // Set the position of the camera
     mCamera.Position = glm::vec3(20.f, -20.f, 30.f);
@@ -254,6 +256,7 @@ void PlaneSim::updateScene()
     mView = mCamera.getViewMatrix();
 
     mSkymap->setViewProjection(mView, mProjection);
+    // mSkymap->setCameraPosition(mCamera.Position);
 }
 
 void PlaneSim::renderDeferred()

@@ -24,6 +24,7 @@ set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/src/Skymap
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/thirdparty
 
     ${FREETYPE_INCLUDE_DIRS}
