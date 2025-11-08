@@ -25,11 +25,9 @@ namespace GLGeometry
             // Setup the screen quad
             void setupScreenQuad();
 
-            // Method to pass the view and projection matrices to the shader
             void setViewProjection(glm::mat4& view, glm::mat4& projection);
-
-            // Method to pass the camera position to the shader
             void setCameraPosition(glm::vec3& cameraPosition);
+            void setSunPosition(float phi, float theta);
 
             // Function to render
             void draw();

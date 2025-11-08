@@ -72,6 +72,13 @@ namespace GLGeometry
         mShader.setVec3("cameraPos", cameraPosition);
     }
 
+    void GLCubemap::setSunPosition(float phi, float theta)
+    {
+        mShader.use();
+        mShader.setFloat("sunPhi", phi);
+        mShader.setFloat("sunTheta", theta);
+    }
+
     void GLCubemap::draw()
     {
         // Change face culling, since we are drawing the cube from inside
