@@ -49,7 +49,7 @@ float opticalDepth(vec3 inScatterPoint, vec3 direction, float rayLength)
 
     for (int i = 0; i < numOpticalDepthPoints; ++i)
     {
-        float localDensity = densityAtHeight(densitySamplePoint.z);
+        float localDensity = densityAtHeight(sqrt(dot(densitySamplePoint, densitySamplePoint)));
         opticalDepth += localDensity * stepSize;
         densitySamplePoint += direction * stepSize;
     }
@@ -87,7 +87,7 @@ vec3 calculateLight(float cameraHeight, float phi, float theta, vec3 scatterCoef
         float viewRayOpticalDepth = opticalDepth(inScatterPoint, -rayDir, rayStepSize * i);
         vec3 transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth) * scatterCoeffs / atmosphereHeight);
 
-        float localDensity = densityAtHeight(inScatterPoint.z);
+        float localDensity = densityAtHeight(sqrt(dot(inScatterPoint, inScatterPoint)));
 
         inScatteredLight += localDensity * transmittance * scatterCoeffs * rayStepSize / atmosphereHeight;
         inScatterPoint += rayStepSize * rayDir;
@@ -104,12 +104,10 @@ vec3 sunDiskColor(float phi, float theta)
     // Sun core (bright circle)
     float sunCore = smoothstep(sunAngularSize, sunAngularSize * 0.8, angDist);
 
-    float scaledBloomIntensity = bloomIntensity * (1 + sin(sunTheta));
-
     float bloom1 = exp(-angDist * 16.0);
     float bloom2 = exp(-angDist * 12.0) * 0.25;
     float bloom3 = exp(-angDist * 8.0) * 0.0625;
-    // float totalBloom = bloom1 + bloom2 + bloom3;
+    float scaledBloomIntensity = bloomIntensity * (1 + sin(sunTheta));
     float totalBloom = scaledBloomIntensity * (bloom1 + bloom2 + bloom3);
     
     vec3 color = sunColor * sunCore + sunBloomColor * totalBloom;

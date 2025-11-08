@@ -34,15 +34,12 @@ void PlaneSim::setupScene()
         mGUIPixels[i] = 0;
 
     // Create the cubemap for the sky
+    float sunTheta = -0.2f; // Theta = 0 corresponds to the ecuador
+    float sunPhi = -1.5f;
     mSkymap = new GLCubemap();
     mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
                              std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentAtmosphere.glsl");
-    mSkymap->setSunPosition(-1.5f, 0.5f);
-    // mSkymap->setSunPosition(-1.5f, 0.25f);
-    // mSkymap->setSunPosition(-1.5f, 0.f);
-    // mSkymap->setSunPosition(-1.5f, -0.25f);
-    // mSkymap->setSunPosition(-1.5f, -1.25f);
-    // mSkymap->setSunPosition(-1.5f, 1.25f);
+    mSkymap->setSunPosition(sunPhi, sunTheta);
 
     // // Skymap with textures
     // mSkymap = new GLCubemap();
@@ -60,7 +57,11 @@ void PlaneSim::setupScene()
     // Add a directional light
     mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
                                             {10., 10., 10.},  // Position
-                                            {-1., -1., -1.},  // Direction
+                                            {
+                                                -glm::cos(sunTheta)*glm::cos(sunPhi), 
+                                                -glm::sin(sunTheta),
+                                                -glm::cos(sunTheta)*glm::sin(sunPhi)
+                                            },  // Direction
                                             1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
     // // Add a spotlight
     // mLights.push_back(new SpotLight( {1., 0., 1.},            // Color
