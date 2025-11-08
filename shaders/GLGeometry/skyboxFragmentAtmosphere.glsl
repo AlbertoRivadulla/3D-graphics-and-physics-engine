@@ -12,7 +12,6 @@ uniform float sunTheta;
 const int numInScatteringPoints = 10;
 const int numOpticalDepthPoints = 10;
 const float densityFalloff = 5.;
-// const float epsilon = 100.f;
 const float epsilon = 10.f;
 
 const float earthRadius = 6.378E6;
@@ -20,21 +19,14 @@ const float atmosphereHeight = 1.E6;
 const float atmosphereRadius = earthRadius + atmosphereHeight;
 const float atmosphereRadiusSq = atmosphereRadius * atmosphereRadius;
 
-const vec3 sunLightColor = vec3(250, 215, 160) / 255.;
-
 const vec3 wavelengths = vec3(700, 530, 440);
-const float scatteringStrength = 1.;
+const float scatteringStrength = 3.;
 
-bool isFragmentInsideSun(float phi, float theta)
-{
-    // The apparent size of the Sun in the Earth's atmosphere is ~0.54 deg = ~0.0094 rad
-    float sunAngularSize = 0.0094;
-
-    // Compute the angular distance between two points in a sphere
-    float angDist = acos(sin(sunTheta) * sin(theta) + cos(sunTheta) * cos(theta) * cos(phi - sunPhi));
-
-    return angDist < sunAngularSize;
-}
+// The apparent size of the Sun in the Earth's atmosphere is ~0.54 deg = ~0.0094 rad
+const float sunAngularSize = 0.0094;
+const float bloomIntensity = 0.8;
+const vec3 sunColor = vec3(1.0, 0.9, 0.6);
+const vec3 sunBloomColor = vec3(1.0, 0.8, 0.4);
 
 float distThroughAtmosphere(vec3 position, vec3 dir)
 {
@@ -65,7 +57,7 @@ float opticalDepth(vec3 inScatterPoint, vec3 direction, float rayLength)
     return opticalDepth;
 }
 
-vec4 calculateLight(float cameraHeight, float phi, float theta, vec3 scatterCoeffs)
+vec3 calculateLight(float cameraHeight, float phi, float theta, vec3 scatterCoeffs)
 {
     vec3 inScatteredLight = vec3(0., 0., 0.);
 
@@ -80,7 +72,7 @@ vec4 calculateLight(float cameraHeight, float phi, float theta, vec3 scatterCoef
     float rayLength = distThroughAtmosphere(cameraPos, rayDir) - epsilon;
     if (rayLength < 0.)
     {
-        return vec4(0., 0., 0., 1.);
+        return vec3(0., 0., 0.);
     }
     // float rayLength = abs(distThroughAtmosphere(cameraPos, rayDir)) - epsilon;
     float rayStepSize = rayLength / (numInScatteringPoints - 1);
@@ -101,10 +93,25 @@ vec4 calculateLight(float cameraHeight, float phi, float theta, vec3 scatterCoef
         inScatterPoint += rayStepSize * rayDir;
     }
 
-    return vec4(inScatteredLight.r, inScatteredLight.g, inScatteredLight.b, 1.);
+    return inScatteredLight;
+}
 
-    // float val = rayLength / (2. * atmosphereRadius);
-    // return vec4(val, val, val, 1.);
+vec3 sunDiskColor(float phi, float theta)
+{
+    // Compute the angular distance between two points in a sphere
+    float angDist = acos(sin(sunTheta) * sin(theta) + cos(sunTheta) * cos(theta) * cos(phi - sunPhi));
+
+    // Sun core (bright circle)
+    float sunCore = smoothstep(sunAngularSize, sunAngularSize * 0.8, angDist);
+
+    float bloom1 = exp(-angDist * 16.0) * bloomIntensity;
+    float bloom2 = exp(-angDist * 12.0) * bloomIntensity * 0.25;
+    float bloom3 = exp(-angDist * 8.0) * bloomIntensity * 0.0625;
+    float totalBloom = bloom1 + bloom2 + bloom3;
+    
+    vec3 color = sunColor * sunCore + sunBloomColor * totalBloom;
+
+    return color;
 }
 
 void main()
@@ -120,19 +127,17 @@ void main()
     float r2 = sqrt(x*x + z*z);
     float theta = atan(y, r2);
 
-    // Draw the Sun in the sky
-    if (isFragmentInsideSun(phi, theta))
-    {
-        FragColor = vec4(sunLightColor.r, sunLightColor.g, sunLightColor.b, 1.);
-        return;
-    }
-
     float scatterR = pow(400. / wavelengths.r, 4.) * scatteringStrength;
     float scatterG = pow(400. / wavelengths.g, 4.) * scatteringStrength;
     float scatterB = pow(400. / wavelengths.b, 4.) * scatteringStrength;
     vec3 scatterCoeffs = vec3(scatterR, scatterG, scatterB);
 
-    FragColor = calculateLight(cameraPos.y, phi, theta, scatterCoeffs);
+    vec3 color = calculateLight(cameraPos.y, phi, theta, scatterCoeffs);
+
+    // Draw the Sun with bloom
+    color += sunDiskColor(phi, theta);
+
+    FragColor = vec4(color.r, color.g, color.b, 1.);
 
     // gl_FragDepth = 1;
 }
