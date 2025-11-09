@@ -1,7 +1,8 @@
-#include "Sandbox.h"
+#include "PlaneSim.h"
 #include "ForceGenerator.h"
 #include "GLElemObject.h"
 #include "PhysicsBody.h"
+#include "shader.h"
 #include "utils.h"
 
 using namespace GLBase;
@@ -10,7 +11,7 @@ using namespace Utils;
 using namespace Physics;
 
 //==============================
-// Methods of the GLSandbox class that depend on the scene to render
+// Methods of the PlaneSim class that depend on the scene to render
 //==============================
 
 // Setup the scene
@@ -21,8 +22,10 @@ using namespace Physics;
 //      - Objects
 //  - Load shaders
 //  - Create lights
-void GLSandbox::setupScene()
+void PlaneSim::setupScene()
 {
+    // TODO Clean this method
+
     // Create the pixels for the GUI, and initalize them all to zero
     mGUIWidth = mScrWidth / 4;
     mGUIHeight = mScrHeight / 4;
@@ -30,23 +33,20 @@ void GLSandbox::setupScene()
     for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
         mGUIPixels[i] = 0;
 
-    // // Create the cubemap for the sky
-    // mSkymap = new GLCubemap();
-    // mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
-    //                          std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
-
-    // Skymap with textures
+    // Create the cubemap for the sky
+    float sunTheta = -0.2f; // Theta = 0 corresponds to the ecuador
+    float sunPhi = -1.5f;
     mSkymap = new GLCubemap();
-    mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) + "/textures/skybox");
+    mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+                             std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentAtmosphere.glsl");
+    mSkymap->setSunPosition(sunPhi, sunTheta);
+
+    // // Skymap with textures
+    // mSkymap = new GLCubemap();
+    // mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) + "/textures/skybox");
 
     // Set the position of the camera
-    // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
-    // mCamera.Position = glm::vec3(0.f, 1.5f, 10.f);
-    // mCamera.Position = glm::vec3(0.f, 5.f, 20.f);
     mCamera.Position = glm::vec3(20.f, -20.f, 30.f);
-
-    // // Load a shader
-    // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl", std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
 
     // Load shaders for the geometry pass
     mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertex.glsl",
@@ -57,7 +57,11 @@ void GLSandbox::setupScene()
     // Add a directional light
     mLights.push_back(new DirectionalLight( {1., 1., 1.},     // Color
                                             {10., 10., 10.},  // Position
-                                            {-1., -1., -1.},  // Direction
+                                            {
+                                                -glm::cos(sunTheta)*glm::cos(sunPhi), 
+                                                -glm::sin(sunTheta),
+                                                -glm::cos(sunTheta)*glm::sin(sunPhi)
+                                            },  // Direction
                                             1.f, 0.f, 0.f) ); // Intensity, attenuation linear, attenuation quadratic
     // // Add a spotlight
     // mLights.push_back(new SpotLight( {1., 0., 1.},            // Color
@@ -89,8 +93,6 @@ void GLSandbox::setupScene()
 
     // Setup force of gravity
     mGravity = new Physics::GravityForceGenerator( { 0.f, -9.8f, 0.f } );
-    // mGravity = new Physics::GravityForceGenerator( { 0.f, 0.f, 0.f } );
-    // mGravity = new Physics::GravityForceGenerator( { 0.f, -1.f, 0.f } );
 
     // -------------------------------------------------------------------------
     // Terrain
@@ -235,66 +237,53 @@ void GLSandbox::setupScene()
     // mPhysicsWorld.addParticleSystem( particleSystem );
 }
 
-// Pass pointers to objects to the application, for the input processing
-// Also pass the pointer to the camera
-void GLSandbox::setupApplication()
+void PlaneSim::setupApplication()
 {
-    // Pass a pointer to the camera
     mApplication.setCamera(&mCamera);
 
-    // // Set the camera to be orthographic
     // mCamera.setOrthographic();
 
-    // Pass a pointer to the input handler
     mApplication.setInputHandler(&mInputHandler);
-    // Configure the frustum of the camera
+
     // mCamera.setFrustum(0.1f, 200.f);
     mCamera.setFrustum(0.1f, 500.f);
 
-    // Pass pointers to the input handler of the camera
     mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
     mInputHandler.addMouseHandler(&mCamera.mMouseHandler);
     mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
 
-    // Pass the list of lights to the renderer, to configure the lighting shader
     mRenderer.configureLights(mLights);
 }
 
-// Method to run on each frame, to update the scene
-void GLSandbox::updateScene()
+void PlaneSim::updateScene()
 {
-    // Update the objects in the physics world
     mPhysicsWorld.step( mDeltaTime );
 
-    // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();
     mView = mCamera.getViewMatrix();
 
-    // Update the skymap
     mSkymap->setViewProjection(mView, mProjection);
+    mSkymap->setCameraPosition(mCamera.Position);
 }
 
-// Render the geometry that will use deferred rendering
-void GLSandbox::renderDeferred()
+void PlaneSim::renderDeferred()
 {
-    // Configure the common uniforms in the shaders
-    for ( auto GPassShader : mGPassShaders )
+    for (auto GPassShader : mGPassShaders)
     {
         GPassShader.use();
         GPassShader.setMat4("view", mView);
         GPassShader.setMat4("projection", mProjection);
     }
 
-    // Draw also the terrain
     mPhysicsWorld.drawTerrain();
 
-    // Draw all the objects with physics
     mPhysicsWorld.draw();
 }
 
-// Render the geometry that will use forward rendering
-void GLSandbox::renderForward()
+void PlaneSim::renderForward()
 {
+    // TODO Clean this method
+
     // // Draw a point
     // mAuxElements.drawPoint(glm::vec3(-0., 0., -5.), mView, mProjection);
     // mAuxElements.drawPoint(glm::vec3(2., 1., -1.), mView, mProjection);

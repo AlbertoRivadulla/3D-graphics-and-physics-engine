@@ -4,14 +4,13 @@ using namespace GLBase;
 
 namespace GLGeometry
 {
-    // Constructor
-    GLCubemap::GLCubemap(bool hasTexture,
-                         const std::string& texturesPath, 
+    void GLCubemap::setupWithTextures(const std::string& texturesPath, 
                          const std::string& vertexShaderPath,
-                         const std::string& fragmentShaderPath) :
-        mHasTexture { hasTexture },
-        mShader(vertexShaderPath, fragmentShaderPath)
+                         const std::string& fragmentShaderPath)
     {
+        mHasTexture = true;
+        mShader = Shader(vertexShaderPath, fragmentShaderPath);
+
         // Load the textures
         loadCubemap(texturesPath);
 
@@ -19,17 +18,14 @@ namespace GLGeometry
         mShader.use();
         mShader.setInt("skybox", 0);
 
-        // Setup the screen quad
         setupScreenQuad();
     }
-    // Constructor without textures
-    GLCubemap::GLCubemap(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) :
-        mHasTexture { false },
-        mShader(vertexShaderPath, fragmentShaderPath)
-    {
-        // No textures to load, if no path for them is given
 
-        // Setup the screen quad
+    void GLCubemap::setupNoTextures(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+    {
+        mHasTexture = false;
+        mShader = Shader(vertexShaderPath, fragmentShaderPath);
+
         setupScreenQuad();
     }
 
@@ -70,32 +66,20 @@ namespace GLGeometry
         mShader.setMat4("projectionInv", glm::inverse(projection));
     }
 
-    void GLCubemap::draw()
+    void GLCubemap::setCameraPosition(glm::vec3& cameraPosition)
     {
-        // Change face culling, since we are drawing the cube from inside
-        // glCullFace(GL_FRONT);
-
-        // The depth buffer of the skybox is filled with 1's, so we need to change 
-        // the depth function from LESS to LEQUAL
-        // glDepthFunc(GL_LEQUAL);
-        
-        // Activate the shader
         mShader.use();
-        // Activate the skybox texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTexture);
-
-        // Draw the skybox quad
-        glBindVertexArray(mScreenVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        // Set again the depth function to LESS, and enable face culling
-        // glDepthFunc(GL_LESS);
-        // glCullFace(GL_BACK);
+        mShader.setVec3("cameraPos", cameraPosition);
     }
 
-    // Function to render a flat sky
-    void GLCubemap::drawFlat()
+    void GLCubemap::setSunPosition(float phi, float theta)
+    {
+        mShader.use();
+        mShader.setFloat("sunPhi", phi);
+        mShader.setFloat("sunTheta", theta);
+    }
+
+    void GLCubemap::draw()
     {
         // Change face culling, since we are drawing the cube from inside
         // glCullFace(GL_FRONT);
@@ -108,7 +92,7 @@ namespace GLGeometry
         mShader.use();
 
         // If the skybox has a texture, bind it
-        if ( mHasTexture )
+        if (mHasTexture)
         {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, mCubemapTexture);

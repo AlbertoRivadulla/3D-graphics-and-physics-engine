@@ -10,29 +10,27 @@ namespace GLGeometry
     class GLCubemap : public GLObject
     {
         public:
-            // Constructor
+            // GLCubemap() {}
+            GLCubemap() = default;
+
             // The default path for the textures is
             //      ../resources/textures/skybox
-            GLCubemap(bool hasTexture,
-                      const std::string& texturesPath, 
+            void setupWithTextures(const std::string& texturesPath,
                       const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
                       const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragment.glsl");
-            // Constructor without textures
-            GLCubemap(const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+
+            void setupNoTextures(const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
                       const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
 
             // Setup the screen quad
             void setupScreenQuad();
 
-            // Method to pass the view and projection matrices to the shader
             void setViewProjection(glm::mat4& view, glm::mat4& projection);
+            void setCameraPosition(glm::vec3& cameraPosition);
+            void setSunPosition(float phi, float theta);
 
             // Function to render
             void draw();
-
-            // Function to render a flat sky
-            void drawFlat();
-
 
         private:
             // VAO and VBO for the screen quad

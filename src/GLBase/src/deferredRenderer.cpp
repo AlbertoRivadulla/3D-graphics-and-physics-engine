@@ -375,8 +375,7 @@ namespace GLBase
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         glStencilMask(0x00); // Disable writing to the stencil buffer
         // Draw the skymap
-        skyMap->drawFlat();
-        // skyMap->draw(); // If the skymap has textures
+        skyMap->draw();
         // glDepthMask(GL_TRUE);
 
         // Change the viewport to the full resolution
@@ -411,7 +410,7 @@ namespace GLBase
         //                    0, 0, mWinWidth,    mWinHeight,
         //                    GL_DEPTH_BUFFER_BIT, GL_NEAREST );
         // // Draw the skymap
-        // skyMap->drawFlat();
+        // skyMap->draw();
 
         // // Instead of drawing the screen quad, I do the following:
         // // Bind the default framebuffer for drawing to it

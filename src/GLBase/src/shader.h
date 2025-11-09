@@ -13,6 +13,8 @@ namespace GLBase
             // The program ID
             unsigned int ID;
 
+            Shader() = default;
+
             // Constructor that reads and builds the shader from files.
             // Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
             Shader(const std::string& vertexPath, const std::string& fragmentPath, 

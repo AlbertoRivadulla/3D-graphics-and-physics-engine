@@ -223,6 +223,10 @@ namespace GLBase
             mCamera->Position -= cameraSpeed * mCamera->Right;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             mCamera->Position += cameraSpeed * mCamera->Right;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            mCamera->Position += cameraSpeed * mCamera->Up;
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            mCamera->Position -= cameraSpeed * mCamera->Up;
     }
     
     // Mouse input handler
