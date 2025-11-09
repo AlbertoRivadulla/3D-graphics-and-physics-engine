@@ -34,12 +34,24 @@ void PlaneSim::setupScene()
         mGUIPixels[i] = 0;
 
     // Create the cubemap for the sky
-    float sunTheta = -0.2f; // Theta = 0 corresponds to the ecuador
+    float sunTheta = 0.2f; // Theta = 0 corresponds to the ecuador
     float sunPhi = -1.5f;
     mSkymap = new GLCubemap();
-    mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
-                             std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentAtmosphere.glsl");
+    mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxVertex.glsl",
+                             std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxFragmentAtmosphere.glsl");
     mSkymap->setSunPosition(sunPhi, sunTheta);
+
+    // Initializate the cloud volume
+    mCloudVolume = new GLCloudVolume();
+    // mCloudVolume->setupNoiseShader(
+    //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/cloudTextureVertex.glsl",
+    //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/cloudTextureFragment.glsl"
+    // );
+    mCloudVolume->setupVolumeShader(
+        std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/cloudVolumeVertex.glsl",
+        std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/cloudVolumeFragment.glsl"
+    );
+    mCloudVolume->setSunPosition(sunPhi, sunTheta);
 
     // // Skymap with textures
     // mSkymap = new GLCubemap();
@@ -264,6 +276,9 @@ void PlaneSim::updateScene()
 
     mSkymap->setViewProjection(mView, mProjection);
     mSkymap->setCameraPosition(mCamera.Position);
+
+    mCloudVolume->setViewProjection(mView, mProjection);
+    mCloudVolume->setCameraPosition(mCamera.Position);
 }
 
 void PlaneSim::renderDeferred()
@@ -282,10 +297,19 @@ void PlaneSim::renderDeferred()
 
 void PlaneSim::renderForward()
 {
+    // TODO: Draw clouds
+    //  - Regenerate the texture
+    //  - Draw the cloud volume
+    //      This needs to have the position buffer from the Geometry pass
+    //      - Set the index of the position texture in the shader, as in DeferredRenderer::setupScreenQuad (for the sampler2D gPosition)
+    //      - When rendering, bind the position texture from the deferred renderer (that I need to get here) to that index
+
+    mCloudVolume->draw();
+
     // TODO Clean this method
 
     // // Draw a point
-    // mAuxElements.drawPoint(glm::vec3(-0., 0., -5.), mView, mProjection);
+    mAuxElements.drawPoint(glm::vec3(-0., 0., -5.), mView, mProjection);
     // mAuxElements.drawPoint(glm::vec3(2., 1., -1.), mView, mProjection);
     // // Draw a line
     // mAuxElements.drawLine(glm::vec3(-1, 0., -5.), glm::vec3(2., 1., -1.), mView, mProjection);

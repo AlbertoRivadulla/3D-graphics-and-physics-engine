@@ -73,6 +73,9 @@ class PlaneSim
         // Cubemap for the sky
         GLCubemap* mSkymap;
 
+        // Cloud volume
+        GLCloudVolume* mCloudVolume;
+
         // Class containing all the objects with collisions and/or dynamics
         Physics::DynamicsWorld mPhysicsWorld;
 

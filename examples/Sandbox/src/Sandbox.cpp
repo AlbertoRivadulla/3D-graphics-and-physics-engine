@@ -32,8 +32,8 @@ void GLSandbox::setupScene()
 
     // // Create the cubemap for the sky
     // mSkymap = new GLCubemap();
-    // mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
-    //                          std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
+    // mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxVertex.glsl",
+    //                          std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxFragmentFlat.glsl");
 
     // Skymap with textures
     mSkymap = new GLCubemap();

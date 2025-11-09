@@ -10,26 +10,21 @@ namespace GLGeometry
     class GLCubemap : public GLObject
     {
         public:
-            // GLCubemap() {}
             GLCubemap() = default;
 
             // The default path for the textures is
             //      ../resources/textures/skybox
             void setupWithTextures(const std::string& texturesPath,
-                      const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
-                      const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragment.glsl");
+                      const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxVertex.glsl",
+                      const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxFragment.glsl");
 
-            void setupNoTextures(const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
-                      const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
-
-            // Setup the screen quad
-            void setupScreenQuad();
+            void setupNoTextures(const std::string& vertexShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxVertex.glsl",
+                      const std::string& fragmentShaderPath = std::string(BASE_DIR_SHADERS) + "/GLGeometry/sky/skyboxFragmentFlat.glsl");
 
             void setViewProjection(glm::mat4& view, glm::mat4& projection);
             void setCameraPosition(glm::vec3& cameraPosition);
             void setSunPosition(float phi, float theta);
 
-            // Function to render
             void draw();
 
         private:
@@ -43,6 +38,8 @@ namespace GLGeometry
 
             // Shader
             Shader mShader;
+
+            void setupScreenQuad();
 
             // Method to load a cubemap from a file
             void loadCubemap(const std::string& texturesPath);

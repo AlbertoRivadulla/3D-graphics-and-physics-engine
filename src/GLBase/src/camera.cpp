@@ -214,7 +214,7 @@ namespace GLBase
         // The keys WASD move the camera around the scene
         float cameraSpeed { mCamera->MovementSpeed * deltaTime };
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            cameraSpeed *= 5.f;
+            cameraSpeed *= 20.f;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             mCamera->Position += cameraSpeed * mCamera->Front;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

@@ -91,6 +91,7 @@ void PlaneSim::run()
 PlaneSim::~PlaneSim()
 {
     delete mSkymap;
+    delete mCloudVolume;
 
     for ( auto object : mElementaryObjects )
         delete object;

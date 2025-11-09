@@ -25,6 +25,7 @@
 // #include "GLObject.h"
 #include "GLAuxElements.h"
 #include "GLTerrainPatch.h"
+#include "GLCloudVolume.h"
 #include "GLCubemap.h"
 #include "GLQuad.h"
 #include "GLSphere.h"
