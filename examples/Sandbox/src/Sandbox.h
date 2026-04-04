@@ -8,116 +8,115 @@
 using namespace GLGeometry;
 using namespace GLBase;
 
-class GLSandbox
-{
+class GLSandbox {
     //==============================
     // User defined variables and logic
     //==============================
 
-    private:
-        // Force generator of gravity (same for all objects)
-        Physics::ForceGenerator* mGravity;
-        
+private:
+    // Force generator of gravity (same for all objects)
+    Physics::ForceGenerator *mGravity;
+
     //==============================
     // Basic implementation of the class
     //==============================
 
-    private:
-        // Pixels for the GUI
-        int mGUIWidth;
-        int mGUIHeight;
-        unsigned char* mGUIPixels;
+private:
+    // Pixels for the GUI
+    int mGUIWidth;
+    int mGUIHeight;
+    unsigned char *mGUIPixels;
 
-        // Main application
-        Application mApplication;
+    // Main application
+    Application mApplication;
 
-        // Renderer
-        DeferredRenderer mRenderer;
-        // Reference to the shader of the Lighting pass
-        Shader& mLightingShader;
-        // Shaders for the geometry pass
-        std::vector<Shader> mGPassShaders;
+    // Renderer
+    DeferredRenderer mRenderer;
+    // Reference to the shader of the Lighting pass
+    Shader &mLightingShader;
+    // Shaders for the geometry pass
+    std::vector<Shader> mGPassShaders;
 
-        // Main camera
-        Camera mCamera;
+    // Main camera
+    Camera mCamera;
 
-        // Main input handler
-        InputHandler mInputHandler;
+    // Main input handler
+    InputHandler mInputHandler;
 
-        // Object used to draw auxiliary geometry
-        GLAuxElements mAuxElements;
-        // Object used to draw text to the screen
-        GLTextRenderer mTextRenderer;
-        // Object used to draw a GUI to the screen
-        GLGUIRenderer mGUIRenderer;
+    // Object used to draw auxiliary geometry
+    GLAuxElements mAuxElements;
+    // Object used to draw text to the screen
+    GLTextRenderer mTextRenderer;
+    // Object used to draw a GUI to the screen
+    GLGUIRenderer mGUIRenderer;
 
-        // Projection and view matrices
-        glm::mat4 mProjection;
-        glm::mat4 mView;
+    // Projection and view matrices
+    glm::mat4 mProjection;
+    glm::mat4 mView;
 
-        // Vector of GLElemObject instances
-        std::vector<GLElemObject*> mElementaryObjects;
+    // Vector of GLElemObject instances
+    std::vector<GLElemObject *> mElementaryObjects;
 
-        // Vector of model instances
-        std::vector<Model> mModels;
+    // Vector of model instances
+    std::vector<Model> mModels;
 
-        // Lights
-        std::vector<Light*> mLights;
+    // Lights
+    std::vector<Light *> mLights;
 
-        // Shaders
-        std::vector<Shader> mShaders;
+    // Shaders
+    std::vector<Shader> mShaders;
 
-        // Materials
-        std::vector<Material> mMaterials;
+    // Materials
+    std::vector<Material> mMaterials;
 
-        // Cubemap for the sky
-        GLCubemap* mSkymap;
+    // Cubemap for the sky
+    GLCubemap *mSkymap;
 
-        // Class containing all the objects with collisions and/or dynamics
-        Physics::DynamicsWorld mPhysicsWorld;
+    // Class containing all the objects with collisions and/or dynamics
+    Physics::DynamicsWorld mPhysicsWorld;
 
-        // List of forces
-        std::vector<Physics::ForceGenerator*> mForces;
-            
-        // Value of the time elapsed since the last frame. This needs to be updated 
-        // every frame
-        float mDeltaTime;
-        float mLastFrame;
-        // Variables to measure the amount of time that each frame takes
-        int mFrameCounter;
-        float mTotalTime;
-        
-        // Screen width and height
-        int mScrWidth;
-        int mScrHeight;
+    // List of forces
+    std::vector<Physics::ForceGenerator *> mForces;
 
-        // Setup the scene
-        void setupScene();
+    // Value of the time elapsed since the last frame. This needs to be updated
+    // every frame
+    float mDeltaTime;
+    float mLastFrame;
+    // Variables to measure the amount of time that each frame takes
+    int mFrameCounter;
+    float mTotalTime;
 
-        // Pass pointers to objects to the application, for the input processing
-        void setupApplication();
+    // Screen width and height
+    int mScrWidth;
+    int mScrHeight;
 
-        // Method to run on each frame, to update the scene
-        void updateScene();
+    // Setup the scene
+    void setupScene();
 
-        // // Main render logic
-        // void render();
+    // Pass pointers to objects to the application, for the input processing
+    void setupApplication();
 
-        // Render the geometry that will use deferred rendering
-        void renderDeferred();
+    // Method to run on each frame, to update the scene
+    void updateScene();
 
-        // Render the geometry that will use forward rendering
-        void renderForward();
+    // // Main render logic
+    // void render();
 
-    public:
-        // Constructor
-        GLSandbox(int width, int height, const char* title, float scaling=1.f);
+    // Render the geometry that will use deferred rendering
+    void renderDeferred();
 
-        // Destructor
-        ~GLSandbox();
+    // Render the geometry that will use forward rendering
+    void renderForward();
 
-        // Start the application's loop
-        void run();
+public:
+    // Constructor
+    GLSandbox(int width, int height, const char *title, float scaling = 1.f);
+
+    // Destructor
+    ~GLSandbox();
+
+    // Start the application's loop
+    void run();
 };
 
 #endif

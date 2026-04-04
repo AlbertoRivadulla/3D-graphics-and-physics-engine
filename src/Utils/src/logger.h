@@ -15,71 +15,65 @@
 #include <cstddef>
 
 // Log levels
-#define LOG_LEVEL_ERROR   0
+#define LOG_LEVEL_ERROR 0
 #define LOG_LEVEL_WARNING 1
-#define LOG_LEVEL_INFO    2
-#define LOG_LEVEL_DEBUG   3
+#define LOG_LEVEL_INFO 2
+#define LOG_LEVEL_DEBUG 3
 
 #ifndef GLOBAL_LOG_LEVEL
-    #define GLOBAL_LOG_LEVEL LOG_LEVEL_DEBUG
+#define GLOBAL_LOG_LEVEL LOG_LEVEL_DEBUG
 #endif
 
-namespace Utils
-{
-    inline const char* getTimestamp() 
-    {
-        static char buffer[20];
-        std::time_t now = std::time(nullptr);
-        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
-        return buffer;
-    }
-
-    inline void logMessage(const char* logLevel, const std::string& message) 
-    {
-        // std::cout << "[" << getTimestamp() << "] ";
-        std::cout << "[" << logLevel << "] " << message << std::endl;
-    }
-
-    inline void logMessage(std::ostream& ostream, const char* logLevel, const std::string& message) 
-    {
-        // ostream << "[" << getTimestamp() << "] ";
-        ostream << "[" << logLevel << "] " << message << std::endl;
-    }
+namespace Utils {
+inline const char *getTimestamp() {
+    static char buffer[20];
+    std::time_t now = std::time(nullptr);
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S",
+                  std::localtime(&now));
+    return buffer;
 }
 
-#define LOG_AT_LEVEL(ostream, level, msg) \
-    { \
-        std::ostringstream oss; \
-        oss << msg; \
-        Utils::logMessage(ostream, level, oss.str()); \
+inline void logMessage(const char *logLevel, const std::string &message) {
+    // std::cout << "[" << getTimestamp() << "] ";
+    std::cout << "[" << logLevel << "] " << message << std::endl;
+}
+
+inline void logMessage(std::ostream &ostream, const char *logLevel,
+                       const std::string &message) {
+    // ostream << "[" << getTimestamp() << "] ";
+    ostream << "[" << logLevel << "] " << message << std::endl;
+}
+} // namespace Utils
+
+#define LOG_AT_LEVEL(ostream, level, msg)                                      \
+    {                                                                          \
+        std::ostringstream oss;                                                \
+        oss << msg;                                                            \
+        Utils::logMessage(ostream, level, oss.str());                          \
     }
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_ERROR
-    #define LOG_ERROR(msg) \
-        LOG_AT_LEVEL(std::cerr, "\033[31mERROR\033[0m", msg)
+#define LOG_ERROR(msg) LOG_AT_LEVEL(std::cerr, "\033[31mERROR\033[0m", msg)
 #else
-    #define LOG_ERROR(msg)
+#define LOG_ERROR(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_WARNING
-    #define LOG_WARNING(msg) \
-        LOG_AT_LEVEL(std::cout, "\033[33mWARNING\033[0m", msg)
+#define LOG_WARNING(msg) LOG_AT_LEVEL(std::cout, "\033[33mWARNING\033[0m", msg)
 #else
-    #define LOG_WARNING(msg)
+#define LOG_WARNING(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_INFO
-    #define LOG_INFO(msg) \
-        LOG_AT_LEVEL(std::cout, "\033[36mINFO\033[0m", msg)
+#define LOG_INFO(msg) LOG_AT_LEVEL(std::cout, "\033[36mINFO\033[0m", msg)
 #else
-    #define LOG_INFO(msg)
+#define LOG_INFO(msg)
 #endif
 
 #if GLOBAL_LOG_LEVEL >= LOG_LEVEL_DEBUG
-    #define LOG_DEBUG(msg) \
-        LOG_AT_LEVEL(std::cout, "\033[34mDEBUG\033[0m", msg)
+#define LOG_DEBUG(msg) LOG_AT_LEVEL(std::cout, "\033[34mDEBUG\033[0m", msg)
 #else
-    #define LOG_DEBUG(msg)
+#define LOG_DEBUG(msg)
 #endif
 
 template <typename T>
@@ -95,25 +89,20 @@ concept Matrix = requires(T obj, std::size_t i) {
     { obj[0].length() } -> std::convertible_to<std::size_t>;
 };
 
-template <Vector T>
-inline std::string printVector(const T& vector)
-{
+template <Vector T> inline std::string printVector(const T &vector) {
     std::ostringstream oss;
     oss << "( ";
-    for ( int i = 0; i < vector.length(); ++i )
+    for (int i = 0; i < vector.length(); ++i)
         oss << vector[i] << " ";
     oss << ")";
     return oss.str();
 }
 
-template <Matrix T>
-inline std::string printMatrix(const T& matrix)
-{
+template <Matrix T> inline std::string printMatrix(const T &matrix) {
     std::ostringstream oss;
-    for ( int i = 0; i < matrix.length(); ++i )
-    {
+    for (int i = 0; i < matrix.length(); ++i) {
         oss << "\n[ ";
-        for ( int j = 0; j < matrix[0].length(); ++j )
+        for (int j = 0; j < matrix[0].length(); ++j)
             oss << matrix[i][j] << ' ';
         oss << "]";
     }

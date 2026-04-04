@@ -6,22 +6,20 @@
 
 using namespace GLBase;
 
-namespace GLGeometry
-{
-    class GLCube : public GLElemObject
-    {
-        private:
-            // Data of the mesh
-            // std::vector<Vertex> mVertices;
-            std::vector<unsigned int> mIndices;
+namespace GLGeometry {
+class GLCube : public GLElemObject {
+private:
+    // Data of the mesh
+    // std::vector<Vertex> mVertices;
+    std::vector<unsigned int> mIndices;
 
-        public:
-            // Constructor
-            GLCube();
+public:
+    // Constructor
+    GLCube();
 
-            // Function to render
-            void draw();
-    };
-}
+    // Function to render
+    void draw();
+};
+} // namespace GLGeometry
 
 #endif

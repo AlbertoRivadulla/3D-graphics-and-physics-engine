@@ -4,232 +4,216 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 
-namespace GLBase
-{
-    // Enum for the different types of lights
-    enum LightType
-    {
-        LIGHT_DIRECTIONAL,
-        LIGHT_POINT,
-        LIGHT_SPOT
-    };
+namespace GLBase {
+// Enum for the different types of lights
+enum LightType { LIGHT_DIRECTIONAL, LIGHT_POINT, LIGHT_SPOT };
 
-    class Light
-    {
-        protected:
-            // Constructor
-            Light(glm::vec3 color, glm::vec3 position, float attenConst,
-                  float intensity, float attenQuadratic, int shadowRes,
-                  LightType lightType);
+class Light {
+protected:
+    // Constructor
+    Light(glm::vec3 color, glm::vec3 position, float attenConst,
+          float intensity, float attenQuadratic, int shadowRes,
+          LightType lightType);
 
-            // Enum for the type of light
-            LightType mLightType;
+    // Enum for the type of light
+    LightType mLightType;
 
-            // Position of the light
-            glm::vec3 mPosition;
+    // Position of the light
+    glm::vec3 mPosition;
 
-            // Color of the light
-            glm::vec3 mColor;
+    // Color of the light
+    glm::vec3 mColor;
 
-            // Attenuation constants
-            float mIntensity;
-            float mAttenLinear;
-            float mAttenQuadratic;
+    // Attenuation constants
+    float mIntensity;
+    float mAttenLinear;
+    float mAttenQuadratic;
 
-            // Pointer to a shader for shadow mapping
-            Shader* mShadowShader;
+    // Pointer to a shader for shadow mapping
+    Shader *mShadowShader;
 
-            // Shadow map framebuffer
-            unsigned int mShadowMapFBO;
-            // Shadow map texture
-            unsigned int mShadowMapTexture;
-            // Resolution of the shadow map
-            int mShadowMapResolution;
-            // Light space matrix
-            glm::mat4 mLightSpaceMatrix;
+    // Shadow map framebuffer
+    unsigned int mShadowMapFBO;
+    // Shadow map texture
+    unsigned int mShadowMapTexture;
+    // Resolution of the shadow map
+    int mShadowMapResolution;
+    // Light space matrix
+    glm::mat4 mLightSpaceMatrix;
 
-            // Method to configure the shadow map framebuffer and texture
-            virtual void setupShadowMap() = 0;
+    // Method to configure the shadow map framebuffer and texture
+    virtual void setupShadowMap() = 0;
 
-        public:
-            // Destructor
-            virtual ~Light() = default;
+public:
+    // Destructor
+    virtual ~Light() = default;
 
-            // Method to get the position of the light
-            inline glm::vec3 getPosition()
-            {
-                return mPosition;
-            }
+    // Method to get the position of the light
+    inline glm::vec3 getPosition() { return mPosition; }
 
-            // Method to check the type of the light
-            inline LightType getLightType()
-            {
-                return mLightType;
-            }
+    // Method to check the type of the light
+    inline LightType getLightType() { return mLightType; }
 
-            // Method to move the light
-            void setPosition(glm::vec3 pos)
-            {
-                mPosition = pos;
-            }
+    // Method to move the light
+    void setPosition(glm::vec3 pos) { mPosition = pos; }
 
-            // // Method to set the pointer to the shader
-            // void setShadowShader(Shader* shader)
-            // {
-            //     mShadowShader = shader;
-            // }
+    // // Method to set the pointer to the shader
+    // void setShadowShader(Shader* shader)
+    // {
+    //     mShadowShader = shader;
+    // }
 
-            // Method to compute the shadow map
-            // This needs a list of objects, which should include their model matrix
-            virtual void computeShadowMap(const Camera& camera,
-                                  const std::vector<GLGeometry::GLElemObject*> objectsWithShadow) = 0;
+    // Method to compute the shadow map
+    // This needs a list of objects, which should include their model matrix
+    virtual void computeShadowMap(
+        const Camera &camera,
+        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow) = 0;
 
-            // Method to pass the light to a shader
-            virtual void configureShader(const Shader& lightingShader, 
-                                         Shader* shadowShader, 
-                                         unsigned int& indexDirectional, 
-                                         unsigned int& indexSpot, 
-                                         unsigned int& indexPoint,
-                                         unsigned int& indexShadow) = 0;
+    // Method to pass the light to a shader
+    virtual void
+    configureShader(const Shader &lightingShader, Shader *shadowShader,
+                    unsigned int &indexDirectional, unsigned int &indexSpot,
+                    unsigned int &indexPoint, unsigned int &indexShadow) = 0;
 
-            // Method to pass the lightSpaceMatrix to a shader
-            virtual void configureShaderForLightingPass(const Shader& shader, unsigned int& indexDirectional, 
-                                                   unsigned int& indexSpot, unsigned int& indexPoint,
-                                                   unsigned int& indexShadow) const = 0;
-    };
+    // Method to pass the lightSpaceMatrix to a shader
+    virtual void configureShaderForLightingPass(
+        const Shader &shader, unsigned int &indexDirectional,
+        unsigned int &indexSpot, unsigned int &indexPoint,
+        unsigned int &indexShadow) const = 0;
+};
 
-    class DirectionalLight : public Light
-    {
-        private:
-            // Direction of the light
-            glm::vec3 mDirection;
-            // Up vector, used for shadow mapping
-            glm::vec3 mUpDirection;
-            // Number of levels in the shadow cascade
-            unsigned int mNrShadowCascadeLevels;
+class DirectionalLight : public Light {
+private:
+    // Direction of the light
+    glm::vec3 mDirection;
+    // Up vector, used for shadow mapping
+    glm::vec3 mUpDirection;
+    // Number of levels in the shadow cascade
+    unsigned int mNrShadowCascadeLevels;
 
-            // Uniform buffer object for the light space matrices of the different subfrustums
-            static unsigned int mLightMatricesUBO;
-            // Vector of the light space matrices for the differnt subfrustums
-            std::vector<glm::mat4> mLightSpaceMatrices;
-            // Distances of the near plane of the different levels of the cascade
-            std::vector<float> mShadowCascadeDistances;
+    // Uniform buffer object for the light space matrices of the different
+    // subfrustums
+    static unsigned int mLightMatricesUBO;
+    // Vector of the light space matrices for the differnt subfrustums
+    std::vector<glm::mat4> mLightSpaceMatrices;
+    // Distances of the near plane of the different levels of the cascade
+    std::vector<float> mShadowCascadeDistances;
 
-            // Method to configure the shadow map framebuffer and texture
-            void setupShadowMap();
+    // Method to configure the shadow map framebuffer and texture
+    void setupShadowMap();
 
-            // Method to compute the light space matrix from a camera
-            void computeLightSpaceMatrix(const Camera& camera, int index);
+    // Method to compute the light space matrix from a camera
+    void computeLightSpaceMatrix(const Camera &camera, int index);
 
-        public:
-            // Constructor
-            DirectionalLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
-                             float intensity, float attenLinear, float attenQuadratic,
-                             int shadowRes = 2048, unsigned int nrShadowCascadeLevels = 4);
+public:
+    // Constructor
+    DirectionalLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
+                     float intensity, float attenLinear, float attenQuadratic,
+                     int shadowRes = 2048,
+                     unsigned int nrShadowCascadeLevels = 4);
 
-            // Method to compute the shadow map
-            void computeShadowMap(const Camera& camera,
-                                  const std::vector<GLGeometry::GLElemObject*> objectsWithShadow);
+    // Method to compute the shadow map
+    void computeShadowMap(
+        const Camera &camera,
+        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
 
-            // Method to pass the light to a shader
-            void configureShader(const Shader& lightingShader, 
-                                 Shader* shadowShader, 
-                                 unsigned int& indexDirectional, 
-                                 unsigned int& indexSpot, 
-                                 unsigned int& indexPoint,
-                                 unsigned int& indexShadow);
+    // Method to pass the light to a shader
+    void configureShader(const Shader &lightingShader, Shader *shadowShader,
+                         unsigned int &indexDirectional,
+                         unsigned int &indexSpot, unsigned int &indexPoint,
+                         unsigned int &indexShadow);
 
-            // Method to pass the lightSpaceMatrix to a shader
-            void configureShaderForLightingPass(const Shader& shader, unsigned int& indexDirectional, 
-                                                   unsigned int& indexSpot, unsigned int& indexPoint,
-                                                   unsigned int& indexShadow) const;
-    };
+    // Method to pass the lightSpaceMatrix to a shader
+    void configureShaderForLightingPass(const Shader &shader,
+                                        unsigned int &indexDirectional,
+                                        unsigned int &indexSpot,
+                                        unsigned int &indexPoint,
+                                        unsigned int &indexShadow) const;
+};
 
-    class SpotLight : public Light
-    {
-        private:
-            // Direction of the light
-            glm::vec3 mDirection;
-            // Up vector, used for shadow mapping
-            glm::vec3 mUpDirection;
-            // Cosine of the inner and outer angles
-            float mCosAngleInner;
-            float mCosAngleOuter;
-            // Outer angle
-            float mAngleOuter;
-            // Maximum distance reached by the light
-            float mRadiusMax;
+class SpotLight : public Light {
+private:
+    // Direction of the light
+    glm::vec3 mDirection;
+    // Up vector, used for shadow mapping
+    glm::vec3 mUpDirection;
+    // Cosine of the inner and outer angles
+    float mCosAngleInner;
+    float mCosAngleOuter;
+    // Outer angle
+    float mAngleOuter;
+    // Maximum distance reached by the light
+    float mRadiusMax;
 
-            // Light space matrix
-            glm::mat4 mLightSpaceMatrix;
+    // Light space matrix
+    glm::mat4 mLightSpaceMatrix;
 
-            // Method to configure the shadow map framebuffer and texture
-            void setupShadowMap();
+    // Method to configure the shadow map framebuffer and texture
+    void setupShadowMap();
 
-            // Method to compute the light space matrix
-            // void computeLightSpaceMatrix(const Camera& camera);
-            void computeLightSpaceMatrix();
+    // Method to compute the light space matrix
+    // void computeLightSpaceMatrix(const Camera& camera);
+    void computeLightSpaceMatrix();
 
-        public:
-            // Constructor
-            SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
-                      float angleInner, float angleOuter,
-                      float intensity, float attenLinear, float attenQuadratic,
-                      int shadowRes = 2048);
+public:
+    // Constructor
+    SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
+              float angleInner, float angleOuter, float intensity,
+              float attenLinear, float attenQuadratic, int shadowRes = 2048);
 
-            // Method to compute the shadow map
-            void computeShadowMap(const Camera& camera,
-                                  const std::vector<GLGeometry::GLElemObject*> objectsWithShadow);
+    // Method to compute the shadow map
+    void computeShadowMap(
+        const Camera &camera,
+        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
 
-            // Method to pass the light to a shader
-            void configureShader(const Shader& lightingShader, 
-                                 Shader* shadowShader, 
-                                 unsigned int& indexDirectional, 
-                                 unsigned int& indexSpot, 
-                                 unsigned int& indexPoint,
-                                 unsigned int& indexShadow);
+    // Method to pass the light to a shader
+    void configureShader(const Shader &lightingShader, Shader *shadowShader,
+                         unsigned int &indexDirectional,
+                         unsigned int &indexSpot, unsigned int &indexPoint,
+                         unsigned int &indexShadow);
 
-            // Method to pass the lightSpaceMatrix to a shader
-            void configureShaderForLightingPass(const Shader& shader, unsigned int& indexDirectional, 
-                                                   unsigned int& indexSpot, unsigned int& indexPoint,
-                                                   unsigned int& indexShadow) const;
-    };
+    // Method to pass the lightSpaceMatrix to a shader
+    void configureShaderForLightingPass(const Shader &shader,
+                                        unsigned int &indexDirectional,
+                                        unsigned int &indexSpot,
+                                        unsigned int &indexPoint,
+                                        unsigned int &indexShadow) const;
+};
 
-    class PointLight : public Light
-    {
-        private:
-            // Maximum distance reached by the light
-            float mRadiusMax;
+class PointLight : public Light {
+private:
+    // Maximum distance reached by the light
+    float mRadiusMax;
 
-            // Method to configure the shadow map framebuffer and texture
-            void setupShadowMap();
-            //
-            // // Method to compute the light space matrix from a camera
-            // void computeLightSpaceMatrix(const Camera& camera);
+    // Method to configure the shadow map framebuffer and texture
+    void setupShadowMap();
+    //
+    // // Method to compute the light space matrix from a camera
+    // void computeLightSpaceMatrix(const Camera& camera);
 
-        public:
-            // Constructor
-            PointLight(glm::vec3 color, glm::vec3 position,
-                       float intensity, float attenLinear, float attenQuadratic,
-                       int shadowRes = 1024);
+public:
+    // Constructor
+    PointLight(glm::vec3 color, glm::vec3 position, float intensity,
+               float attenLinear, float attenQuadratic, int shadowRes = 1024);
 
-            // Method to compute the shadow map
-            void computeShadowMap(const Camera& camera,
-                                  const std::vector<GLGeometry::GLElemObject*> objectsWithShadow);
+    // Method to compute the shadow map
+    void computeShadowMap(
+        const Camera &camera,
+        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
 
-            // Method to pass the light to a shader
-            void configureShader(const Shader& lightingShader, 
-                                 Shader* shadowShader, 
-                                 unsigned int& indexDirectional, 
-                                 unsigned int& indexSpot, 
-                                 unsigned int& indexPoint,
-                                 unsigned int& indexShadow);
+    // Method to pass the light to a shader
+    void configureShader(const Shader &lightingShader, Shader *shadowShader,
+                         unsigned int &indexDirectional,
+                         unsigned int &indexSpot, unsigned int &indexPoint,
+                         unsigned int &indexShadow);
 
-            // Method to pass the lightSpaceMatrix to a shader
-            void configureShaderForLightingPass(const Shader& shader, unsigned int& indexDirectional, 
-                                                   unsigned int& indexSpot, unsigned int& indexPoint,
-                                                   unsigned int& indexShadow) const;
-    };
-}
+    // Method to pass the lightSpaceMatrix to a shader
+    void configureShaderForLightingPass(const Shader &shader,
+                                        unsigned int &indexDirectional,
+                                        unsigned int &indexSpot,
+                                        unsigned int &indexPoint,
+                                        unsigned int &indexShadow) const;
+};
+} // namespace GLBase
 
 #endif

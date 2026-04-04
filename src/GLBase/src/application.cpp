@@ -3,183 +3,166 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-namespace GLBase
-{
-    //==============================
-    // Methods of the Window class
-    //==============================
+namespace GLBase {
+//==============================
+// Methods of the Window class
+//==============================
 
-    // Constructor
-    Application::Application(int width, int height, const char* title) :
-        mShouldClose { false }, mWidth { width }, mHeight { height }
-    {
-        // Initialize GLFW
-        glfwInit();
+// Constructor
+Application::Application(int width, int height, const char *title)
+    : mShouldClose{false}, mWidth{width}, mHeight{height} {
+    // Initialize GLFW
+    glfwInit();
 
-        // Configure GLFW
-        // The first option of glfwWindowHint is the option that we want to configure,
-        // and the second argument is the value
-        // List of configurations: https://www.glfw.org/docs/latest/window.html#window_hints
-        // Tell GLFW to use OpenGL 3.3
-        // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-        // Tell GLFW explicitly to use the core profile.
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // Configure GLFW
+    // The first option of glfwWindowHint is the option that we want to
+    // configure, and the second argument is the value List of configurations:
+    // https://www.glfw.org/docs/latest/window.html#window_hints Tell GLFW to
+    // use OpenGL 3.3 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    // Tell GLFW explicitly to use the core profile.
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        // Needed for Mac Os.
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    // Needed for Mac Os.
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);  
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_TRUE);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_TRUE);
 
-        // Create a Window object, and check that it was created successfully.
-        // GLFWwindow* window { glfwCreateWindow(800, 600, "My title", NULL, NULL) };
-        mWindow = glfwCreateWindow(width, height, title, NULL, NULL);
-        if (mWindow == NULL)
-        {
-            LOG_ERROR("Failed to create GLFW window.");
-            glfwTerminate();
-        }
-        glfwMakeContextCurrent( mWindow );
-
-        glfwSetWindowUserPointer(mWindow, this);
-
-        // Initialize GLAD
-        // This library manages function pointers for OpenGL.
-        // glfwGetProcAddress defines the correct function to load the address of the 
-        // OpenGL function pointers, based on which OS we're compiling for
-        if (!gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress) )
-        {
-            LOG_ERROR("Failed to initialize GLAD.");
-        }
-
-        // Tell OpenGL the size of the rendering window
-        // The first two parameters are the location of the lower left corner of the window.
-        glViewport(0, 0, mWidth, mHeight);
-
-        // Tell GLFW to call this function on every window resize by registering it.
-        glfwSetFramebufferSizeCallback(mWindow, applicationFramebufferSizeCallback);
-        // Set callback functions for mouse movement and scroll
-        glfwSetCursorPosCallback(mWindow, applicationMouseCallback);
-        glfwSetScrollCallback(mWindow, applicationScrollCallback);
-        // tell GLFW to capture our mouse
-        glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        // Configure the global state of OpenGL
-        // Set depth test (default)
-        glEnable(GL_DEPTH_TEST);
-        // Enable multisampling
-        glEnable(GL_MULTISAMPLE);
-        // Enable face culling
-        glEnable(GL_CULL_FACE);
-        // Enable gamma correction the easy way
-        // glEnable(GL_FRAMEBUFFER_SRGB);
-    }
-
-    // Destructor
-    Application::~Application()
-    {
-        LOG_INFO("Closing application...");
+    // Create a Window object, and check that it was created successfully.
+    // GLFWwindow* window { glfwCreateWindow(800, 600, "My title", NULL, NULL)
+    // };
+    mWindow = glfwCreateWindow(width, height, title, NULL, NULL);
+    if (mWindow == NULL) {
+        LOG_ERROR("Failed to create GLFW window.");
         glfwTerminate();
-        LOG_INFO("Application closed");
+    }
+    glfwMakeContextCurrent(mWindow);
+
+    glfwSetWindowUserPointer(mWindow, this);
+
+    // Initialize GLAD
+    // This library manages function pointers for OpenGL.
+    // glfwGetProcAddress defines the correct function to load the address of
+    // the OpenGL function pointers, based on which OS we're compiling for
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        LOG_ERROR("Failed to initialize GLAD.");
     }
 
-    // Methods to get witdth and height
-    int Application::getWidth()
-    {
-        return mWidth;
-    }
-    int Application::getHeight()
-    {
-        return mHeight;
-    }
+    // Tell OpenGL the size of the rendering window
+    // The first two parameters are the location of the lower left corner of the
+    // window.
+    glViewport(0, 0, mWidth, mHeight);
 
-    // Method to get the actual width and height of the window.
-    // Needed when using Hi-DPI displays.
-    void Application::getWindowDims( int& width, int& height )
-    {
-        glfwGetFramebufferSize( mWindow, &width, &height );
-    }
+    // Tell GLFW to call this function on every window resize by registering it.
+    glfwSetFramebufferSizeCallback(mWindow, applicationFramebufferSizeCallback);
+    // Set callback functions for mouse movement and scroll
+    glfwSetCursorPosCallback(mWindow, applicationMouseCallback);
+    glfwSetScrollCallback(mWindow, applicationScrollCallback);
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // Method to change the title of the window
-    void Application::setTitle(const char* title)
-    {
-        glfwSetWindowTitle(mWindow, title);
-    }
-
-    // Method to pass a pointer to the camera
-    void Application::setCamera(Camera* camera)
-    {
-        mCamera = camera;
-    }
-
-    // Method to pass a pointer to the input handler
-    void Application::setInputHandler(InputHandler* inputHandler)
-    {
-        mInputHandler = inputHandler;
-    }
-
-    // Process all input
-    void Application::processKeyboardInput(float deltaTime)
-    {
-        // Process input for the window
-        if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            // glfwSetWindowShouldClose(mWindow, true);
-            mShouldClose = true;
-
-        if (glfwWindowShouldClose(mWindow))
-            mShouldClose = true;
-
-        // Process input for all the objects in the frame
-        mInputHandler->processKeyboardInput(mWindow, deltaTime);
-    }
-
-    // Function to clear the window every frame
-    void Application::clearWindow()
-    {
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    // Function to update the window every frame
-    void Application::updateWindow()
-    {
-        // Swap the buffers to present the image on the screen
-        glfwSwapBuffers(mWindow);
-        // Poll for IO events
-        glfwPollEvents();
-    }
-
-    //==============================
-    // Callback function to act on the Window class
-    //==============================
-
-    // Function to be called when the window is resized
-    void applicationFramebufferSizeCallback(GLFWwindow* window, int width, int height)
-    {
-        // Make sure the viewport matches the new window dimensions
-        glViewport(0, 0, width, height);
-
-        // Change the dimensions in the camera
-        Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-        app->mCamera->setDimensions(width, height);
-    }
-
-    // Function to be called when the mouse is moved
-    void applicationMouseCallback(GLFWwindow* window, double xpos, double ypos)
-    {
-        Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-        app->mInputHandler->processMouseInput(xpos, ypos);
-    }
-
-    // Function to be called on scroll
-    void applicationScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-    {
-        Application* app { static_cast<Application*>(glfwGetWindowUserPointer(window)) };
-        app->mInputHandler->processScrollInput(xoffset, yoffset);
-    }
+    // Configure the global state of OpenGL
+    // Set depth test (default)
+    glEnable(GL_DEPTH_TEST);
+    // Enable multisampling
+    glEnable(GL_MULTISAMPLE);
+    // Enable face culling
+    glEnable(GL_CULL_FACE);
+    // Enable gamma correction the easy way
+    // glEnable(GL_FRAMEBUFFER_SRGB);
 }
+
+// Destructor
+Application::~Application() {
+    LOG_INFO("Closing application...");
+    glfwTerminate();
+    LOG_INFO("Application closed");
+}
+
+// Methods to get witdth and height
+int Application::getWidth() { return mWidth; }
+int Application::getHeight() { return mHeight; }
+
+// Method to get the actual width and height of the window.
+// Needed when using Hi-DPI displays.
+void Application::getWindowDims(int &width, int &height) {
+    glfwGetFramebufferSize(mWindow, &width, &height);
+}
+
+// Method to change the title of the window
+void Application::setTitle(const char *title) {
+    glfwSetWindowTitle(mWindow, title);
+}
+
+// Method to pass a pointer to the camera
+void Application::setCamera(Camera *camera) { mCamera = camera; }
+
+// Method to pass a pointer to the input handler
+void Application::setInputHandler(InputHandler *inputHandler) {
+    mInputHandler = inputHandler;
+}
+
+// Process all input
+void Application::processKeyboardInput(float deltaTime) {
+    // Process input for the window
+    if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        // glfwSetWindowShouldClose(mWindow, true);
+        mShouldClose = true;
+
+    if (glfwWindowShouldClose(mWindow))
+        mShouldClose = true;
+
+    // Process input for all the objects in the frame
+    mInputHandler->processKeyboardInput(mWindow, deltaTime);
+}
+
+// Function to clear the window every frame
+void Application::clearWindow() {
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+// Function to update the window every frame
+void Application::updateWindow() {
+    // Swap the buffers to present the image on the screen
+    glfwSwapBuffers(mWindow);
+    // Poll for IO events
+    glfwPollEvents();
+}
+
+//==============================
+// Callback function to act on the Window class
+//==============================
+
+// Function to be called when the window is resized
+void applicationFramebufferSizeCallback(GLFWwindow *window, int width,
+                                        int height) {
+    // Make sure the viewport matches the new window dimensions
+    glViewport(0, 0, width, height);
+
+    // Change the dimensions in the camera
+    Application *app{
+        static_cast<Application *>(glfwGetWindowUserPointer(window))};
+    app->mCamera->setDimensions(width, height);
+}
+
+// Function to be called when the mouse is moved
+void applicationMouseCallback(GLFWwindow *window, double xpos, double ypos) {
+    Application *app{
+        static_cast<Application *>(glfwGetWindowUserPointer(window))};
+    app->mInputHandler->processMouseInput(xpos, ypos);
+}
+
+// Function to be called on scroll
+void applicationScrollCallback(GLFWwindow *window, double xoffset,
+                               double yoffset) {
+    Application *app{
+        static_cast<Application *>(glfwGetWindowUserPointer(window))};
+    app->mInputHandler->processScrollInput(xoffset, yoffset);
+}
+} // namespace GLBase
