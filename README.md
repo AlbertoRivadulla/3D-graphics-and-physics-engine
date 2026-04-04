@@ -22,6 +22,8 @@ Some of the features of the engine are showcased in the [Gallery](#gallery) belo
 - Fog effect added in postprocessing
 - Text and simple GUI rendering to the screen
 - Drawing terrain from a heightmap using tessellation shaders
+- Sky rendering
+    - Atmosphere with simulation of light scattering, following Sebastian Lague's [video](https://www.youtube.com/watch?v=DxfEbulyFcY)
 
 ### Physics engine
 
@@ -44,6 +46,7 @@ Some of the features of the engine are showcased in the [Gallery](#gallery) belo
 ![Recording particle system](gallery/recording_particle_system.gif)
 - Spheres connected by a spring-like force and a spotlight with shadows.
 ![Recording spring and spotlight](gallery/recording_spheres_spring_spotlight.gif)
+<!-- TODO: Atmosphere and clouds -->
 
 ## References
 
