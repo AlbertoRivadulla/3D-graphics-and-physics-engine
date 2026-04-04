@@ -5,72 +5,62 @@
 #include "GLElemObject.h"
 #include "utils.h"
 
-namespace GLGeometry
-{
-    struct GLParticle
-    {
-        // Constructor
-        GLParticle( glm::vec3 posVal, glm::vec3 velVal, glm::vec3 scaleVal, 
-                    float maxAgeVal, Material* materialVal ) :
-            position { posVal }, velocity { velVal }, scale { scaleVal }, 
-            material { materialVal}, age { 0.f }, maxAge { maxAgeVal }
-        {
-            computeModelMatrix();
-        }
-        
-        ~GLParticle()
-        {
-            delete[] material;
-        }
+namespace GLGeometry {
+struct GLParticle {
+    // Constructor
+    GLParticle(glm::vec3 posVal, glm::vec3 velVal, glm::vec3 scaleVal,
+               float maxAgeVal, Material *materialVal)
+        : position{posVal}, velocity{velVal}, scale{scaleVal},
+          material{materialVal}, age{0.f}, maxAge{maxAgeVal} {
+        computeModelMatrix();
+    }
 
-        void computeModelMatrix()
-        {
-            modelMatrix = glm::translate( glm::mat4(1.f), position );
-            modelMatrix = glm::scale( modelMatrix, scale );
-        }
+    ~GLParticle() { delete[] material; }
 
-        float invMass;
-        glm::vec3 position;
-        glm::vec3 velocity;
-        glm::vec3 scale;
+    void computeModelMatrix() {
+        modelMatrix = glm::translate(glm::mat4(1.f), position);
+        modelMatrix = glm::scale(modelMatrix, scale);
+    }
 
-        glm::mat4 modelMatrix;
+    float invMass;
+    glm::vec3 position;
+    glm::vec3 velocity;
+    glm::vec3 scale;
 
-        Material* material;
+    glm::mat4 modelMatrix;
 
-        float age;
-        float maxAge;
-    };
+    Material *material;
 
-    class GLParticleSystem : public GLElemObject
-    {
-        public:
-            // Constructor
-            GLParticleSystem(GLElemObject* geometryObject, Shader* GPassShader);
-            ~GLParticleSystem();
+    float age;
+    float maxAge;
+};
 
-            // Get a pointer to the list of particles
-            std::list<GLParticle*>* getPointerToListOfParticles();
+class GLParticleSystem : public GLElemObject {
+public:
+    // Constructor
+    GLParticleSystem(GLElemObject *geometryObject, Shader *GPassShader);
+    ~GLParticleSystem();
 
-            // Add a single particle
-            void addParticle( glm::vec3 position, glm::vec3 velocity, glm::vec3 scale, 
-                              float maxAge, Material* material );
+    // Get a pointer to the list of particles
+    std::list<GLParticle *> *getPointerToListOfParticles();
 
-            // Function to render
-            void draw();
+    // Add a single particle
+    void addParticle(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale,
+                     float maxAge, Material *material);
 
-        private:
-            // List of particles
-            std::list<GLParticle*> mParticles;
+    // Function to render
+    void draw();
 
-            // Pointer to the shader of the geometry pass
-            Shader* mGPassShader;
+private:
+    // List of particles
+    std::list<GLParticle *> mParticles;
 
-            // Geometrical object
-            GLElemObject* mGeometryObject;
-    };
-}
+    // Pointer to the shader of the geometry pass
+    Shader *mGPassShader;
 
-
+    // Geometrical object
+    GLElemObject *mGeometryObject;
+};
+} // namespace GLGeometry
 
 #endif

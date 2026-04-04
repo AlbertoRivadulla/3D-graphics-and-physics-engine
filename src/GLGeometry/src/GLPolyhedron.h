@@ -3,9 +3,6 @@
 
 #include "GLGeometry.h"
 
-namespace GLGeometry
-{
-
-}
+namespace GLGeometry {}
 
 #endif

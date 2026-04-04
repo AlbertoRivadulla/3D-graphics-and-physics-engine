@@ -6,25 +6,23 @@
 
 using namespace GLBase;
 
-namespace GLGeometry
-{
-    class GLQuad : public GLElemObject
-    {
-        private:
-            // This class will use an element buffer object
-            unsigned int mEBO;
+namespace GLGeometry {
+class GLQuad : public GLElemObject {
+private:
+    // This class will use an element buffer object
+    unsigned int mEBO;
 
-            // Data of the mesh
-            // std::vector<Vertex> mVertices;
-            std::vector<unsigned int> mIndices;
+    // Data of the mesh
+    // std::vector<Vertex> mVertices;
+    std::vector<unsigned int> mIndices;
 
-        public:
-            // Constructor
-            GLQuad();
+public:
+    // Constructor
+    GLQuad();
 
-            // Function to render
-            void draw();
-    };
-}
+    // Function to render
+    void draw();
+};
+} // namespace GLGeometry
 
 #endif
