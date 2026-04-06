@@ -1,5 +1,4 @@
 #include "ForceGenerator.h"
-#include "utils.h"
 
 using namespace GLGeometry;
 using namespace GLBase;

@@ -45,6 +45,7 @@ public:
 };
 
 // The following class manages objects with collisions (CollisionBody)
+// TODO: This class will be the WorldManager
 class CollisionWorld {
 public:
     // Constructor
@@ -75,6 +76,7 @@ protected:
     // Terrain
     Terrain *mTerrain;
 
+    // NOTE: This is here only for debugging
     // Used to slow down simulations
     int mCounter;
 };

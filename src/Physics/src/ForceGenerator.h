@@ -2,7 +2,7 @@
 #define FORCEGENERATOR_H
 
 #include "GLBase.h"
-#include "PhysicsBody.h"
+#include "RigidBody.h"
 
 using namespace GLBase;
 

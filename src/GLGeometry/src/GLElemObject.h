@@ -57,6 +57,10 @@ public:
         mModelMatrix = glm::scale(mModelMatrix, scale);
     }
 
+    void setModelMatrix(const glm::mat4 &modelMatrix) {
+        mModelMatrix = modelMatrix;
+    }
+
     // Function to read the model matrix
     glm::mat4 getModelMatrix() { return mModelMatrix; }
 

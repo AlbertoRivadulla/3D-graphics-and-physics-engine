@@ -133,6 +133,7 @@ void DynamicsWorld::step(float deltaTime) {
         - Solve constraints
     */
 
+    // NOTE: These ifs are here only for debugging
     // Update the movement after a certain amount of frames
     // if ( mCounter++ == 10 )
     if (mCounter++ == 0) {
