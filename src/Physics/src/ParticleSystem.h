@@ -4,13 +4,14 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Colliders.h"
-#include "PhysicsBody.h"
+#include "Entity.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
 
 namespace Physics {
 // Class for the particle system
+// TODO: Refactor this. Maybe it should derive from the Entity class
 class ParticleSystem : public CollisionBody {
 public:
     // Constructor

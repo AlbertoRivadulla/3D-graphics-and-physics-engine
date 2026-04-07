@@ -3,8 +3,6 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
-#include "Colliders.h"
-#include "PhysicsBody.h"
 
 using namespace GLGeometry;
 using namespace GLBase;

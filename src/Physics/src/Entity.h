@@ -5,6 +5,7 @@
 
 // #include "ForceGenerator.h"
 #include "GLBase.h"
+#include "GLElemObject.h"
 #include "GLGeometry.h"
 #include "Colliders.h"
 #include "RigidBody.h"
@@ -22,17 +23,13 @@ public:
 
     // Add geometrical object, and copy it to the list of elementary objects of
     // the GLSandbox class
-    template<typename T, typename... Args>
-    void addGeometry(Args&&...);
+    template <typename T, typename... Args> void addGeometry(Args &&...);
 
-    template<typename T, typename... Args>
-    void addCollider(Args&&...);
+    template <typename T, typename... Args> void addCollider(Args &&...);
 
-    template<typename T, typename... Args>
-    void addRigidBody(Args&&...);
+    template <typename T, typename... Args> void addRigidBody(Args &&...);
 
-    template<typename T, typename... Args>
-    void addMaterial(Args&&...);
+    template <typename T, typename... Args> void addMaterial(Args &&...);
 
     void setPosition(glm::vec3 position);
 
@@ -42,7 +39,11 @@ public:
 
     glm::vec3 getPosition();
 
-    void computeModelMatrix();
+    const Physics::Collider *getCollider();
+    const Physics::RigidBody *getRigidBody();
+    const GLGeometry::GLElemObject *getGeometry();
+
+    bool hasPhysics();
 
     // TODO: Remove this method
     void draw();
@@ -59,6 +60,8 @@ protected:
     std::unique_ptr<GLGeometry::GLElemObject> mGeometryObject;
 
     std::unique_ptr<Material> mMaterial;
+
+    void computeModelMatrix();
 };
 
 #endif

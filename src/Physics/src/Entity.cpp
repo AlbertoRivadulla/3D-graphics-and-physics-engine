@@ -51,8 +51,7 @@ void Entity::addRigidBody(Args &&...args) {
                   "T must derive from RigidBody");
 
     mRigidBody = std::make_unique<T>(std::forward<Args>(args)...);
-
-    // TODO: Set pointers to transform etc
+    mRigidBody->setTransformPtr(&mTransform);
 }
 
 template <typename T, typename... Args>
@@ -90,6 +89,20 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
 }
 
 glm::vec3 Entity::getPosition() { return mTransform.position; }
+
+const Physics::Collider *Entity::getCollider() {
+    return mCollider.get();
+}
+const Physics::RigidBody *Entity::getRigidBody() {
+    return mRigidBody.get();
+}
+const GLGeometry::GLElemObject *Entity::getGeometry() {
+    return mGeometryObject.get();
+}
+
+bool Entity::hasPhysics() {
+    return mCollider.get() != nullptr || mRigidBody.get() != nullptr;
+}
 
 void Entity::computeModelMatrix() {
     mTransform.modelMatrix = glm::mat4(1.f);

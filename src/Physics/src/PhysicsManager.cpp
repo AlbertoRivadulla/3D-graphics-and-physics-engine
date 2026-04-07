@@ -1,9 +1,7 @@
-#include "PhysicsWorld.h"
-
-using namespace GLGeometry;
-using namespace GLBase;
+#include "PhysicsManager.h"
 
 namespace Physics {
+
 //--------------------------------------------------------------------------
 // BodyForceRegistry class
 
@@ -26,7 +24,6 @@ void BodyForceRegistry::removeBodyForce(RigidBody *body,
     }
 }
 
-// Clear all the registrations
 void BodyForceRegistry::clear() { mRegistrations.clear(); }
 
 // Call the force generators to update the forces on the particles
@@ -38,91 +35,39 @@ void BodyForceRegistry::applyForces(float deltaTime) {
 }
 
 //--------------------------------------------------------------------------
-// CollisionWorld class
-
-// Constructor
-CollisionWorld::CollisionWorld() : mCounter{0} {}
-
-// Destructor
-CollisionWorld::~CollisionWorld() {
-    for (auto body : mCollisionBodies)
-        delete body;
-}
-
-// Add a CollisionBody
-void CollisionWorld::addCollisionBody(CollisionBody *collisionBody) {
-    mCollisionBodies.push_back(collisionBody);
-}
-
-// Add a terrain
-void CollisionWorld::addTerrain(Terrain *terrain) { mTerrain = terrain; }
-
-// Draw the objects in the current frame, to the G-buffer
-// void CollisionWorld::draw( Shader& defaultShader )
-void CollisionWorld::draw() {
-    // Draw all the collision bodies
-    for (auto collisionBody : mCollisionBodies) {
-        // collisionBody->draw( defaultShader );
-        collisionBody->draw();
-    }
-}
-
-// Draw the terrain
-void CollisionWorld::drawTerrain() { mTerrain->draw(); }
-
-//--------------------------------------------------------------------------
 // DynamicsWorld class
 
-// Constructor
-DynamicsWorld::DynamicsWorld() {}
-
-// Destructor
-DynamicsWorld::~DynamicsWorld() {
-    // No need to deallocate the rigidbodies, as they are also located at the
-    // vector of collision bodies
-    // for ( auto body : mRigidBodies )
-    //     delete body;
-
-    // Delete the terrain
-    delete mTerrain;
+PhysicsManager::PhysicsManager() {
+    // NOTE: This is here only for debugging purposes
+    mCounter = 0;
 }
 
-// Add a RigidBody
-void DynamicsWorld::addRigidBody(RigidBody *rigidBody) {
-    mRigidBodies.push_back(rigidBody);
+PhysicsManager::~PhysicsManager() {}
 
-    // Add it also to the list of collision bodies, to check for collisions and
-    // draw
-    mCollisionBodies.push_back(rigidBody);
-}
+void PhysicsManager::registerEntity(Entity *entity) {
+    mEntitiesWithPhysics.push_back(entity);
 
-// Add a RigidBody that is not drawn
-void DynamicsWorld::addRigidBodyNotDrawn(RigidBody *rigidBody) {
-    mRigidBodies.push_back(rigidBody);
-
-    // Add it also to the list of collision bodies, to check for collisions and
-    // draw
-    mCollisionBodiesNotDrawn.push_back(rigidBody);
+    // TODO: Should this distinguish which objects have colliders and which have rigid bodies? Place them in different lists?
 }
 
 // Register a pair body-force
-void DynamicsWorld::addBodyForce(RigidBody *body, ForceGenerator *force) {
+void PhysicsManager::addBodyForce(RigidBody *body, ForceGenerator *force) {
     mBodyForceRegistry.addBodyForce(body, force);
 }
 
 // Remove a pair body-force
-void DynamicsWorld::removeBodyForce(RigidBody *body, ForceGenerator *force) {
+void PhysicsManager::removeBodyForce(RigidBody *body, ForceGenerator *force) {
     mBodyForceRegistry.removeBodyForce(body, force);
 }
 
-// Add a ParticleSystem
-void DynamicsWorld::addParticleSystem(ParticleSystem *particleSystem) {
+void PhysicsManager::addParticleSystem(ParticleSystem *particleSystem) {
+    // TODO: Where should this be placed, in order for the particle system to have collisions?
     mParticleSystems.push_back(particleSystem);
     mCollisionBodies.push_back(particleSystem);
 }
 
 // Update the objects in the current frame
-void DynamicsWorld::step(float deltaTime) {
+void PhysicsManager::step(float deltaTime) {
     assert(deltaTime > 0.f);
 
     /*
@@ -194,4 +139,5 @@ void DynamicsWorld::step(float deltaTime) {
 //     for ( auto rigidBody : mRigidBodies )
 //         rigidBody->draw( defaultShader );
 // }
+
 } // namespace Physics

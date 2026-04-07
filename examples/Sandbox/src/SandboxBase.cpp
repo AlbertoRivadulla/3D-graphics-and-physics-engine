@@ -58,6 +58,7 @@ void GLSandbox::run() {
         updateScene();
 
         // Compute the shadow maps
+        // TODO: This will use the list of elementary objects in the GraphicsManager class
         mRenderer.computeShadowMaps(mCamera, mLights, mElementaryObjects);
 
         // Start the geometry pass

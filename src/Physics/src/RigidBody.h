@@ -11,7 +11,7 @@ class RigidBody {
 public:
     RigidBody(float mass, glm::vec3 velocity = {0.f, 0.f, 0.f});
 
-    void setTransform(Transform& transform);
+    void setTransformPtr(Transform *transform);
 
     void setVelocity(glm::vec3 velocity);
 

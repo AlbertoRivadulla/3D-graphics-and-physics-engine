@@ -18,8 +18,8 @@ RigidBody::RigidBody(float mass, glm::vec3 velocity)
     setMass(mass);
 }
 
-void RigidBody::setTransform(Transform &transform) {
-    mTransform = &transform;
+void RigidBody::setTransformPtr(Transform *transform) {
+    mTransform = transform;
 }
 
 // Set velocity and acceleration

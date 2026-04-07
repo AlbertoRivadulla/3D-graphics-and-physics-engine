@@ -55,6 +55,7 @@ private:
     glm::mat4 mView;
 
     // Vector of GLElemObject instances
+    // TODO: Remove this list. The objects now belong to the GraphicsManager inside the WorldManager
     std::vector<GLElemObject *> mElementaryObjects;
 
     // Vector of model instances
@@ -73,6 +74,7 @@ private:
     GLCubemap *mSkymap;
 
     // Class containing all the objects with collisions and/or dynamics
+    // TODO: Replace this by a WorldManager
     Physics::DynamicsWorld mPhysicsWorld;
 
     // List of forces
