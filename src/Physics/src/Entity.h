@@ -37,11 +37,13 @@ public:
 
     glm::vec3 getPosition();
 
-    const Physics::Collider *getCollider();
-    const Physics::RigidBody *getRigidBody();
-    const GLGeometry::GLElemObject *getGeometry();
+    Physics::Collider *getCollider();
+    Physics::RigidBody *getRigidBody();
+    GLGeometry::GLElemObject *getGeometry();
+    GLBase::Material *getMaterial();
 
     bool hasPhysics();
+    bool hasGeometry();
 
     void integrate(float deltaTime);
 

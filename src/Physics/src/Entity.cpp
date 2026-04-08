@@ -81,18 +81,25 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
 
 glm::vec3 Entity::getPosition() { return mTransform.position; }
 
-const Physics::Collider *Entity::getCollider() {
+Physics::Collider *Entity::getCollider() {
     return mCollider.get();
 }
-const Physics::RigidBody *Entity::getRigidBody() {
+Physics::RigidBody *Entity::getRigidBody() {
     return mRigidBody.get();
 }
-const GLGeometry::GLElemObject *Entity::getGeometry() {
+GLGeometry::GLElemObject *Entity::getGeometry() {
     return mGeometryObject.get();
+}
+GLBase::Material *Entity::getMaterial() {
+    return mMaterial.get();
 }
 
 bool Entity::hasPhysics() {
     return mCollider || mRigidBody;
+}
+
+bool Entity::hasGeometry() {
+    return mGeometryObject && mMaterial;
 }
 
 void Entity::integrate(float deltaTime) {
@@ -122,14 +129,4 @@ void Entity::updateModelMatrix() {
         // fails, uncomment the next line 
         // mGeometryObject->setModelMatrix(mPosition, mRotationMatrix, mScale);
     }
-}
-
-void Entity::draw() {
-    // TODO: This should not be here.
-    // Instead, the manager should draw only the entities that have been
-    // registered with a material and a geometry object.
-
-    mMaterial->configShader(mGeometryObject->getModelMatrix());
-
-    mGeometryObject->draw();
 }

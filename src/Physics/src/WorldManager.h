@@ -27,6 +27,8 @@ public:
     // Draw the objects in the current frame, to the G-buffer
     void draw();
 
+    void drawTerrain();
+
 private:
     // List of all entities
     std::vector<std::unique_ptr<Entity>> mEntities;

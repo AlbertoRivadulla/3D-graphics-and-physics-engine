@@ -2,15 +2,26 @@
 #define GRAPHICS_MANAGER_H
 
 #include <vector>
-#include "GLElemObject.h"
+#include "GLBase.h"
 
 namespace GLGeometry {
-class GraphicsManager {
-    // TODO: Implement
-public:
-private:
-    std::vector<GLElemObject *> mGraphicsObjects;
+
+struct GLObjectWithMaterial {
+    GLGeometry::GLElemObject *object;
+    GLBase::Material *material;
 };
+
+class GraphicsManager {
+public:
+    void registerObjectAndMaterial(GLGeometry::GLElemObject *object,
+                                   GLBase::Material *material);
+
+    void draw();
+
+private:
+    std::vector<GLObjectWithMaterial> mGraphicsObjects;
+};
+
 } // namespace GLGeometry
 
 #endif

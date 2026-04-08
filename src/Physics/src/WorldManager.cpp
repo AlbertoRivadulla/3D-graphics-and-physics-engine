@@ -12,7 +12,7 @@ WorldManager::WorldManager() {}
 WorldManager::~WorldManager() {}
 
 void WorldManager::addEntity(std::unique_ptr<Entity> entity) {
-    // NOTE: Call this as 
+    // NOTE: Call this as
     // auto entity = std::make_unique<Entity>(...);
     // world.addEntity(std::move(entity));
 
@@ -36,15 +36,12 @@ void WorldManager::simulationStep(float deltaTime) {
 // Draw the objects in the current frame, to the G-buffer
 // void CollisionWorld::draw( Shader& defaultShader )
 void WorldManager::draw() {
-    // TODO: Delegate this to the graphics manager
+    mGraphicsManager.draw();
+}
 
-    // TODO: Draw the terrain first (move this also to the graphics manager)
+void WorldManager::drawTerrain() {
+    // TODO: Move this to the GraphicsManager when it has a pointer to the graphics part of the terrain object.
     mTerrain->draw();
-
-    for (auto collisionBody : mCollisionBodies) {
-        // collisionBody->draw( defaultShader );
-        collisionBody->draw();
-    }
 }
 
 void WorldManager::registerEntityInManagers(Entity *entity) {
@@ -52,8 +49,9 @@ void WorldManager::registerEntityInManagers(Entity *entity) {
         mPhysicsManager.registerEntity(entity);
     }
 
-    if (entity->getGeometry() != nullptr) {
-        // TODO: Register the geometry in mGraphicsManager
+    if (entity->hasGeometry()) {
+        mGraphicsManager.registerObjectAndMaterial(entity->getGeometry(),
+                                                   entity->getMaterial());
     }
 }
 
