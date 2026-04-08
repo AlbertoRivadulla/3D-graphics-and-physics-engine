@@ -12,7 +12,7 @@ using namespace GLBase;
 namespace Physics {
 // Class for the particle system
 // TODO: Refactor this. Maybe it should derive from the Entity class
-class ParticleSystem : public CollisionBody {
+class ParticleSystem : public Entity {
 public:
     // Constructor
     ParticleSystem(Shader &shader, glm::vec3 position, glm::vec3 scale,

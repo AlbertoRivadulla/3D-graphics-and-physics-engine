@@ -11,8 +11,6 @@
 #include "RigidBody.h"
 #include "Transform.h"
 
-using namespace GLBase;
-
 // Class for objects with collisions
 class Entity {
 public:
@@ -45,10 +43,7 @@ public:
 
     bool hasPhysics();
 
-    // TODO: Remove this method
-    void draw();
-
-    // TODO: Add method to register it in the world manager
+    void integrate(float deltaTime);
 
 protected:
     Physics::Transform mTransform;
@@ -59,9 +54,9 @@ protected:
 
     std::unique_ptr<GLGeometry::GLElemObject> mGeometryObject;
 
-    std::unique_ptr<Material> mMaterial;
+    std::unique_ptr<GLBase::Material> mMaterial;
 
-    void computeModelMatrix();
+    void updateModelMatrix();
 };
 
 #endif

@@ -23,6 +23,14 @@ void WorldManager::addEntity(std::unique_ptr<Entity> entity) {
 
 void WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
     mTerrain = std::move(terrain);
+
+    mPhysicsManager.registerTerrain(mTerrain.get());
+}
+
+void WorldManager::simulationStep(float deltaTime) {
+    mPhysicsManager.step(deltaTime);
+
+    // TODO: Register the terrain in mGraphicsManager
 }
 
 // Draw the objects in the current frame, to the G-buffer
@@ -30,7 +38,7 @@ void WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
 void WorldManager::draw() {
     // TODO: Delegate this to the graphics manager
 
-    // TODO: Draw the terrain first (also in the graphics manager)
+    // TODO: Draw the terrain first (move this also to the graphics manager)
     mTerrain->draw();
 
     for (auto collisionBody : mCollisionBodies) {

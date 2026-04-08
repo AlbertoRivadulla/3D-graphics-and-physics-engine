@@ -4,6 +4,7 @@
 #include <vector>
 #include "ForceGenerator.h"
 #include "Entity.h"
+#include "Terrain.h"
 #include "ParticleSystem.h"
 
 namespace Physics {
@@ -11,7 +12,7 @@ namespace Physics {
 // Registry for the forces that apply to each body in the world
 class BodyForceRegistry {
 protected:
-    // One force and the particle it is applied to
+    // One force and the body it is applied to
     struct BodyForceRegistration {
         RigidBody *rigidBody;
         ForceGenerator *forceGenerator;
@@ -49,6 +50,8 @@ public:
 
     void registerEntity(Entity *entity);
 
+    void registerTerrain(Terrain *terrain);
+
     // Register or remove a pair body-force
     void addBodyForce(RigidBody *body, ForceGenerator *force);
     void removeBodyForce(RigidBody *body, ForceGenerator *force);
@@ -59,7 +62,10 @@ public:
     void step(float deltaTime);
 
 private:
-    std::vector<Entity *> mEntitiesWithPhysics;
+    std::vector<Entity *> mEntitiesWithDynamics;
+    std::vector<Entity *> mEntitiesWithCollisions;
+
+    Terrain *mTerrain;
 
     std::vector<ParticleSystem *> mParticleSystems;
 

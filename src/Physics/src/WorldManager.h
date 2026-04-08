@@ -22,6 +22,8 @@ public:
 
     void addTerrain(std::unique_ptr<Terrain> terrain);
 
+    void simulationStep(float deltaTime);
+
     // Draw the objects in the current frame, to the G-buffer
     void draw();
 

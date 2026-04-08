@@ -40,10 +40,10 @@ class ConvexCollider;
 // Base collider class
 class Collider {
 public:
-    // Constructor
     Collider();
-    //
-    // ~Collider();
+
+    // Following Core guidelines C.127
+    virtual ~Collider() = default;
 
     // Update the collider and AABB after a transformation
     // This needs to be implemented for each collider

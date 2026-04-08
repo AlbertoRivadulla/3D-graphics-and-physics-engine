@@ -4,15 +4,8 @@ using namespace GLBase;
 using namespace GLGeometry;
 
 namespace Physics {
-//--------------------------------------------------------------------------
-// Collider class
 
-// Constructor
 Collider::Collider() {}
-
-// Collider::~Collider()
-// {
-// }
 
 // Method to check for a collision with another object's AABB
 bool Collider::checkCollisionAABB(const Collider *other) const {

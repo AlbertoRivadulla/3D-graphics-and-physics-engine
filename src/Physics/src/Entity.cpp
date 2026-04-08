@@ -1,8 +1,4 @@
 #include "Entity.h"
-#include "utils.h"
-
-using namespace GLGeometry;
-using namespace GLBase;
 
 Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle,
                glm::vec3 rotationAxis) {
@@ -28,7 +24,7 @@ void Entity::addGeometry(Args &&...args) {
 
     mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
 
-    computeModelMatrix();
+    updateModelMatrix();
 
     // TODO: Make sure this is passed to the world manager object
 }
@@ -36,19 +32,17 @@ void Entity::addGeometry(Args &&...args) {
 template <typename T, typename... Args>
 void Entity::addCollider(Args &&...args) {
     static_assert(std::is_base_of<Physics::Collider, T>::value,
-                  "T must derive from Collider");
+                  "T must derive from Physics::Collider");
 
     mCollider = std::make_unique<T>(std::forward<Args>(args)...);
 
-    // TODO: This could be done without copying data
-    // Pass the transformation matrix to the collider
-    mCollider->moveCollider(mTransform.modelMatrix);
+    updateModelMatrix();
 }
 
 template <typename T, typename... Args>
 void Entity::addRigidBody(Args &&...args) {
     static_assert(std::is_base_of<Physics::RigidBody, T>::value,
-                  "T must derive from RigidBody");
+                  "T must derive from Physics::RigidBody");
 
     mRigidBody = std::make_unique<T>(std::forward<Args>(args)...);
     mRigidBody->setTransformPtr(&mTransform);
@@ -56,8 +50,8 @@ void Entity::addRigidBody(Args &&...args) {
 
 template <typename T, typename... Args>
 void Entity::addMaterial(Args &&...args) {
-    static_assert(std::is_base_of<Material, T>::value,
-                  "T must derive from Material");
+    static_assert(std::is_base_of<GLBase::Material, T>::value,
+                  "T must derive from GLBase::Material");
 
     mMaterial = std::make_unique<T>(std::forward<Args>(args)...);
 }
@@ -65,15 +59,13 @@ void Entity::addMaterial(Args &&...args) {
 void Entity::setPosition(glm::vec3 position) {
     mTransform.position = position;
 
-    // Update the model matrix of the geometry object
-    computeModelMatrix();
+    updateModelMatrix();
 }
 
 void Entity::setScale(glm::vec3 scale) {
     mTransform.scale = scale;
 
-    // Update the model matrix
-    computeModelMatrix();
+    updateModelMatrix();
 }
 
 void Entity::setRotation(float angle, glm::vec3 axis) {
@@ -84,8 +76,7 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
             glm::rotate(mTransform.rotationMatrix, glm::radians(angle),
                         glm::normalize(axis));
 
-    // Update the model matrix
-    computeModelMatrix();
+    updateModelMatrix();
 }
 
 glm::vec3 Entity::getPosition() { return mTransform.position; }
@@ -101,10 +92,18 @@ const GLGeometry::GLElemObject *Entity::getGeometry() {
 }
 
 bool Entity::hasPhysics() {
-    return mCollider.get() != nullptr || mRigidBody.get() != nullptr;
+    return mCollider || mRigidBody;
 }
 
-void Entity::computeModelMatrix() {
+void Entity::integrate(float deltaTime) {
+    if (mRigidBody) {
+        mRigidBody->integrate(deltaTime);
+
+        updateModelMatrix();
+    }
+}
+
+void Entity::updateModelMatrix() {
     mTransform.modelMatrix = glm::mat4(1.f);
     mTransform.modelMatrix =
         glm::translate(mTransform.modelMatrix, mTransform.position);
@@ -112,10 +111,17 @@ void Entity::computeModelMatrix() {
     mTransform.modelMatrix =
         glm::scale(mTransform.modelMatrix, mTransform.scale);
 
-    mGeometryObject->setModelMatrix(mTransform.modelMatrix);
-    // TODO: I think this model matrix is the same for both objects. If this
-    // fails, uncomment the next line mGeometryObject->setModelMatrix(mPosition,
-    // mRotationMatrix, mScale);
+
+    if (mCollider) {
+        mCollider->moveCollider(mTransform.modelMatrix);
+    }
+
+    if (mGeometryObject) {
+        mGeometryObject->setModelMatrix(mTransform.modelMatrix);
+        // TODO: I think this model matrix is the same for both objects. If this
+        // fails, uncomment the next line 
+        // mGeometryObject->setModelMatrix(mPosition, mRotationMatrix, mScale);
+    }
 }
 
 void Entity::draw() {

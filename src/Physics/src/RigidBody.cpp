@@ -78,15 +78,6 @@ void RigidBody::integrate(float deltaTime) {
 
     // Reset the net force and torque on the object
     clearAccumulators();
-
-    // TODO: The following must be done by the entity
-
-    // Update the model matrix
-    // computeModelMatrix( mPosition, mRotationMatrix, mScale );
-    computeModelMatrix();
-
-    // Move the collider
-    mCollider->moveCollider(mModelMatrix);
 }
 
 } // namespace Physics

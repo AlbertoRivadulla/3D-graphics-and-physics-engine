@@ -35,7 +35,7 @@ void BodyForceRegistry::applyForces(float deltaTime) {
 }
 
 //--------------------------------------------------------------------------
-// DynamicsWorld class
+// PhysicsManager class
 
 PhysicsManager::PhysicsManager() {
     // NOTE: This is here only for debugging purposes
@@ -45,9 +45,18 @@ PhysicsManager::PhysicsManager() {
 PhysicsManager::~PhysicsManager() {}
 
 void PhysicsManager::registerEntity(Entity *entity) {
-    mEntitiesWithPhysics.push_back(entity);
+    if (entity->getRigidBody() != nullptr) {
+        mEntitiesWithDynamics.push_back(entity);
+    }
 
-    // TODO: Should this distinguish which objects have colliders and which have rigid bodies? Place them in different lists?
+    if (entity->getCollider() != nullptr) {
+        mEntitiesWithCollisions.push_back(entity);
+    }
+}
+
+
+void PhysicsManager::registerTerrain(Terrain *terrain) {
+    mTerrain = terrain;
 }
 
 // Register a pair body-force
@@ -63,7 +72,7 @@ void PhysicsManager::removeBodyForce(RigidBody *body, ForceGenerator *force) {
 void PhysicsManager::addParticleSystem(ParticleSystem *particleSystem) {
     // TODO: Where should this be placed, in order for the particle system to have collisions?
     mParticleSystems.push_back(particleSystem);
-    mCollisionBodies.push_back(particleSystem);
+    // mCollisionBodies.push_back(particleSystem);
 }
 
 // Update the objects in the current frame
@@ -88,9 +97,10 @@ void PhysicsManager::step(float deltaTime) {
         mBodyForceRegistry.applyForces(deltaTime);
 
         // Move the dynamic objects
-        for (auto body : mRigidBodies)
-            body->integrate(deltaTime);
+        for (auto entity : mEntitiesWithDynamics)
+            entity->integrate(deltaTime);
 
+        // TODO: This should iterate over the list of entities with collisions
         // Check for collisions between pairs of objects
         // for ( auto bodyA : mCollisionBodies )
         // {
@@ -128,6 +138,7 @@ void PhysicsManager::step(float deltaTime) {
         particleSystem->integrate(deltaTime);
 }
 
+// TODO: I think this can be removed
 // // Draw the objects in the current frame, to the G-buffer
 // void DynamicsWorld::draw( Shader& defaultShader )
 // {
