@@ -37,29 +37,22 @@ struct GLParticle {
 
 class GLParticleSystem : public GLElemObject {
 public:
-    // Constructor
-    GLParticleSystem(GLElemObject *geometryObject, Shader *GPassShader);
-    ~GLParticleSystem();
+    GLParticleSystem(std::unique_ptr<GLElemObject> geometryObject,
+                     Shader *GPassShader);
 
-    // Get a pointer to the list of particles
-    std::list<GLParticle *> *getPointerToListOfParticles();
+    std::list<std::unique_ptr<GLParticle>> *getPointerToListOfParticles();
 
-    // Add a single particle
     void addParticle(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale,
                      float maxAge, Material *material);
 
-    // Function to render
     void draw();
 
 private:
-    // List of particles
-    std::list<GLParticle *> mParticles;
+    std::list<std::unique_ptr<GLParticle>> mParticles;
 
-    // Pointer to the shader of the geometry pass
     Shader *mGPassShader;
 
-    // Geometrical object
-    GLElemObject *mGeometryObject;
+    std::unique_ptr<GLElemObject> mGeometryObject;
 };
 } // namespace GLGeometry
 

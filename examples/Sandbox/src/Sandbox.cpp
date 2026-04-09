@@ -255,7 +255,9 @@ void GLSandbox::setupScene() {
     //                                                      { 0., 0., 0. } );
     // particleSystem->setParticleGeometry( new GLSphere(4), mElementaryObjects,
     // &mGPassShaders[0] ); particleSystem->setParticleGravity( { 0.f, -5.f, 0.f
-    // } ); mPhysicsWorld.addParticleSystem( particleSystem );
+    // } ); 
+    // // TODO: Add this particle system in the world manager
+    // mPhysicsWorld.addParticleSystem( particleSystem );
 }
 
 // Pass pointers to objects to the application, for the input processing

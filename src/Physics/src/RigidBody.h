@@ -20,7 +20,9 @@ public:
 
     void setDamping(float damping);
 
+
     float getMass();
+    glm::vec3 getPosition();
     glm::vec3 getVelocity();
 
     bool hasInfiniteMass();

@@ -48,6 +48,7 @@ void RigidBody::setInvMass(float invMass) {
 
 // Getters
 float RigidBody::getMass() { return mMass; }
+glm::vec3 RigidBody::getPosition() { return mTransform->position; }
 glm::vec3 RigidBody::getVelocity() { return mVelocity; }
 
 // Check if it has infinite mass

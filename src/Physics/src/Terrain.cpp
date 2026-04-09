@@ -7,9 +7,8 @@ using namespace GLGeometry;
 
 namespace Physics {
 // Constructor
-Terrain::Terrain(std::vector<GLElemObject *> *elementaryObjects)
-    : // mElementaryObjects { elementaryObjects },
-      mTessellationShader(
+Terrain::Terrain()
+    : mTessellationShader(
           Shader(std::string(BASE_DIR_SHADERS) +
                      "/GLGeometry/tessellationGPassVertex.glsl",
                  std::string(BASE_DIR_SHADERS) +

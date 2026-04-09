@@ -54,10 +54,6 @@ private:
     glm::mat4 mProjection;
     glm::mat4 mView;
 
-    // Vector of GLElemObject instances
-    // TODO: Remove this list. The objects now belong to the GraphicsManager inside the WorldManager
-    std::vector<GLElemObject *> mElementaryObjects;
-
     // Vector of model instances
     std::vector<Model> mModels;
 

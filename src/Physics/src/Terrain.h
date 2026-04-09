@@ -10,9 +10,7 @@ using namespace GLBase;
 namespace Physics {
 class Terrain {
 public:
-    // Constructor
-    Terrain(std::vector<GLElemObject *> *elementaryObjects);
-    // Destructor
+    Terrain();
     ~Terrain();
 
     // Add a terrain patch from an image
@@ -44,6 +42,7 @@ private:
     unsigned int mHeightmapTex;
     unsigned int mNormalmapTex;
     // Data for the height and normal maps
+    // TODO: Use std::vector for these
     float *mDataHeight;
     float *mDataNormal;
 

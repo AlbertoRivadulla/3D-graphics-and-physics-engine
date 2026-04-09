@@ -1,13 +1,13 @@
-#include "GraphicsManager.h"
+#include "GraphicsWorldManager.h"
 
 namespace GLGeometry {
 
-void GraphicsManager::registerObjectAndMaterial(GLGeometry::GLElemObject *object,
+void GraphicsWorldManager::registerObjectAndMaterial(GLGeometry::GLElemObject *object,
                                                 GLBase::Material *material) {
     mGraphicsObjects.push_back({object, material});
 }
 
-void GraphicsManager::draw() {
+void GraphicsWorldManager::draw() {
     // // TODO: Draw the terrain first, when this class has a pointer to the graphics part of the terrain
     // mTerrain->draw();
 
@@ -16,5 +16,6 @@ void GraphicsManager::draw() {
 
         object.object->draw();
     }
+}
 
 } // namespace GLGeometry

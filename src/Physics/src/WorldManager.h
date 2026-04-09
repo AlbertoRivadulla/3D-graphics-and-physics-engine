@@ -3,11 +3,11 @@
 
 #include <vector>
 #include <memory>
-#include "PhysicsManager.h"
 #include "Entity.h"
-#include "ForceGenerator.h"
 #include "Terrain.h"
-#include "GraphicsManager.h"
+#include "ParticleSystem.h"
+#include "PhysicsManager.h"
+#include "GraphicsWorldManager.h"
 
 using namespace GLBase;
 
@@ -20,6 +20,8 @@ public:
 
     void addEntity(std::unique_ptr<Entity> entity);
 
+    void addParticleSystem(std::unique_ptr<ParticleSystem> particleSystem);
+
     void addTerrain(std::unique_ptr<Terrain> terrain);
 
     void simulationStep(float deltaTime);
@@ -30,15 +32,21 @@ public:
     void drawTerrain();
 
 private:
-    // List of all entities
+    // This class has ownership of all the following
     std::vector<std::unique_ptr<Entity>> mEntities;
+
+    std::vector<std::unique_ptr<ParticleSystem>> mParticleSystems;
 
     std::unique_ptr<Terrain> mTerrain;
 
     PhysicsManager mPhysicsManager;
-    GLGeometry::GraphicsManager mGraphicsManager;
+    GLGeometry::GraphicsWorldManager mGraphicsManager;
 
     void registerEntityInManagers(Entity *entity);
+
+    void registerParticleSystemInManagers(ParticleSystem *particleSystem);
+
+    void registerTerrainInManagers(Terrain *terrain);
 };
 
 } // namespace Physics

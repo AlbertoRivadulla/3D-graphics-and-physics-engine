@@ -54,9 +54,6 @@ private:
     glm::mat4 mProjection;
     glm::mat4 mView;
 
-    // Vector of GLElemObject instances
-    std::vector<GLElemObject *> mElementaryObjects;
-
     // Vector of model instances
     std::vector<Model> mModels;
 

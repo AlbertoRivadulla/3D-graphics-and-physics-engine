@@ -54,9 +54,11 @@ void PhysicsManager::registerEntity(Entity *entity) {
     }
 }
 
+void PhysicsManager::registerTerrain(Terrain *terrain) { mTerrain = terrain; }
 
-void PhysicsManager::registerTerrain(Terrain *terrain) {
-    mTerrain = terrain;
+void PhysicsManager::registerParticleSystem(ParticleSystem *particleSystem) {
+    // TODO: Take into account the case in which the particles also have collisions, in the future
+    mParticleSystems.push_back(particleSystem);
 }
 
 // Register a pair body-force
@@ -67,12 +69,6 @@ void PhysicsManager::addBodyForce(RigidBody *body, ForceGenerator *force) {
 // Remove a pair body-force
 void PhysicsManager::removeBodyForce(RigidBody *body, ForceGenerator *force) {
     mBodyForceRegistry.removeBodyForce(body, force);
-}
-
-void PhysicsManager::addParticleSystem(ParticleSystem *particleSystem) {
-    // TODO: Where should this be placed, in order for the particle system to have collisions?
-    mParticleSystems.push_back(particleSystem);
-    // mCollisionBodies.push_back(particleSystem);
 }
 
 // Update the objects in the current frame

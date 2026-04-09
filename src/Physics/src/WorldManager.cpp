@@ -1,4 +1,5 @@
 #include "WorldManager.h"
+#include "ParticleSystem.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -21,10 +22,17 @@ void WorldManager::addEntity(std::unique_ptr<Entity> entity) {
     registerEntityInManagers(mEntities.back().get());
 }
 
+void WorldManager::addParticleSystem(
+    std::unique_ptr<ParticleSystem> particleSystem) {
+    mParticleSystems.push_back(std::move(particleSystem));
+
+    registerParticleSystemInManagers(mParticleSystems.back().get());
+}
+
 void WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
     mTerrain = std::move(terrain);
 
-    mPhysicsManager.registerTerrain(mTerrain.get());
+    registerTerrainInManagers(mTerrain.get());
 }
 
 void WorldManager::simulationStep(float deltaTime) {
@@ -35,12 +43,11 @@ void WorldManager::simulationStep(float deltaTime) {
 
 // Draw the objects in the current frame, to the G-buffer
 // void CollisionWorld::draw( Shader& defaultShader )
-void WorldManager::draw() {
-    mGraphicsManager.draw();
-}
+void WorldManager::draw() { mGraphicsManager.draw(); }
 
 void WorldManager::drawTerrain() {
-    // TODO: Move this to the GraphicsManager when it has a pointer to the graphics part of the terrain object.
+    // TODO: Move this to the GraphicsManager when it has a pointer to the
+    // graphics part of the terrain object.
     mTerrain->draw();
 }
 
@@ -53,6 +60,21 @@ void WorldManager::registerEntityInManagers(Entity *entity) {
         mGraphicsManager.registerObjectAndMaterial(entity->getGeometry(),
                                                    entity->getMaterial());
     }
+}
+
+void WorldManager::registerParticleSystemInManagers(
+    ParticleSystem *particleSystem) {
+    mPhysicsManager.registerParticleSystem(particleSystem);
+
+    if (particleSystem->hasGeometry()) {
+        mGraphicsManager.registerObjectAndMaterial(
+            particleSystem->getGeometry(), particleSystem->getMaterial());
+    }
+}
+
+void WorldManager::registerTerrainInManagers(Terrain *terrain) {
+    // TODO: The terrain should also be registered in the Graphics manager
+    mPhysicsManager.registerTerrain(terrain);
 }
 
 } // namespace Physics

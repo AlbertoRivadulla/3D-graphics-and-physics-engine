@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_MANAGER_H
-#define GRAPHICS_MANAGER_H
+#ifndef GRAPHICS_WORLD_MANAGER_H
+#define GRAPHICS_WORLD_MANAGER_H
 
 #include <vector>
 #include "GLBase.h"
@@ -11,7 +11,7 @@ struct GLObjectWithMaterial {
     GLBase::Material *material;
 };
 
-class GraphicsManager {
+class GraphicsWorldManager {
 public:
     void registerObjectAndMaterial(GLGeometry::GLElemObject *object,
                                    GLBase::Material *material);

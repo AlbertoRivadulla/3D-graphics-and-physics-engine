@@ -58,7 +58,7 @@ void GLSandbox::run() {
         updateScene();
 
         // Compute the shadow maps
-        // TODO: This will use the list of elementary objects in the GraphicsManager class
+        // TODO: This will use the list of elementary objects in the GraphicsWorldManager class
         mRenderer.computeShadowMaps(mCamera, mLights, mElementaryObjects);
 
         // Start the geometry pass
@@ -117,10 +117,6 @@ void GLSandbox::run() {
 GLSandbox::~GLSandbox() {
     // Delete the skymap
     delete mSkymap;
-
-    // Delete the elementary objects
-    for (auto object : mElementaryObjects)
-        delete object;
 
     // Delete the lights
     for (auto light : mLights)

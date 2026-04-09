@@ -44,6 +44,7 @@ void PlaneSim::run() {
 
         updateScene();
 
+        // TODO: Pass here the list of elementary objects from the GraphicsWorldManager
         mRenderer.computeShadowMaps(mCamera, mLights, mElementaryObjects);
 
         mRenderer.startGeometryPass();
@@ -86,9 +87,6 @@ void PlaneSim::run() {
 
 PlaneSim::~PlaneSim() {
     delete mSkymap;
-
-    for (auto object : mElementaryObjects)
-        delete object;
 
     for (auto light : mLights)
         delete light;

@@ -52,11 +52,11 @@ public:
 
     void registerTerrain(Terrain *terrain);
 
+    void registerParticleSystem(ParticleSystem *particleSystem);
+
     // Register or remove a pair body-force
     void addBodyForce(RigidBody *body, ForceGenerator *force);
     void removeBodyForce(RigidBody *body, ForceGenerator *force);
-
-    void addParticleSystem(ParticleSystem *particleSystem);
 
     // Update the objects in the current frame
     void step(float deltaTime);

@@ -7,6 +7,7 @@
 using namespace GLBase;
 
 namespace Physics {
+
 // Virtual force generator
 class ForceGenerator {
 public:
@@ -73,6 +74,7 @@ private:
     // Rest lenght
     float mRestLength;
 };
+
 } // namespace Physics
 
 #endif
