@@ -13,7 +13,7 @@ GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
       mTextRenderer(width, height,
                     std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
       mGUIRenderer(width, height), mProjection{glm::mat4(1.)},
-      mView{glm::mat4(1.)}, mPhysicsWorld(), mLastFrame{0.}, mFrameCounter{0},
+      mView{glm::mat4(1.)}, mWorldManager(), mLastFrame{0.}, mFrameCounter{0},
       mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
     // Get the actual resolution for the window.
     // This is needed in case we are using a "retina" display, where the
@@ -58,8 +58,7 @@ void GLSandbox::run() {
         updateScene();
 
         // Compute the shadow maps
-        // TODO: This will use the list of elementary objects in the GraphicsWorldManager class
-        mRenderer.computeShadowMaps(mCamera, mLights, mElementaryObjects);
+        mRenderer.computeShadowMaps(mCamera, mLights, mWorldManager.getListOfObjectsWithGraphics());
 
         // Start the geometry pass
         mRenderer.startGeometryPass();

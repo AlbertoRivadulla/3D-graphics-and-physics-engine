@@ -1,8 +1,10 @@
 #include "Sandbox.h"
 #include "ForceGenerator.h"
 #include "GLElemObject.h"
-#include "PhysicsBody.h"
+#include "Entity.h"
+#include "RigidBody.h"
 #include "utils.h"
+#include <memory>
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -38,8 +40,7 @@ void GLSandbox::setupScene() {
 
     // Skymap with textures
     mSkymap = new GLCubemap();
-    mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
-                               "/textures/skybox");
+    mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) + "/textures/skybox");
 
     // Set the position of the camera
     // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
@@ -52,22 +53,16 @@ void GLSandbox::setupScene() {
     // std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
 
     // Load shaders for the geometry pass
-    mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) +
-                                       "/GLBase/defGeometryPassVertex.glsl",
-                                   std::string(BASE_DIR_SHADERS) +
-                                       "/GLBase/defGeometryPassFragment.glsl"));
-    mGPassShaders.push_back(
-        Shader(std::string(BASE_DIR_SHADERS) +
-                   "/GLBase/defGeometryPassVertexWithTextures.glsl",
-               std::string(BASE_DIR_SHADERS) +
-                   "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
+    mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertex.glsl",
+                                   std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragment.glsl"));
+    mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertexWithTextures.glsl",
+                                   std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
 
     // Add a directional light
-    mLights.push_back(new DirectionalLight(
-        {1., 1., 1.},    // Color
-        {10., 10., 10.}, // Position
-        {-1., -1., -1.}, // Direction
-        1.f, 0.f, 0.f)); // Intensity, attenuation linear, attenuation quadratic
+    mLights.push_back(new DirectionalLight({1., 1., 1.},    // Color
+                                           {10., 10., 10.}, // Position
+                                           {-1., -1., -1.}, // Direction
+                                           1.f, 0.f, 0.f)); // Intensity, attenuation linear, attenuation quadratic
     // // Add a spotlight
     // mLights.push_back(new SpotLight( {1., 0., 1.},            // Color
     //                                  {3., 6., 0.},            // Position
@@ -102,9 +97,8 @@ void GLSandbox::setupScene() {
     */
 
     // Setup force of gravity
-    mGravity = new Physics::GravityForceGenerator({0.f, -9.8f, 0.f});
-    // mGravity = new Physics::GravityForceGenerator( { 0.f, 0.f, 0.f } );
-    // mGravity = new Physics::GravityForceGenerator( { 0.f, -1.f, 0.f } );
+    auto gravity = std::make_unique<GravityForceGenerator>(glm::vec3(0., -9.8, 0.));
+    mWorldManager.getPhysicsManager().addGravity(std::move(gravity));
 
     // -------------------------------------------------------------------------
     // Terrain
@@ -126,17 +120,14 @@ void GLSandbox::setupScene() {
     // mPhysicsWorld.addTerrain( terrain );
 
     // Add a terrain with to be drawn with the tesselation shader
-    Terrain *terrain = new Terrain(&mElementaryObjects);
-    // terrain->addPatchFromTextureTessellated( std::string(BASE_DIR_RESOURCES)
-    // + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f );
-    terrain->addPatchFromTextureTessellated(
-        std::string(BASE_DIR_RESOURCES) +
-            "/textures/heightmaps/heightmap-02.jpg",
-        0.5f, 80.f, -80.f);
-    terrain->addMaterial(
-        new Material(terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1));
+    auto terrain = std::make_unique<Terrain>();
+    // terrain->addPatchFromTextureTessellated(
+    //     std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f);
+    terrain->addPatchFromTextureTessellated(std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/heightmap-02.jpg",
+                                            0.5f, 80.f, -80.f);
+    terrain->addMaterial(new Material(terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1));
     mGPassShaders.push_back(terrain->getTessellationShader());
-    mPhysicsWorld.addTerrain(terrain);
+    mWorldManager.addTerrain(std::move(terrain));
 
     // // Add a terrain to be drawn with the tesselation shader
     // int width = 200;
@@ -177,19 +168,19 @@ void GLSandbox::setupScene() {
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
-    RigidBody *sphere = new RigidBody({0., 5., 0.}, {1., 1., 1.}, 0.f,
-                                      {1., 0., 0.}, 1.f, {0., 0., 0.});
-    sphere->addGeometry(new GLSphere(16), mElementaryObjects);
+    auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+    sphere->addGeometry<GLSphere>(16);
+    sphere->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
     // sphere->addGeometryNotDrawn( new GLObjectPlaceholder() );
-    sphere->addCollider(new SphereCollider());
+    sphere->addCollider<SphereCollider>();
     // sphere->addMaterial( new Material( mGPassShaders[0], {1., 0., 0.}, 0.1 )
     // );
-    MaterialWithTextures *materialSphTextures =
-        new MaterialWithTextures(mGPassShaders[1], {1., 0., 0.}, 0.1);
-    materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) +
-                                           "/textures/world_8k.jpg");
-    sphere->addMaterial(materialSphTextures);
-    mPhysicsWorld.addRigidBody(sphere);
+    auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
+    materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
+    sphere->addMaterial(std::move(materialSphTextures));
+
+    Entity *spherePtr = mWorldManager.addEntity(std::move(sphere));
+
     // mPhysicsWorld.addRigidBodyNotDrawn( sphere );
     // // Add gravity to this object
     // mPhysicsWorld.addBodyForce( sphere, mGravity );
@@ -202,18 +193,20 @@ void GLSandbox::setupScene() {
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
-    RigidBody *sphere2 = new RigidBody({0., 2., 0.}, {1., 1., 1.}, 45.f,
-                                       {1., 0., 0.}, 1.f, {0., 0., 0.});
-    sphere2->addGeometry(new GLSphere(16), mElementaryObjects);
-    sphere2->addCollider(new SphereCollider());
-    sphere2->addMaterial(new Material(mGPassShaders[0], {0., 1., 0.}, 0.1));
-    mPhysicsWorld.addRigidBody(sphere2);
-    // Add gravity to this object
-    mPhysicsWorld.addBodyForce(sphere2, mGravity);
+    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    sphere2->addGeometry<GLSphere>(16);
+    sphere2->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere2->addCollider<SphereCollider>();
+    sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
 
-    // Join it to the other sphere with a spring
-    mForces.push_back(new SpringForceGenerator(sphere, 5.f, 0.5f, 0.5f));
-    mPhysicsWorld.addBodyForce(sphere2, mForces.back());
+    Entity *sphere2Ptr = mWorldManager.addEntity(std::move(sphere2));
+
+    mWorldManager.getPhysicsManager().registerBodyGravity(sphere2Ptr);
+
+    // Add a spring force between the two objects
+    auto springForcePtr =
+        mWorldManager.getPhysicsManager().addForce<SpringForceGenerator>(spherePtr->getRigidBody(), 5., 0.5, 0.5);
+    mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, springForcePtr);
 
     // // Join it to the other sphere with a bungee
     // mForces.push_back( new BungeeForceGenerator( sphere, 5.f, 10.f ) );
@@ -255,7 +248,7 @@ void GLSandbox::setupScene() {
     //                                                      { 0., 0., 0. } );
     // particleSystem->setParticleGeometry( new GLSphere(4), mElementaryObjects,
     // &mGPassShaders[0] ); particleSystem->setParticleGravity( { 0.f, -5.f, 0.f
-    // } ); 
+    // } );
     // // TODO: Add this particle system in the world manager
     // mPhysicsWorld.addParticleSystem( particleSystem );
 }
@@ -286,8 +279,7 @@ void GLSandbox::setupApplication() {
 
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene() {
-    // Update the objects in the physics world
-    mPhysicsWorld.step(mDeltaTime);
+    mWorldManager.simulationStep(mDeltaTime);
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();
@@ -306,11 +298,10 @@ void GLSandbox::renderDeferred() {
         GPassShader.setMat4("projection", mProjection);
     }
 
-    // Draw also the terrain
-    mPhysicsWorld.drawTerrain();
+    mWorldManager.drawTerrain();
 
-    // Draw all the objects with physics
-    mPhysicsWorld.draw();
+    // Draw all registered entities
+    mWorldManager.draw();
 }
 
 // Render the geometry that will use forward rendering

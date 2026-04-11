@@ -4,6 +4,7 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Physics.h"
+#include "WorldManager.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -14,9 +15,6 @@ class GLSandbox {
     //==============================
 
 private:
-    // Force generator of gravity (same for all objects)
-    Physics::ForceGenerator *mGravity;
-
     //==============================
     // Basic implementation of the class
     //==============================
@@ -70,11 +68,7 @@ private:
     GLCubemap *mSkymap;
 
     // Class containing all the objects with collisions and/or dynamics
-    // TODO: Replace this by a WorldManager
-    Physics::DynamicsWorld mPhysicsWorld;
-
-    // List of forces
-    std::vector<Physics::ForceGenerator *> mForces;
+    Physics::WorldManager mWorldManager;
 
     // Value of the time elapsed since the last frame. This needs to be updated
     // every frame
