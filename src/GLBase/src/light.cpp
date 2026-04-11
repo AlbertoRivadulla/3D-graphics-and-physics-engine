@@ -184,7 +184,7 @@ void DirectionalLight::computeLightSpaceMatrix(const Camera &camera,
 
 // Method to compute the shadow map
 void DirectionalLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLElemObject *> objectsWithShadow) {
+    const Camera &camera, const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow) {
     // Check if the frustums have not been computed yet
     if (mShadowCascadeDistances[0] < -100.) {
         // Get the near and far plane from the camera
@@ -232,9 +232,9 @@ void DirectionalLight::computeShadowMap(
     // Draw each object in the scene
     for (auto object : objectsWithShadow) {
         // Set the model matrix of the object in the shader
-        mShadowShader->setMat4("model", object->getModelMatrix());
+        mShadowShader->setMat4("model", object.object->getModelMatrix());
         // Draw the object
-        object->draw();
+        object.object->draw();
     }
 }
 
@@ -413,7 +413,7 @@ void SpotLight::computeLightSpaceMatrix() {
 
 // Method to compute the shadow map
 void SpotLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLElemObject *> objectsWithShadow) {
+    const Camera &camera, const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow) {
     // Compute the light space matrix
     computeLightSpaceMatrix();
 
@@ -438,9 +438,9 @@ void SpotLight::computeShadowMap(
     // Draw each object in the scene
     for (auto object : objectsWithShadow) {
         // Set the model matrix of the object in the shader
-        mShadowShader->setMat4("model", object->getModelMatrix());
+        mShadowShader->setMat4("model", object.object->getModelMatrix());
         // Draw the object
-        object->draw();
+        object.object->draw();
     }
     // // Restore face culling
     // glCullFace(GL_BACK);
@@ -547,7 +547,9 @@ void PointLight::setupShadowMap() {}
 
 // Method to compute the shadow map
 void PointLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLElemObject *> objectsWithShadow) {
+    const Camera &camera, const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow) {
+
+    // TODO: Implement
 
     // // Bind the FBO, whose depth attachment is the shadow map texture
     // glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFBO);

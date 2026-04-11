@@ -14,20 +14,46 @@
 // Class for objects with collisions
 class Entity {
 public:
-    Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle,
-           glm::vec3 rotationAxis);
+    Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::vec3 rotationAxis);
 
     ~Entity();
 
     // Add geometrical object, and copy it to the list of elementary objects of
     // the GLSandbox class
-    template <typename T, typename... Args> void addGeometry(Args &&...);
+    template <typename T, typename... Args> void addGeometry(Args &&...args) {
+        static_assert(std::is_base_of<GLElemObject, T>::value, "T must derive from GLElemObject");
 
-    template <typename T, typename... Args> void addCollider(Args &&...);
+        mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
 
-    template <typename T, typename... Args> void addRigidBody(Args &&...);
+        updateModelMatrix();
 
-    template <typename T, typename... Args> void addMaterial(Args &&...);
+        // TODO: Make sure this is passed to the world manager object
+    }
+    void addGeometry(std::unique_ptr<GLElemObject>);
+
+    template <typename T, typename... Args> void addCollider(Args &&...args) {
+        static_assert(std::is_base_of<Physics::Collider, T>::value, "T must derive from Physics::Collider");
+
+        mCollider = std::make_unique<T>(std::forward<Args>(args)...);
+
+        updateModelMatrix();
+    }
+    void addCollider(std::unique_ptr<Physics::Collider>);
+
+    template <typename T, typename... Args> void addRigidBody(Args &&...args) {
+        static_assert(std::is_base_of<Physics::RigidBody, T>::value, "T must derive from Physics::RigidBody");
+
+        mRigidBody = std::make_unique<T>(std::forward<Args>(args)...);
+        mRigidBody->setTransformPtr(&mTransform);
+    }
+    void addRigidBody(std::unique_ptr<Physics::RigidBody>);
+
+    template <typename T, typename... Args> void addMaterial(Args &&...args) {
+        static_assert(std::is_base_of<GLBase::Material, T>::value, "T must derive from GLBase::Material");
+
+        mMaterial = std::make_unique<T>(std::forward<Args>(args)...);
+    }
+    void addMaterial(std::unique_ptr<GLBase::Material>);
 
     void setPosition(glm::vec3 position);
 

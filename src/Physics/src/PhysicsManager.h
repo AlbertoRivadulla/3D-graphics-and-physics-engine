@@ -30,7 +30,7 @@ protected:
 
 public:
     // Register a pair body-force
-    void addBodyForce(RigidBody *body, ForceGenerator *force);
+    void registerBodyForce(RigidBody *body, ForceGenerator *force);
 
     // Remove a pair body-force
     // If the pair is not registrated, this will not do anything
@@ -54,8 +54,35 @@ public:
 
     void registerParticleSystem(ParticleSystem *particleSystem);
 
-    // Register or remove a pair body-force
-    void addBodyForce(RigidBody *body, ForceGenerator *force);
+    template <typename T, typename... Args> ForceGenerator *addGravity(Args &&...args) {
+        static_assert(std::is_base_of<ForceGenerator, T>::value, "T must derive from Physics::ForceGenerator");
+
+        mGravity = std::make_unique<T>(std::forward<Args>(args)...);
+
+        return mGravity.get();
+    }
+
+    ForceGenerator *addGravity(std::unique_ptr<ForceGenerator> gravity);
+
+    template <typename T, typename... Args> ForceGenerator *addForce(Args &&...args) {
+        static_assert(std::is_base_of<ForceGenerator, T>::value, "T must derive from Physics::ForceGenerator");
+
+        auto force = std::make_unique<T>(std::forward<Args>(args)...);
+        ForceGenerator *raw = force.get();
+        mForceGenerators.push_back(std::move(force));
+
+        return raw;
+    }
+    ForceGenerator *addForce(std::unique_ptr<ForceGenerator> force);
+
+    void registerBodyGravity(Entity *entity);
+    void registerBodyGravity(RigidBody *body);
+
+    // Register a pair body-force
+    void registerBodyForce(Entity *entity, ForceGenerator *force);
+    void registerBodyForce(RigidBody *body, ForceGenerator *force);
+
+    // Remove a pair body-force
     void removeBodyForce(RigidBody *body, ForceGenerator *force);
 
     // Update the objects in the current frame
@@ -69,12 +96,17 @@ private:
 
     std::vector<ParticleSystem *> mParticleSystems;
 
+    std::vector<std::unique_ptr<ForceGenerator>> mForceGenerators;
+    std::unique_ptr<ForceGenerator> mGravity;
+
     // Registry of the forces applied to each body
     BodyForceRegistry mBodyForceRegistry;
 
     // NOTE: This is here only for debugging
     // Used to slow down simulations
     int mCounter;
+
+    bool checkForceIsRegistered(ForceGenerator *force);
 };
 
 } // namespace Physics

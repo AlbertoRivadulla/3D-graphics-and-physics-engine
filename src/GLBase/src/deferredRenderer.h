@@ -40,7 +40,7 @@ public:
     // Method to compute the shadow maps
     void computeShadowMaps(
         const Camera &camera, const std::vector<Light *> lightsWithShadow,
-        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
+        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
 
     // Method to call to start the geometry pass
     void startGeometryPass();

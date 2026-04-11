@@ -1,4 +1,6 @@
 #include "PhysicsManager.h"
+#include "ForceGenerator.h"
+#include "src/logger.h"
 
 namespace Physics {
 
@@ -6,17 +8,15 @@ namespace Physics {
 // BodyForceRegistry class
 
 // Register a pair body-force
-void BodyForceRegistry::addBodyForce(RigidBody *body, ForceGenerator *force) {
+void BodyForceRegistry::registerBodyForce(RigidBody *body, ForceGenerator *force) {
     mRegistrations.push_back(BodyForceRegistration(body, force));
 }
 
 // Remove a pair body-force
 // If the pair is not registrated, this will not do anything
-void BodyForceRegistry::removeBodyForce(RigidBody *body,
-                                        ForceGenerator *force) {
+void BodyForceRegistry::removeBodyForce(RigidBody *body, ForceGenerator *force) {
     // Look for the registration
-    for (Registry::iterator regIter = mRegistrations.begin();
-         regIter != mRegistrations.end(); ++regIter) {
+    for (Registry::iterator regIter = mRegistrations.begin(); regIter != mRegistrations.end(); ++regIter) {
         if (regIter->forceGenerator == force && regIter->rigidBody == body) {
             mRegistrations.erase(regIter);
             return;
@@ -28,8 +28,7 @@ void BodyForceRegistry::clear() { mRegistrations.clear(); }
 
 // Call the force generators to update the forces on the particles
 void BodyForceRegistry::applyForces(float deltaTime) {
-    for (Registry::iterator regIter = mRegistrations.begin();
-         regIter != mRegistrations.end(); ++regIter) {
+    for (Registry::iterator regIter = mRegistrations.begin(); regIter != mRegistrations.end(); ++regIter) {
         regIter->forceGenerator->updateForce(regIter->rigidBody, deltaTime);
     }
 }
@@ -61,9 +60,52 @@ void PhysicsManager::registerParticleSystem(ParticleSystem *particleSystem) {
     mParticleSystems.push_back(particleSystem);
 }
 
-// Register a pair body-force
-void PhysicsManager::addBodyForce(RigidBody *body, ForceGenerator *force) {
-    mBodyForceRegistry.addBodyForce(body, force);
+ForceGenerator *PhysicsManager::addGravity(std::unique_ptr<ForceGenerator> gravity) {
+    ForceGenerator *raw = gravity.get();
+    mGravity = std::move(gravity);
+    return raw;
+}
+
+ForceGenerator *PhysicsManager::addForce(std::unique_ptr<ForceGenerator> force) {
+    ForceGenerator *raw = force.get();
+    mForceGenerators.push_back(std::move(force));
+    return raw;
+}
+
+void PhysicsManager::registerBodyGravity(Entity *entity) {
+    if (!entity->getRigidBody()) {
+        LOG_WARNING("PhysicsManager::registerBodyGravity: The given entity has no rigid body.");
+        return;
+    }
+
+    registerBodyGravity(entity->getRigidBody());
+}
+
+void PhysicsManager::registerBodyGravity(RigidBody *body) {
+    if (!mGravity) {
+        LOG_WARNING("PhysicsManager::registerBodyGravity: No gravity force registered.");
+        return;
+    }
+
+    mBodyForceRegistry.registerBodyForce(body, mGravity.get());
+}
+
+void PhysicsManager::registerBodyForce(Entity *entity, ForceGenerator *force) {
+    if (!entity->getRigidBody()) {
+        LOG_WARNING("PhysicsManager::registerBodyGravity: The given entity has no rigid body.");
+        return;
+    }
+
+    registerBodyForce(entity->getRigidBody(), force);
+}
+
+void PhysicsManager::registerBodyForce(RigidBody *body, ForceGenerator *force) {
+    if (!checkForceIsRegistered(force)) {
+        LOG_WARNING("PhysicsManager::registerBodyGravity: The given force is not registered.");
+        return;
+    }
+
+    mBodyForceRegistry.registerBodyForce(body, force);
 }
 
 // Remove a pair body-force
@@ -132,6 +174,16 @@ void PhysicsManager::step(float deltaTime) {
     // Update the particle systems
     for (auto particleSystem : mParticleSystems)
         particleSystem->integrate(deltaTime);
+}
+
+bool PhysicsManager::checkForceIsRegistered(ForceGenerator *force) {
+    for (const auto &registeredForce : mForceGenerators) {
+        if (registeredForce.get() == force) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // TODO: I think this can be removed

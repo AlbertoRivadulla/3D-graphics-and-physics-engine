@@ -12,37 +12,48 @@ WorldManager::WorldManager() {}
 
 WorldManager::~WorldManager() {}
 
-void WorldManager::addEntity(std::unique_ptr<Entity> entity) {
+Entity *WorldManager::addEntity(std::unique_ptr<Entity> entity) {
     // NOTE: Call this as
     // auto entity = std::make_unique<Entity>(...);
     // world.addEntity(std::move(entity));
 
+    Entity *raw = entity.get();
     mEntities.push_back(std::move(entity));
 
     registerEntityInManagers(mEntities.back().get());
+
+    return raw;
 }
 
-void WorldManager::addParticleSystem(
-    std::unique_ptr<ParticleSystem> particleSystem) {
+ParticleSystem *WorldManager::addParticleSystem(std::unique_ptr<ParticleSystem> particleSystem) {
+    ParticleSystem *raw = particleSystem.get();
     mParticleSystems.push_back(std::move(particleSystem));
 
     registerParticleSystemInManagers(mParticleSystems.back().get());
+
+    return raw;
 }
 
-void WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
+Terrain *WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
+    Terrain *raw = terrain.get();
     mTerrain = std::move(terrain);
 
     registerTerrainInManagers(mTerrain.get());
+
+    return raw;
 }
 
-void WorldManager::simulationStep(float deltaTime) {
-    mPhysicsManager.step(deltaTime);
+std::vector<GLObjectWithMaterial> &WorldManager::getListOfObjectsWithGraphics() {
+    return mGraphicsManager.getListOfObjects();
+};
 
-    // TODO: Register the terrain in mGraphicsManager
+PhysicsManager &WorldManager::getPhysicsManager() {
+    return mPhysicsManager;
 }
+
+void WorldManager::simulationStep(float deltaTime) { mPhysicsManager.step(deltaTime); }
 
 // Draw the objects in the current frame, to the G-buffer
-// void CollisionWorld::draw( Shader& defaultShader )
 void WorldManager::draw() { mGraphicsManager.draw(); }
 
 void WorldManager::drawTerrain() {
@@ -57,18 +68,15 @@ void WorldManager::registerEntityInManagers(Entity *entity) {
     }
 
     if (entity->hasGeometry()) {
-        mGraphicsManager.registerObjectAndMaterial(entity->getGeometry(),
-                                                   entity->getMaterial());
+        mGraphicsManager.registerObjectAndMaterial(entity->getGeometry(), entity->getMaterial());
     }
 }
 
-void WorldManager::registerParticleSystemInManagers(
-    ParticleSystem *particleSystem) {
+void WorldManager::registerParticleSystemInManagers(ParticleSystem *particleSystem) {
     mPhysicsManager.registerParticleSystem(particleSystem);
 
     if (particleSystem->hasGeometry()) {
-        mGraphicsManager.registerObjectAndMaterial(
-            particleSystem->getGeometry(), particleSystem->getMaterial());
+        mGraphicsManager.registerObjectAndMaterial(particleSystem->getGeometry(), particleSystem->getMaterial());
     }
 }
 

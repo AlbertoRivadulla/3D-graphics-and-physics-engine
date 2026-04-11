@@ -42,7 +42,6 @@ private:
     unsigned int mHeightmapTex;
     unsigned int mNormalmapTex;
     // Data for the height and normal maps
-    // TODO: Use std::vector for these
     float *mDataHeight;
     float *mDataNormal;
 

@@ -11,6 +11,8 @@ namespace Physics {
 // Virtual force generator
 class ForceGenerator {
 public:
+    virtual ~ForceGenerator() = default;
+
     // Calculate and apply the corresponding force to a RigidBody
     virtual void updateForce(RigidBody *rigidBody, float deltaTime) = 0;
 };

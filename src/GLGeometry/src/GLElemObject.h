@@ -98,6 +98,12 @@ public:
     // Function to render
     void draw() {}
 };
+
+struct GLObjectWithMaterial {
+    GLGeometry::GLElemObject *object;
+    GLBase::Material *material;
+};
+
 } // namespace GLGeometry
 
 #endif

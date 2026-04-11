@@ -18,11 +18,15 @@ public:
 
     ~WorldManager();
 
-    void addEntity(std::unique_ptr<Entity> entity);
+    Entity *addEntity(std::unique_ptr<Entity> entity);
 
-    void addParticleSystem(std::unique_ptr<ParticleSystem> particleSystem);
+    ParticleSystem *addParticleSystem(std::unique_ptr<ParticleSystem> particleSystem);
 
-    void addTerrain(std::unique_ptr<Terrain> terrain);
+    Terrain *addTerrain(std::unique_ptr<Terrain> terrain);
+
+    std::vector<GLObjectWithMaterial> &getListOfObjectsWithGraphics();
+
+    PhysicsManager &getPhysicsManager();
 
     void simulationStep(float deltaTime);
 

@@ -6,15 +6,14 @@
 
 namespace GLGeometry {
 
-struct GLObjectWithMaterial {
-    GLGeometry::GLElemObject *object;
-    GLBase::Material *material;
-};
-
 class GraphicsWorldManager {
 public:
     void registerObjectAndMaterial(GLGeometry::GLElemObject *object,
                                    GLBase::Material *material);
+
+    std::vector<GLObjectWithMaterial>& getListOfObjects() {
+        return mGraphicsObjects;
+    };
 
     void draw();
 

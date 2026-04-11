@@ -7,8 +7,7 @@ namespace Physics {
 //--------------------------------------------------------------------------
 // Class GravityForceGenerator
 
-GravityForceGenerator::GravityForceGenerator(const glm::vec3 &gravity)
-    : mGravity{gravity} {}
+GravityForceGenerator::GravityForceGenerator(const glm::vec3 &gravity) : mGravity{gravity} {}
 
 void GravityForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
     if (rigidBody->hasInfiniteMass())
@@ -33,10 +32,10 @@ void DragForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
 
 //--------------------------------------------------------------------------
 // Class SpringForceGenerator
-SpringForceGenerator::SpringForceGenerator(RigidBody *other, float springConst,
-                                           float dampingCoeff, float restLength)
-    : mOtherBody{other}, mSpringConst{springConst}, mDampingCoeff{dampingCoeff},
-      mRestLength{restLength} {}
+SpringForceGenerator::SpringForceGenerator(RigidBody *other, float springConst, float dampingCoeff, float restLength)
+    : mOtherBody{other}, mSpringConst{springConst}, mDampingCoeff{dampingCoeff}, mRestLength{restLength} {
+
+    }
 
 void SpringForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
     glm::vec3 separation = rigidBody->getPosition() - mOtherBody->getPosition();
@@ -46,14 +45,12 @@ void SpringForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
     // Force of the spring
     float magnitude = mSpringConst * (mRestLength - distance);
     // Relative speed on the direction of separation
-    float relativeSpeed = glm::dot(
-        (rigidBody->getVelocity() - mOtherBody->getVelocity()), separation);
+    float relativeSpeed = glm::dot((rigidBody->getVelocity() - mOtherBody->getVelocity()), separation);
     // relativeSpeed = 0.f;
 
     // The total force is the one due to the separation plus the damping
     // proportional to the relative speed
-    rigidBody->addForce((magnitude - mDampingCoeff * relativeSpeed) *
-                        separation);
+    rigidBody->addForce((magnitude - mDampingCoeff * relativeSpeed) * separation);
 
     // glm::vec3 force = rigidBody->getPosition() - mOtherBody->getPosition();
     // float magnitude = glm::length( force );
@@ -65,8 +62,7 @@ void SpringForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
 
 //--------------------------------------------------------------------------
 // Class BungeeForceGenerator
-BungeeForceGenerator::BungeeForceGenerator(RigidBody *other, float springConst,
-                                           float restLength)
+BungeeForceGenerator::BungeeForceGenerator(RigidBody *other, float springConst, float restLength)
     : mOtherBody{other}, mSpringConst{springConst}, mRestLength{restLength} {}
 
 void BungeeForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {

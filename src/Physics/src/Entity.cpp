@@ -1,7 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle,
-               glm::vec3 rotationAxis) {
+Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::vec3 rotationAxis) {
     mTransform.position = position;
     mTransform.scale = scale;
 
@@ -9,52 +8,29 @@ Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle,
     mTransform.rotationMatrix = glm::mat4(1.f);
     if (rotationAngle != 0.)
         mTransform.rotationMatrix =
-            glm::rotate(mTransform.rotationMatrix, glm::radians(rotationAngle),
-                        glm::normalize(rotationAxis));
+            glm::rotate(mTransform.rotationMatrix, glm::radians(rotationAngle), glm::normalize(rotationAxis));
 }
 
 Entity::~Entity() {}
 
-// Add geometrical object, and copy it to the list of elementary objects of
-// the GLSandbox class
-template <typename T, typename... Args>
-void Entity::addGeometry(Args &&...args) {
-    static_assert(std::is_base_of<GLElemObject, T>::value,
-                  "T must derive from GLElemObject");
-
-    mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
-
-    updateModelMatrix();
-
-    // TODO: Make sure this is passed to the world manager object
-}
-
-template <typename T, typename... Args>
-void Entity::addCollider(Args &&...args) {
-    static_assert(std::is_base_of<Physics::Collider, T>::value,
-                  "T must derive from Physics::Collider");
-
-    mCollider = std::make_unique<T>(std::forward<Args>(args)...);
+void Entity::addGeometry(std::unique_ptr<GLElemObject> geometry) {
+    mGeometryObject = std::move(geometry);
 
     updateModelMatrix();
 }
 
-template <typename T, typename... Args>
-void Entity::addRigidBody(Args &&...args) {
-    static_assert(std::is_base_of<Physics::RigidBody, T>::value,
-                  "T must derive from Physics::RigidBody");
+void Entity::addCollider(std::unique_ptr<Physics::Collider> collider) {
+    mCollider = std::move(collider);
 
-    mRigidBody = std::make_unique<T>(std::forward<Args>(args)...);
+    updateModelMatrix();
+}
+
+void Entity::addRigidBody(std::unique_ptr<Physics::RigidBody> rigidBody) {
+    mRigidBody = std::move(rigidBody);
     mRigidBody->setTransformPtr(&mTransform);
 }
 
-template <typename T, typename... Args>
-void Entity::addMaterial(Args &&...args) {
-    static_assert(std::is_base_of<GLBase::Material, T>::value,
-                  "T must derive from GLBase::Material");
-
-    mMaterial = std::make_unique<T>(std::forward<Args>(args)...);
-}
+void Entity::addMaterial(std::unique_ptr<GLBase::Material> material) { mMaterial = std::move(material); }
 
 void Entity::setPosition(glm::vec3 position) {
     mTransform.position = position;
@@ -72,35 +48,21 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
     // Compute the rotation matrix from the angle and axis given
     mTransform.rotationMatrix = glm::mat4(1.f);
     if (angle != 0.)
-        mTransform.rotationMatrix =
-            glm::rotate(mTransform.rotationMatrix, glm::radians(angle),
-                        glm::normalize(axis));
+        mTransform.rotationMatrix = glm::rotate(mTransform.rotationMatrix, glm::radians(angle), glm::normalize(axis));
 
     updateModelMatrix();
 }
 
 glm::vec3 Entity::getPosition() { return mTransform.position; }
 
-Physics::Collider *Entity::getCollider() {
-    return mCollider.get();
-}
-Physics::RigidBody *Entity::getRigidBody() {
-    return mRigidBody.get();
-}
-GLGeometry::GLElemObject *Entity::getGeometry() {
-    return mGeometryObject.get();
-}
-GLBase::Material *Entity::getMaterial() {
-    return mMaterial.get();
-}
+Physics::Collider *Entity::getCollider() { return mCollider.get(); }
+Physics::RigidBody *Entity::getRigidBody() { return mRigidBody.get(); }
+GLGeometry::GLElemObject *Entity::getGeometry() { return mGeometryObject.get(); }
+GLBase::Material *Entity::getMaterial() { return mMaterial.get(); }
 
-bool Entity::hasPhysics() {
-    return mCollider || mRigidBody;
-}
+bool Entity::hasPhysics() { return mCollider || mRigidBody; }
 
-bool Entity::hasGeometry() {
-    return mGeometryObject && mMaterial;
-}
+bool Entity::hasGeometry() { return mGeometryObject && mMaterial; }
 
 void Entity::integrate(float deltaTime) {
     if (mRigidBody) {
@@ -112,12 +74,9 @@ void Entity::integrate(float deltaTime) {
 
 void Entity::updateModelMatrix() {
     mTransform.modelMatrix = glm::mat4(1.f);
-    mTransform.modelMatrix =
-        glm::translate(mTransform.modelMatrix, mTransform.position);
+    mTransform.modelMatrix = glm::translate(mTransform.modelMatrix, mTransform.position);
     mTransform.modelMatrix = mTransform.modelMatrix * mTransform.rotationMatrix;
-    mTransform.modelMatrix =
-        glm::scale(mTransform.modelMatrix, mTransform.scale);
-
+    mTransform.modelMatrix = glm::scale(mTransform.modelMatrix, mTransform.scale);
 
     if (mCollider) {
         mCollider->moveCollider(mTransform.modelMatrix);
@@ -126,7 +85,7 @@ void Entity::updateModelMatrix() {
     if (mGeometryObject) {
         mGeometryObject->setModelMatrix(mTransform.modelMatrix);
         // TODO: I think this model matrix is the same for both objects. If this
-        // fails, uncomment the next line 
+        // fails, uncomment the next line
         // mGeometryObject->setModelMatrix(mPosition, mRotationMatrix, mScale);
     }
 }
