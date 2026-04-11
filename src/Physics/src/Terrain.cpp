@@ -1,6 +1,4 @@
 #include "Terrain.h"
-#include "GLElemObject.h"
-#include "utils.h"
 
 using namespace GLBase;
 using namespace GLGeometry;

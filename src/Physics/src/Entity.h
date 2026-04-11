@@ -26,8 +26,6 @@ public:
         mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
 
         updateModelMatrix();
-
-        // TODO: Make sure this is passed to the world manager object
     }
     void addGeometry(std::unique_ptr<GLElemObject>);
 

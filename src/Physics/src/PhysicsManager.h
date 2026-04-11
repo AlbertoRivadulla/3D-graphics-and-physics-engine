@@ -56,8 +56,12 @@ public:
 
     template <typename T, typename... Args> ForceGenerator *addGravity(Args &&...args) {
         static_assert(std::is_base_of<ForceGenerator, T>::value, "T must derive from Physics::ForceGenerator");
-
         mGravity = std::make_unique<T>(std::forward<Args>(args)...);
+
+        if (!mGravity->isValid()) {
+            LOG_ERROR("ForceGenerator::addGravity: the given gravity force is not valid.")
+            return nullptr;
+        }
 
         return mGravity.get();
     }
@@ -68,6 +72,11 @@ public:
         static_assert(std::is_base_of<ForceGenerator, T>::value, "T must derive from Physics::ForceGenerator");
 
         auto force = std::make_unique<T>(std::forward<Args>(args)...);
+        if (!force->isValid()) {
+            LOG_ERROR("ForceGenerator::addForce: the given force is not valid.")
+            return nullptr;
+        }
+
         ForceGenerator *raw = force.get();
         mForceGenerators.push_back(std::move(force));
 
