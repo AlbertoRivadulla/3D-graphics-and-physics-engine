@@ -20,11 +20,6 @@ private:
     //==============================
 
 private:
-    // Pixels for the GUI
-    int mGUIWidth;
-    int mGUIHeight;
-    unsigned char *mGUIPixels;
-
     // Main application
     Application mApplication;
 

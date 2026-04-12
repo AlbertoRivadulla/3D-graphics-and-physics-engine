@@ -26,11 +26,7 @@ using namespace Physics;
 //  - Create lights
 void GLSandbox::setupScene() {
     // Create the pixels for the GUI, and initalize them all to zero
-    mGUIWidth = mScrWidth / 4;
-    mGUIHeight = mScrHeight / 4;
-    // mGUIPixels = new unsigned char[mGUIWidth * mGUIHeight * 4];
-    // for (unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i)
-    //     mGUIPixels[i] = 0;
+    mGUIRenderer.setGUISize(mScrWidth / 4, mScrHeight / 4);
 
     // // Create the cubemap for the sky
     // mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
@@ -301,28 +297,27 @@ void GLSandbox::renderForward() {
     //-------------------------------------------------------------------------
     // GUI and text
 
-    // // Set the pixels of the GUI to zero
-    // for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
-    //     mGUIPixels[i] = 0;
-    // // Draw a red rectangle in the lowest corner
-    // for ( unsigned int x = 0; x < mGUIWidth; ++x )
-    // {
-    //     for ( unsigned int y = 0; y < mGUIHeight; ++y )
-    //     {
-    //         unsigned int index = ( y * ( mGUIWidth ) + x ) * 4;
-    //         mGUIPixels[index + 0] = 255; // Red
-    //         mGUIPixels[index + 1] = 0;   // Green
-    //         mGUIPixels[index + 2] = 0;   // Blue
-    //         mGUIPixels[index + 3] = 128; // Alpha (fully opaque)
-    //     }
-    // }
-    //
-    // // Draw the GUI elements
-    // mGUIRenderer.pixelsToTexture( mGUIPixels, mGUIWidth, mGUIHeight, 0,
-    // mScrHeight - mGUIHeight ); mGUIRenderer.renderGUI();
+    // Set the pixels of the GUI to zero
+    auto [guiWidth, guiHeight] = mGUIRenderer.getGUISize();
+    auto &guiPixels = mGUIRenderer.getPixels();
+    for (unsigned int i = 0; i < guiWidth * guiHeight * 4; ++i)
+        guiPixels[i] = 0;
+    // Draw a red rectangle in the lowest corner
+    for (unsigned int x = 0; x < guiWidth; ++x) {
+        for (unsigned int y = 0; y < guiHeight; ++y) {
+            unsigned int index = (y * (guiWidth) + x) * 4;
+            guiPixels[index + 0] = 255; // Red
+            guiPixels[index + 1] = 0;   // Green
+            guiPixels[index + 2] = 0;   // Blue
+            guiPixels[index + 3] = 128; // Alpha (fully opaque)
+        }
+    }
 
-    // Write text to the screen
-    // mTextRenderer.renderText( std::to_string(mDeltaTime), 100.f, 100.f, 1.f,
-    // glm::vec3( 0.f, 0.5f, 0.f ) ); mTextRenderer.renderText( "This is sample
-    // text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
+    // Draw the GUI elements
+    mGUIRenderer.pixelsToTexture(0, mScrHeight - guiHeight);
+    mGUIRenderer.renderGUI();
+
+    // // Write text to the screen
+    // mTextRenderer.renderText(std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3(0.f, 0.5f, 0.f));
+    // mTextRenderer.renderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
 }

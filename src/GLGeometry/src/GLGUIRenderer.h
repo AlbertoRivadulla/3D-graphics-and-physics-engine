@@ -14,23 +14,32 @@ namespace GLGeometry {
 // Class to draw a GUI on the screen
 class GLGUIRenderer {
 public:
-    // Constructor
     GLGUIRenderer(const int scrWidth, const int scrHeight);
 
-    // Destructor
     ~GLGUIRenderer();
+
+    void setGUISize(int width, int height);
+
+    std::pair<int, int> getGUISize();
+
+    std::vector<unsigned char> &getPixels();
 
     // Method to clear the texture
     void clearGUI();
 
     // Method to draw an element to the GUI
-    void pixelsToTexture(unsigned char pixels[], const int width,
-                         const int height, const int posX, const int posY);
+    void pixelsToTexture(const int posX, const int posY);
 
     // Render the GUI
     void renderGUI();
 
 private:
+    // Pixels for the GUI
+    int mGUIWidth;
+    int mGUIHeight;
+
+    std::vector<unsigned char> mGUIPixels;
+
     // Width and height of the screen
     int mWidth;
     int mHeight;
