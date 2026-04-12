@@ -2,9 +2,15 @@
 
 namespace GLGeometry {
 
-void GraphicsWorldManager::registerObjectAndMaterial(GLGeometry::GLElemObject *object,
-                                                GLBase::Material *material) {
+void GraphicsWorldManager::registerObjectAndMaterial(GLGeometry::GLElemObject *object, GLBase::Material *material) {
     mGraphicsObjects.push_back({object, material});
+}
+
+Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
+    Light *raw = light.get();
+    mLights.push_back(std::move(light));
+
+    return raw;
 }
 
 void GraphicsWorldManager::draw() {

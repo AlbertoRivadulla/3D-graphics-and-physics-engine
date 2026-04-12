@@ -28,6 +28,8 @@ public:
 
     PhysicsManager &getPhysicsManager();
 
+    GraphicsWorldManager &getGraphicsManager();
+
     void simulationStep(float deltaTime);
 
     // Draw the objects in the current frame, to the G-buffer

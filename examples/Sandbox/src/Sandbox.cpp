@@ -27,9 +27,9 @@ void GLSandbox::setupScene() {
     // Create the pixels for the GUI, and initalize them all to zero
     mGUIWidth = mScrWidth / 4;
     mGUIHeight = mScrHeight / 4;
-    mGUIPixels = new unsigned char[mGUIWidth * mGUIHeight * 4];
-    for (unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i)
-        mGUIPixels[i] = 0;
+    // mGUIPixels = new unsigned char[mGUIWidth * mGUIHeight * 4];
+    // for (unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i)
+    //     mGUIPixels[i] = 0;
 
     // // Create the cubemap for the sky
     // mSkymap = new GLCubemap();
@@ -59,31 +59,30 @@ void GLSandbox::setupScene() {
                                    std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
 
     // Add a directional light
-    mLights.push_back(new DirectionalLight({1., 1., 1.},    // Color
-                                           {10., 10., 10.}, // Position
-                                           {-1., -1., -1.}, // Direction
-                                           1.f, 0.f, 0.f)); // Intensity, attenuation linear, attenuation quadratic
-    // // Add a spotlight
-    // mLights.push_back(new SpotLight( {1., 0., 1.},            // Color
-    //                                  {3., 6., 0.},            // Position
-    //                                  {-1., -1., 0.},           // Direction
-    //                                  // {0., 4., 0.},            // Position
-    //                                  // {0., -1., 0.},           // Direction
-    //                                  60.f, 90.f,              // Angles
-    //                                  7.f, 0.05f, 0.1f) );     // Intensity,
-    //                                  attenuation linear, attenuation
-    //                                  quadratic
-    // // Add some point lights
-    // for (int i = 0; i < 2; ++i)
-    // {
-    //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(),
-    //     getRandom0To1()},
-    //                                       {10.f * getRandom0To1() - 5.f, 10.f
-    //                                       * getRandom0To1() - 2.f, 10.f *
-    //                                       getRandom0To1() - 5.f},
-    //                                       // 0.2f, 0.01f, 0.02f ) );
-    //                                       2.f, 0.01f, 0.02f ) );
-    // }
+    mWorldManager.getGraphicsManager().addLight<DirectionalLight>(
+        glm::vec3(1., 1., 1.),    // Color
+        glm::vec3(10., 10., 10.), // Position
+        glm::vec3(-1., -1., -1.), // Direction
+        1.f, 0.f, 0.f             // Intensity, attenuation linear, attenuation quadratic
+    );
+
+    // Add a spotlight
+    mWorldManager.getGraphicsManager().addLight<SpotLight>(glm::vec3(1., 0., 1.),   // Color
+                                                           glm::vec3(3., 6., 10.),  // Position
+                                                           glm::vec3(-1., -1., 0.), // Direction
+                                                           60., 90.,              // Angles
+                                                           7.,                     // Intensity
+                                                           0.05, 0.1 // Attenuation linear, attenuation quadratioc
+    );
+
+    // Add some point lights
+    for (int i = 0; i < 2; ++i) {
+        mWorldManager.getGraphicsManager().addLight<PointLight>(
+            glm::vec3(getRandom0To1(), getRandom0To1(), getRandom0To1()), // Color
+            glm::vec3(10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f,
+                      10.f * getRandom0To1() - 5.f), // Position
+            2.f, 0.01f, 0.02f);
+    }
 
     /*
        Add elements to mPhysicsWorld
@@ -274,7 +273,7 @@ void GLSandbox::setupApplication() {
     mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
 
     // Pass the list of lights to the renderer, to configure the lighting shader
-    mRenderer.configureLights(mLights);
+    mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());
 }
 
 // Method to run on each frame, to update the scene

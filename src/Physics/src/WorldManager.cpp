@@ -1,5 +1,7 @@
 #include "WorldManager.h"
+#include "GraphicsWorldManager.h"
 #include "ParticleSystem.h"
+#include "PhysicsManager.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -49,6 +51,10 @@ std::vector<GLObjectWithMaterial> &WorldManager::getListOfObjectsWithGraphics() 
 
 PhysicsManager &WorldManager::getPhysicsManager() {
     return mPhysicsManager;
+}
+
+GraphicsWorldManager &WorldManager::getGraphicsManager() {
+    return mGraphicsManager;
 }
 
 void WorldManager::simulationStep(float deltaTime) { mPhysicsManager.step(deltaTime); }
