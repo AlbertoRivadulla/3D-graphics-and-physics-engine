@@ -4,6 +4,7 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Physics.h"
+#include "WorldManager.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -14,19 +15,11 @@ class PlaneSim {
     //==============================
 
 private:
-    // Force generator of gravity (same for all objects)
-    Physics::ForceGenerator *mGravity;
-
     //==============================
     // Basic implementation of the class
     //==============================
 
 private:
-    // Pixels for the GUI
-    int mGUIWidth;
-    int mGUIHeight;
-    unsigned char *mGUIPixels;
-
     // Main application
     Application mApplication;
 
@@ -57,23 +50,14 @@ private:
     // Vector of model instances
     std::vector<Model> mModels;
 
-    // Lights
-    std::vector<Light *> mLights;
-
     // Shaders
     std::vector<Shader> mShaders;
 
     // Materials
     std::vector<Material> mMaterials;
 
-    // Cubemap for the sky
-    GLCubemap *mSkymap;
-
     // Class containing all the objects with collisions and/or dynamics
-    Physics::DynamicsWorld mPhysicsWorld;
-
-    // List of forces
-    std::vector<Physics::ForceGenerator *> mForces;
+    Physics::WorldManager mWorldManager;
 
     // Value of the time elapsed since the last frame. This needs to be updated
     // every frame
@@ -96,9 +80,6 @@ private:
     // Method to run on each frame, to update the scene
     void updateScene();
 
-    // // Main render logic
-    // void render();
-
     // Render the geometry that will use deferred rendering
     void renderDeferred();
 
@@ -107,8 +88,6 @@ private:
 
 public:
     PlaneSim(int width, int height, const char *title, float scaling = 1.f);
-
-    ~PlaneSim();
 
     // Start the application's loop
     void run();

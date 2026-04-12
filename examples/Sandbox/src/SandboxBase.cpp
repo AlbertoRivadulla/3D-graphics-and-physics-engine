@@ -56,7 +56,7 @@ void GLSandbox::run() {
 
         // Compute the shadow maps
         mRenderer.computeShadowMaps(mCamera, mWorldManager.getGraphicsManager().getListOfLights(),
-                                    mWorldManager.getListOfObjectsWithGraphics());
+                                    mWorldManager.getGraphicsManager().getListOfObjects());
 
         // Start the geometry pass
         mRenderer.startGeometryPass();

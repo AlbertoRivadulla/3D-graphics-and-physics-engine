@@ -24,8 +24,6 @@ public:
 
     Terrain *addTerrain(std::unique_ptr<Terrain> terrain);
 
-    std::vector<GLObjectWithMaterial> &getListOfObjectsWithGraphics();
-
     PhysicsManager &getPhysicsManager();
 
     GraphicsWorldManager &getGraphicsManager();

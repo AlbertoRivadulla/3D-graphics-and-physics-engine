@@ -45,10 +45,6 @@ Terrain *WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
     return raw;
 }
 
-std::vector<GLObjectWithMaterial> &WorldManager::getListOfObjectsWithGraphics() {
-    return mGraphicsManager.getListOfObjects();
-};
-
 PhysicsManager &WorldManager::getPhysicsManager() { return mPhysicsManager; }
 
 GraphicsWorldManager &WorldManager::getGraphicsManager() { return mGraphicsManager; }

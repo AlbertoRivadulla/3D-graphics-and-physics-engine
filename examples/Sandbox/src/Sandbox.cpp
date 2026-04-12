@@ -1,7 +1,6 @@
 #include "Sandbox.h"
 #include "Colliders.h"
 #include "ForceGenerator.h"
-#include "GLElemObject.h"
 #include "Entity.h"
 #include "RigidBody.h"
 #include "utils.h"
@@ -25,7 +24,7 @@ using namespace Physics;
 //  - Load shaders
 //  - Create lights
 void GLSandbox::setupScene() {
-    // Create the pixels for the GUI, and initalize them all to zero
+    // Initialize the GUI renderer
     mGUIRenderer.setGUISize(mScrWidth / 4, mScrHeight / 4);
 
     // // Create the cubemap for the sky
@@ -82,7 +81,7 @@ void GLSandbox::setupScene() {
     }
 
     /*
-       Add elements to mPhysicsWorld
+       Add elements to the world
        -------------------------------------------------------------------------
     */
 
@@ -297,25 +296,25 @@ void GLSandbox::renderForward() {
     //-------------------------------------------------------------------------
     // GUI and text
 
-    // Set the pixels of the GUI to zero
-    auto [guiWidth, guiHeight] = mGUIRenderer.getGUISize();
-    auto &guiPixels = mGUIRenderer.getPixels();
-    for (unsigned int i = 0; i < guiWidth * guiHeight * 4; ++i)
-        guiPixels[i] = 0;
-    // Draw a red rectangle in the lowest corner
-    for (unsigned int x = 0; x < guiWidth; ++x) {
-        for (unsigned int y = 0; y < guiHeight; ++y) {
-            unsigned int index = (y * (guiWidth) + x) * 4;
-            guiPixels[index + 0] = 255; // Red
-            guiPixels[index + 1] = 0;   // Green
-            guiPixels[index + 2] = 0;   // Blue
-            guiPixels[index + 3] = 128; // Alpha (fully opaque)
-        }
-    }
-
-    // Draw the GUI elements
-    mGUIRenderer.pixelsToTexture(0, mScrHeight - guiHeight);
-    mGUIRenderer.renderGUI();
+    // // Set the pixels of the GUI to zero
+    // auto [guiWidth, guiHeight] = mGUIRenderer.getGUISize();
+    // auto &guiPixels = mGUIRenderer.getPixels();
+    // for (unsigned int i = 0; i < guiWidth * guiHeight * 4; ++i)
+    //     guiPixels[i] = 0;
+    // // Draw a red rectangle in the lowest corner
+    // for (unsigned int x = 0; x < guiWidth; ++x) {
+    //     for (unsigned int y = 0; y < guiHeight; ++y) {
+    //         unsigned int index = (y * (guiWidth) + x) * 4;
+    //         guiPixels[index + 0] = 255; // Red
+    //         guiPixels[index + 1] = 0;   // Green
+    //         guiPixels[index + 2] = 0;   // Blue
+    //         guiPixels[index + 3] = 128; // Alpha (fully opaque)
+    //     }
+    // }
+    //
+    // // Draw the GUI elements
+    // mGUIRenderer.pixelsToTexture(0, mScrHeight - guiHeight);
+    // mGUIRenderer.renderGUI();
 
     // // Write text to the screen
     // mTextRenderer.renderText(std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3(0.f, 0.5f, 0.f));
