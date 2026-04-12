@@ -1,4 +1,5 @@
 #include "GraphicsWorldManager.h"
+#include "GLCubemap.h"
 
 namespace GLGeometry {
 
@@ -11,6 +12,10 @@ Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
     mLights.push_back(std::move(light));
 
     return raw;
+}
+
+void GraphicsWorldManager::addSkymap(std::unique_ptr<GLCubemap> skymap) {
+    mSkymap = std::move(skymap);
 }
 
 void GraphicsWorldManager::draw() {

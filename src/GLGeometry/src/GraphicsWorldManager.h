@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_WORLD_MANAGER_H
 #define GRAPHICS_WORLD_MANAGER_H
 
+#include <memory>
 #include <vector>
 #include "GLBase.h"
 
@@ -19,9 +20,18 @@ public:
     }
     Light *addLight(std::unique_ptr<Light> light);
 
-    std::vector<GLObjectWithMaterial> &getListOfObjects() { return mGraphicsObjects; };
+    template <typename T, typename... Args> void addSkymap(Args &&...args) {
+        static_assert(std::is_base_of<GLCubemap, T>::value, "T must derive from GLGeometry::GLCubemap");
 
-    std::vector<std::unique_ptr<Light>> &getListOfLights() { return mLights; };
+        mSkymap = std::make_unique<T>(std::forward<Args>(args)...);
+    }
+    void addSkymap(std::unique_ptr<GLCubemap> skymap);
+
+    std::vector<GLObjectWithMaterial> &getListOfObjects() { return mGraphicsObjects; }
+
+    std::vector<std::unique_ptr<Light>> &getListOfLights() { return mLights; }
+
+    GLCubemap *getSkymap() { return mSkymap.get(); }
 
     void draw();
 
@@ -29,6 +39,8 @@ private:
     std::vector<GLObjectWithMaterial> mGraphicsObjects;
 
     std::vector<std::unique_ptr<Light>> mLights;
+
+    std::unique_ptr<GLCubemap> mSkymap;
 };
 
 } // namespace GLGeometry

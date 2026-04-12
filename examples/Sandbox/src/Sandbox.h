@@ -61,9 +61,6 @@ private:
     // Materials
     std::vector<Material> mMaterials;
 
-    // Cubemap for the sky
-    GLCubemap *mSkymap;
-
     // Class containing all the objects with collisions and/or dynamics
     Physics::WorldManager mWorldManager;
 
@@ -88,9 +85,6 @@ private:
     // Method to run on each frame, to update the scene
     void updateScene();
 
-    // // Main render logic
-    // void render();
-
     // Render the geometry that will use deferred rendering
     void renderDeferred();
 
@@ -98,11 +92,7 @@ private:
     void renderForward();
 
 public:
-    // Constructor
     GLSandbox(int width, int height, const char *title, float scaling = 1.f);
-
-    // Destructor
-    ~GLSandbox();
 
     // Start the application's loop
     void run();

@@ -1,4 +1,5 @@
 #include "Sandbox.h"
+#include "Colliders.h"
 #include "ForceGenerator.h"
 #include "GLElemObject.h"
 #include "Entity.h"
@@ -32,15 +33,15 @@ void GLSandbox::setupScene() {
     //     mGUIPixels[i] = 0;
 
     // // Create the cubemap for the sky
-    // mSkymap = new GLCubemap();
-    // mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) +
-    // "/GLGeometry/skyboxVertex.glsl",
-    //                          std::string(BASE_DIR_SHADERS) +
-    //                          "/GLGeometry/skyboxFragmentFlat.glsl");
+    // mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
+    // mWorldManager.getGraphicsManager().getSkymap()->setupNoTextures(
+    //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+    //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
 
     // Skymap with textures
-    mSkymap = new GLCubemap();
-    mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) + "/textures/skybox");
+    mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
+    mWorldManager.getGraphicsManager().getSkymap()->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
+                                                                      "/textures/skybox");
 
     // Set the position of the camera
     // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
@@ -70,8 +71,8 @@ void GLSandbox::setupScene() {
     mWorldManager.getGraphicsManager().addLight<SpotLight>(glm::vec3(1., 0., 1.),   // Color
                                                            glm::vec3(3., 6., 10.),  // Position
                                                            glm::vec3(-1., -1., 0.), // Direction
-                                                           60., 90.,              // Angles
-                                                           7.,                     // Intensity
+                                                           60., 90.,                // Angles
+                                                           7.,                      // Intensity
                                                            0.05, 0.1 // Attenuation linear, attenuation quadratioc
     );
 
@@ -87,12 +88,6 @@ void GLSandbox::setupScene() {
     /*
        Add elements to mPhysicsWorld
        -------------------------------------------------------------------------
-       - Create the RigidBody or CollisionBody, as pointers (using "new ...")
-       - Add it to mPhysicsWorld, either with .addRigidBody or .addCollisionBody
-           - This also adds its GLObject to the list mElementaryObjects
-
-       The objects are deleted from memory automatically, by the destructor of
-       mPhsyicsWorld
     */
 
     // Setup force of gravity
@@ -170,24 +165,17 @@ void GLSandbox::setupScene() {
     auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     sphere->addGeometry<GLSphere>(16);
     sphere->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
-    // sphere->addGeometryNotDrawn( new GLObjectPlaceholder() );
     sphere->addCollider<SphereCollider>();
-    // sphere->addMaterial( new Material( mGPassShaders[0], {1., 0., 0.}, 0.1 )
-    // );
     auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
     materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
     sphere->addMaterial(std::move(materialSphTextures));
 
     Entity *spherePtr = mWorldManager.addEntity(std::move(sphere));
 
-    // mPhysicsWorld.addRigidBodyNotDrawn( sphere );
-    // // Add gravity to this object
-    // mPhysicsWorld.addBodyForce( sphere, mGravity );
-
-    // // Add a drag force to it
-    // mForces.push_back( new DragForceGenerator( 0.1, 0.1 ) );
-    // // mPhysicsWorld.addBodyForce( sphere, mForces[0] );
-    // mPhysicsWorld.addBodyForce( sphere, mForces.back() );
+    // Add gravity and a drag force to this object
+    mWorldManager.getPhysicsManager().registerBodyGravity(spherePtr);
+    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9);
+    mWorldManager.getPhysicsManager().registerBodyForce(spherePtr, dragForcePtr);
 
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
@@ -208,48 +196,35 @@ void GLSandbox::setupScene() {
     mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, springForcePtr);
 
     // // Join it to the other sphere with a bungee
-    // mForces.push_back( new BungeeForceGenerator( sphere, 5.f, 10.f ) );
-    // mPhysicsWorld.addBodyForce( sphere2, mForces.back() );
+    // auto bungeeForcePtr =
+    // mWorldManager.getPhysicsManager().addForce<BungeeForceGenerator>(spherePtr->getRigidBody(), 5., 10.);
+    // mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, bungeeForcePtr);
 
-    // // Add a cylinder
-    // // The arguments of the constructor are position, scale, rotation angle,
-    // // rotation axis, mass, initial velocity
-    // RigidBody* cylinder = new RigidBody( { -5., 2., -1. },
-    //                                     { 1., 1., 1. },
-    //                                     45.f, { 1., 0., 0. },
-    //                                     1.f,
-    //                                     { 15., 15., 0. } );
-    // cylinder->addGeometry( new GLCylinder(16), mElementaryObjects );
-    // cylinder->addCollider( new SphereCollider() );
-    // // cylinder->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.},
-    // 0.1 ) ); cylinder->addMaterial( materialSphTextures );
-    // mPhysicsWorld.addRigidBody( cylinder );
+    // Add a cylinder
+    auto cylinder = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    cylinder->addGeometry<GLCylinder>(16);
+    cylinder->addRigidBody<RigidBody>(1., glm::vec3(0., 1., 0.));
+    cylinder->addCollider<SphereCollider>();
+    cylinder->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 0., 1.), 0.1);
+    // Entity *cylinderPtr = mWorldManager.addEntity(std::move(cylinder));
+    mWorldManager.addEntity(std::move(cylinder));
 
-    // // Add a cube
-    // // The arguments of the constructor are position, scale, rotation angle,
-    // // rotation axis, mass, initial velocity
-    // RigidBody* cube = new RigidBody( { 0., 0., -1. },
-    //                                    { 1., 1., 1. },
-    //                                    0.f, { 1., 0., 0. },
-    //                                    1.f,
-    //                                    { 0., 3., 0. } );
-    // cube->addGeometry( new GLCube(), mElementaryObjects );
-    // cube->addCollider( new ConvexCollider( new GLCube() ) );
-    // cube->addMaterial( new Material( mGPassShaders[0], {0., 0., 1.}, 0.1 ) );
-    // mPhysicsWorld.addRigidBody( cube );
+    // Add a cube
+    auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+    cube->addGeometry<GLCube>();
+    cube->addRigidBody<RigidBody>(1., glm::vec3(1., 0., 0.));
+    cube->addCollider<ConvexCollider>(cube->getGeometry());
+    cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
+    // Entity *cubePtr = mWorldManager.addEntity(std::move(cube));
+    mWorldManager.addEntity(std::move(cube));
 
-    // // Add a particle system
-    // ParticleSystem* particleSystem = new ParticleSystem( mGPassShaders[0],
-    //                                                      { 0., 1., 0. },
-    //                                                      { 1., 1., 1. },
-    //                                                      0.f, { 1., 0., 0. },
-    //                                                      1.f,
-    //                                                      { 0., 0., 0. } );
-    // particleSystem->setParticleGeometry( new GLSphere(4), mElementaryObjects,
-    // &mGPassShaders[0] ); particleSystem->setParticleGravity( { 0.f, -5.f, 0.f
-    // } );
-    // // TODO: Add this particle system in the world manager
-    // mPhysicsWorld.addParticleSystem( particleSystem );
+    // Add a particle system
+    auto particleSystem =
+        std::make_unique<ParticleSystem>(mGPassShaders[0], glm::vec3(0., 1., 0.), glm::vec3(1., 1., 1.), 0.f,
+                                         glm::vec3(1., 0., 0.), 1.f, glm::vec3(0., 0., 0.));
+    particleSystem->setParticleGeometry(std::make_unique<GLSphere>(4), &mGPassShaders[0]);
+    particleSystem->setParticleGravity({0.f, -5.f, 0.f});
+    mWorldManager.addParticleSystem(std::move(particleSystem));
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -285,7 +260,7 @@ void GLSandbox::updateScene() {
     mView = mCamera.getViewMatrix();
 
     // Update the skymap
-    mSkymap->setViewProjection(mView, mProjection);
+    mWorldManager.getGraphicsManager().getSkymap()->setViewProjection(mView, mProjection);
 }
 
 // Render the geometry that will use deferred rendering
@@ -335,9 +310,9 @@ void GLSandbox::renderForward() {
     // mAuxElements.drawCone(glm::vec3(-2., 0., 0.), 0., glm::vec3(1., 0., 0.),
     // glm::vec3(1., 1., 1.),
     //                            mView, mProjection);
-
+    //
     // // Draw points in the positions of the lights
-    // for (auto light : mLights)
+    // for (auto &light : mWorldManager.getGraphicsManager().getListOfLights())
     // {
     //     mAuxElements.drawPoint(light->getPosition(), mView, mProjection);
     // }

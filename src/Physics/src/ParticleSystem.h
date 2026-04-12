@@ -10,7 +10,6 @@ using namespace GLBase;
 
 namespace Physics {
 // Class for the particle system
-// TODO: Refactor this. Maybe it should derive from the Entity class
 class ParticleSystem {
 public:
     ParticleSystem(Shader &shader, glm::vec3 position, glm::vec3 scale,
@@ -35,7 +34,7 @@ public:
     void setDamping(float damping);
 
     void addParticle(glm::vec3 velocity, glm::vec3 scale, float maxAge,
-                     Material *material);
+                     std::unique_ptr<Material> material);
 
     GLGeometry::GLElemObject *getGeometry();
     GLBase::Material *getMaterial();

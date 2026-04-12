@@ -68,7 +68,7 @@ void GLSandbox::run() {
         mRenderer.processGBuffer(mCamera.Position, mWorldManager.getGraphicsManager().getListOfLights());
 
         // End the renderer, which produces the final scene from the g-buffer
-        mRenderer.endFrame(mSkymap);
+        mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());
         // mRenderer.endFrame(mSkymap, mAuxElements);
 
         // Render the geometry that uses forward rendering, after the deferred
@@ -107,10 +107,4 @@ void GLSandbox::run() {
     }
 
     LOG_INFO("Execution stopped");
-}
-
-// Destructor
-GLSandbox::~GLSandbox() {
-    // Delete the skymap
-    delete mSkymap;
 }

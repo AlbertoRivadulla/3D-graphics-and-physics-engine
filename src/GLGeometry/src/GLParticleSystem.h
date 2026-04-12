@@ -9,13 +9,11 @@ namespace GLGeometry {
 struct GLParticle {
     // Constructor
     GLParticle(glm::vec3 posVal, glm::vec3 velVal, glm::vec3 scaleVal,
-               float maxAgeVal, Material *materialVal)
+               float maxAgeVal, std::unique_ptr<Material> materialVal)
         : position{posVal}, velocity{velVal}, scale{scaleVal},
-          material{materialVal}, age{0.f}, maxAge{maxAgeVal} {
+          material{std::move(materialVal)}, age{0.f}, maxAge{maxAgeVal} {
         computeModelMatrix();
     }
-
-    ~GLParticle() { delete[] material; }
 
     void computeModelMatrix() {
         modelMatrix = glm::translate(glm::mat4(1.f), position);
@@ -29,7 +27,7 @@ struct GLParticle {
 
     glm::mat4 modelMatrix;
 
-    Material *material;
+    std::unique_ptr<Material> material;
 
     float age;
     float maxAge;
@@ -43,7 +41,7 @@ public:
     std::list<std::unique_ptr<GLParticle>> *getPointerToListOfParticles();
 
     void addParticle(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale,
-                     float maxAge, Material *material);
+                     float maxAge, std::unique_ptr<Material> material);
 
     void draw();
 

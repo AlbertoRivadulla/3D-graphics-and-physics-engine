@@ -15,9 +15,9 @@ GLParticleSystem::getPointerToListOfParticles() {
 
 void GLParticleSystem::addParticle(glm::vec3 position, glm::vec3 velocity,
                                    glm::vec3 scale, float maxAge,
-                                   Material *material) {
+                                   std::unique_ptr<Material> material) {
     mParticles.push_back(std::make_unique<GLParticle>(position, velocity, scale,
-                                                      maxAge, material));
+                                                      maxAge, std::move(material)));
 }
 
 void GLParticleSystem::draw() {
