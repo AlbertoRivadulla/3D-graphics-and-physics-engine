@@ -67,7 +67,7 @@ public:
     // This needs a list of objects, which should include their model matrix
     virtual void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow) = 0;
+        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow) = 0;
 
     // Method to pass the light to a shader
     virtual void
@@ -115,7 +115,7 @@ public:
     // Method to compute the shadow map
     void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
+        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
 
     // Method to pass the light to a shader
     void configureShader(const Shader &lightingShader, Shader *shadowShader,
@@ -164,7 +164,7 @@ public:
     // Method to compute the shadow map
     void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
+        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
 
     // Method to pass the light to a shader
     void configureShader(const Shader &lightingShader, Shader *shadowShader,
@@ -199,7 +199,7 @@ public:
     // Method to compute the shadow map
     void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
+        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
 
     // Method to pass the light to a shader
     void configureShader(const Shader &lightingShader, Shader *shadowShader,

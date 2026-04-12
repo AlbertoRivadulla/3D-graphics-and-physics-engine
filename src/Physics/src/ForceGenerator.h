@@ -2,14 +2,18 @@
 #define FORCEGENERATOR_H
 
 #include "GLBase.h"
-#include "PhysicsBody.h"
+#include "interfaces.h"
+#include "RigidBody.h"
 
 using namespace GLBase;
 
 namespace Physics {
+
 // Virtual force generator
-class ForceGenerator {
+class ForceGenerator : public IValidatable {
 public:
+    virtual ~ForceGenerator() = default;
+
     // Calculate and apply the corresponding force to a RigidBody
     virtual void updateForce(RigidBody *rigidBody, float deltaTime) = 0;
 };
@@ -19,7 +23,9 @@ class GravityForceGenerator : public ForceGenerator {
 public:
     GravityForceGenerator(const glm::vec3 &gravity);
 
-    virtual void updateForce(RigidBody *rigidBody, float deltaTime);
+    bool isValid() const override { return true; }
+
+    virtual void updateForce(RigidBody *rigidBody, float deltaTime) override;
 
 private:
     glm::vec3 mGravity;
@@ -30,7 +36,9 @@ class DragForceGenerator : public ForceGenerator {
 public:
     DragForceGenerator(float k1, float k2);
 
-    virtual void updateForce(RigidBody *rigidBody, float deltaTime);
+    bool isValid() const override { return true; }
+
+    virtual void updateForce(RigidBody *rigidBody, float deltaTime) override;
 
 private:
     // Coefficients for velocity and velocity square
@@ -41,10 +49,11 @@ private:
 // Spring force generator
 class SpringForceGenerator : public ForceGenerator {
 public:
-    SpringForceGenerator(RigidBody *other, float springConst,
-                         float dampingCoeff, float restLength);
+    SpringForceGenerator(RigidBody *other, float springConst, float dampingCoeff, float restLength);
 
-    virtual void updateForce(RigidBody *rigidBody, float deltaTime);
+    bool isValid() const override { return mOtherBody != nullptr; }
+
+    virtual void updateForce(RigidBody *rigidBody, float deltaTime) override;
 
 private:
     // The body at the other end of the spring
@@ -63,7 +72,9 @@ class BungeeForceGenerator : public ForceGenerator {
 public:
     BungeeForceGenerator(RigidBody *other, float springConst, float restLength);
 
-    virtual void updateForce(RigidBody *rigidBody, float deltaTime);
+    bool isValid() const override { return mOtherBody != nullptr; }
+
+    virtual void updateForce(RigidBody *rigidBody, float deltaTime) override;
 
 private:
     // The body at the other end of the spring
@@ -73,6 +84,7 @@ private:
     // Rest lenght
     float mRestLength;
 };
+
 } // namespace Physics
 
 #endif

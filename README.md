@@ -30,8 +30,6 @@ Some of the features of the engine are showcased in the [Gallery](#gallery) belo
 - Force generators
     - Gravity
     - Drag
-    - Spring-like forces (in the center of mass)
-
 ## Examples
 
 - Sandbox [link](examples/Sandbox)

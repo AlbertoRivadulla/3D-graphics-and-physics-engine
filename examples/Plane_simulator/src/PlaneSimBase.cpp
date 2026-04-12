@@ -7,13 +7,10 @@ PlaneSim::PlaneSim(int width, int height, const char *title, float scaling)
     : mApplication(width, height, title), mRenderer(),
       mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass
                                                       // shader of the renderer
-      mCamera(width, height, glm::vec3(1., 0., 0.)),
-      mAuxElements(width, height),
-      mTextRenderer(width, height,
-                    std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
-      mGUIRenderer(width, height), mProjection{glm::mat4(1.)},
-      mView{glm::mat4(1.)}, mPhysicsWorld(), mLastFrame{0.}, mFrameCounter{0},
-      mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
+      mCamera(width, height, glm::vec3(1., 0., 0.)), mAuxElements(width, height),
+      mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"), mGUIRenderer(width, height),
+      mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mLastFrame{0.}, mFrameCounter{0}, mTotalTime{0.},
+      mScrWidth{width}, mScrHeight{height} {
     // Get the actual resolution for the window.
     // This is needed in case we are using a "retina" display, where the
     // resolution is scaled.
@@ -44,15 +41,16 @@ void PlaneSim::run() {
 
         updateScene();
 
-        mRenderer.computeShadowMaps(mCamera, mLights, mElementaryObjects);
+        mRenderer.computeShadowMaps(mCamera, mWorldManager.getGraphicsManager().getListOfLights(),
+                                    mWorldManager.getGraphicsManager().getListOfObjects());
 
         mRenderer.startGeometryPass();
 
         renderDeferred();
 
-        mRenderer.processGBuffer(mCamera.Position, mLights);
+        mRenderer.processGBuffer(mCamera.Position, mWorldManager.getGraphicsManager().getListOfLights());
 
-        mRenderer.endFrame(mSkymap);
+        mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());
 
         renderForward();
 
@@ -63,8 +61,7 @@ void PlaneSim::run() {
 
         if (mFrameCounter % 300 == 0) {
             std::stringstream ss;
-            ss << "Average frame time: " << mTotalTime * 1000 / mFrameCounter
-               << " ms - ";
+            ss << "Average frame time: " << mTotalTime * 1000 / mFrameCounter << " ms - ";
             ss << "FPS: " << 1000. / (mTotalTime * 1000 / mFrameCounter);
             mFrameCounter = 0;
             mTotalTime = 0;
@@ -82,14 +79,4 @@ void PlaneSim::run() {
     }
 
     LOG_INFO("Execution stopped");
-}
-
-PlaneSim::~PlaneSim() {
-    delete mSkymap;
-
-    for (auto object : mElementaryObjects)
-        delete object;
-
-    for (auto light : mLights)
-        delete light;
 }

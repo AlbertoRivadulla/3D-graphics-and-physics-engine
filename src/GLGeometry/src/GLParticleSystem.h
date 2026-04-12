@@ -9,13 +9,11 @@ namespace GLGeometry {
 struct GLParticle {
     // Constructor
     GLParticle(glm::vec3 posVal, glm::vec3 velVal, glm::vec3 scaleVal,
-               float maxAgeVal, Material *materialVal)
+               float maxAgeVal, std::unique_ptr<Material> materialVal)
         : position{posVal}, velocity{velVal}, scale{scaleVal},
-          material{materialVal}, age{0.f}, maxAge{maxAgeVal} {
+          material{std::move(materialVal)}, age{0.f}, maxAge{maxAgeVal} {
         computeModelMatrix();
     }
-
-    ~GLParticle() { delete[] material; }
 
     void computeModelMatrix() {
         modelMatrix = glm::translate(glm::mat4(1.f), position);
@@ -29,7 +27,7 @@ struct GLParticle {
 
     glm::mat4 modelMatrix;
 
-    Material *material;
+    std::unique_ptr<Material> material;
 
     float age;
     float maxAge;
@@ -37,29 +35,22 @@ struct GLParticle {
 
 class GLParticleSystem : public GLElemObject {
 public:
-    // Constructor
-    GLParticleSystem(GLElemObject *geometryObject, Shader *GPassShader);
-    ~GLParticleSystem();
+    GLParticleSystem(std::unique_ptr<GLElemObject> geometryObject,
+                     Shader *GPassShader);
 
-    // Get a pointer to the list of particles
-    std::list<GLParticle *> *getPointerToListOfParticles();
+    std::list<std::unique_ptr<GLParticle>> *getPointerToListOfParticles();
 
-    // Add a single particle
     void addParticle(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale,
-                     float maxAge, Material *material);
+                     float maxAge, std::unique_ptr<Material> material);
 
-    // Function to render
     void draw();
 
 private:
-    // List of particles
-    std::list<GLParticle *> mParticles;
+    std::list<std::unique_ptr<GLParticle>> mParticles;
 
-    // Pointer to the shader of the geometry pass
     Shader *mGPassShader;
 
-    // Geometrical object
-    GLElemObject *mGeometryObject;
+    std::unique_ptr<GLElemObject> mGeometryObject;
 };
 } // namespace GLGeometry
 

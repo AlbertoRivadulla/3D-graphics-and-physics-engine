@@ -25,6 +25,9 @@ set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLBase/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLBase/thirdparty
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Interfaces
+
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLGeometry/src/Skymap
@@ -47,10 +50,12 @@ set(LIBS PUBLIC
 
 # Create a variable with a link to all cpp files to compile
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/PhysicsWorld.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/PhysicsBody.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParticleSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PhysicsManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Entity.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RigidBody.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Collider.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParticleSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SphereCollider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PlaneCollider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ConvexCollider.cpp

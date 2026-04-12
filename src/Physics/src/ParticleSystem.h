@@ -3,17 +3,15 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
-#include "Colliders.h"
-#include "PhysicsBody.h"
+#include "Transform.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
 
 namespace Physics {
 // Class for the particle system
-class ParticleSystem : public CollisionBody {
+class ParticleSystem {
 public:
-    // Constructor
     ParticleSystem(Shader &shader, glm::vec3 position, glm::vec3 scale,
                    float rotationAngle, glm::vec3 rotationAxis, float mass,
                    glm::vec3 velocity = {0.f, 0.f, 0.f});
@@ -22,45 +20,47 @@ public:
     // Add geometrical object, and copy it to the list of elementary objects of
     // the GLSandbox class
     // Also sets the geometry of a single particle
-    void setParticleGeometry(GLElemObject *particleObjectPtr,
-                             std::vector<GLElemObject *> &elemObjs,
+    void setParticleGeometry(std::unique_ptr<GLElemObject> particleObjectPtr,
                              Shader *GPassShader);
 
-    // Set gravity of particles
     void setParticleGravity(glm::vec3 gravity);
 
-    // Set velocity and acceleration
     void setVelocity(glm::vec3 velocity);
     void setGravity(glm::vec3 gravity);
 
-    // Set mass
     void setMass(float mass);
     void setInvMass(float invMass);
 
-    // Set velocity damping
     void setDamping(float damping);
 
-    // Add a single particle
     void addParticle(glm::vec3 velocity, glm::vec3 scale, float maxAge,
-                     Material *material);
+                     std::unique_ptr<Material> material);
 
-    // Integrate forward in time by the given duration
+    GLGeometry::GLElemObject *getGeometry();
+    GLBase::Material *getMaterial();
+
+    bool hasGeometry();
+
     void integrate(float deltaTime);
 
 private:
+    std::unique_ptr<GLBase::Material> mMaterial;
+
     // Particle system object for the graphics
-    GLParticleSystem *mParticleSystemGL;
-    // Pointer to the list of particles
-    std::list<GLParticle *> *mParticles;
+    std::unique_ptr<GLParticleSystem> mParticleSystemGL;
+
+    // Pointer to the list of particles in mParticleSystemGL
+    std::list<std::unique_ptr<GLParticle>> *mParticlesGL;
+
     // Pointer to the shader for the G pass
     Shader *mGPassShader;
     // Gravity of particles
     glm::vec3 mParticleGravity;
 
-    // Number of particles
     int mParticleCount;
 
     // Variables for dynamics
+    Physics::Transform mTransform;
     float mMass;
     float mMassInver;
     glm::vec3 mVelocity;
@@ -75,6 +75,9 @@ private:
     // Accumulator for forces
     glm::vec3 mForceAccum;
     // glm::vec3 mTorqueAccum;
+
+    // NOTE: If I want to add a collider I will have to add also a model matrix etc.
+    // At this point it would make sense to make this class derived of Entity
 };
 } // namespace Physics
 

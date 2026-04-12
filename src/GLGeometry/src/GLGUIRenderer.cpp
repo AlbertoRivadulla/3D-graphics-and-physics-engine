@@ -14,17 +14,15 @@ namespace GLGeometry {
 
 // Constructor
 GLGUIRenderer::GLGUIRenderer(const int scrWidth, const int scrHeight)
-    : mWidth{scrWidth}, mHeight{scrHeight},
-      mGUIShader(std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIVertex.glsl",
-                 std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIFragment.glsl")
+    : mWidth{scrWidth}, mHeight{scrHeight}, mGUIShader(std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIVertex.glsl",
+                                                       std::string(BASE_DIR_SHADERS) + "/GLGeometry/GUIFragment.glsl")
 
 {
     // Generate the texture for the GUI
     generateGUITexture();
 
     // Create a projection matrix from the width and height of the screen
-    mProjectionMatrix =
-        glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight);
+    mProjectionMatrix = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight);
     // Set this on the shader
     mGUIShader.use();
     mGUIShader.setMat4("projection", mProjectionMatrix);
@@ -56,38 +54,19 @@ GLGUIRenderer::~GLGUIRenderer() {
     glDeleteFramebuffers(1, &mFramebuffer);
 }
 
-// Method to generate a blank texture for the GUI
-void GLGUIRenderer::generateGUITexture() {
-    // Generate a framebuffer, that will be used to clear the texture
-    glGenFramebuffers(1, &mFramebuffer);
+void GLGUIRenderer::setGUISize(int width, int height) {
+    mGUIWidth = width;
+    mGUIHeight = height;
 
-    glGenTextures(1, &mGUITextureID);
-    glBindTexture(GL_TEXTURE_2D, mGUITextureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, nullptr);
-    // face->glyph->bitmap.buffer );
-    // Set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    mGUIPixels.reserve(width * height * 4);
 
-    // Unbind the texture
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Vertices of the quad in the screen
-    float vertices[6][4] = {
-        // Position             // Texture coordinates
-        {0.f, 0.f + (float)mHeight, 0.0f, 0.0f},
-        {0.f, 0.f, 0.0f, 1.0f},
-        {0.f + (float)mWidth, 0.f, 1.0f, 1.0f},
-
-        {0.f, 0.f + (float)mHeight, 0.0f, 0.0f},
-        {0.f + (float)mWidth, 0.f, 1.0f, 1.0f},
-        {0.f + (float)mWidth, 0.f + (float)mHeight, 1.0f, 0.0f}};
-    // Copy these to the corresponding member variable
-    memcpy(mQuadVertices, vertices, 24 * sizeof(float));
+    for (unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i)
+        mGUIPixels[i] = 0;
 }
+
+std::pair<int, int> GLGUIRenderer::getGUISize() { return std::pair<int, int>(mGUIWidth, mGUIHeight); }
+
+std::vector<unsigned char> &GLGUIRenderer::getPixels() { return mGUIPixels; }
 
 // Method to clear the texture
 void GLGUIRenderer::clearGUI() {
@@ -112,21 +91,50 @@ void GLGUIRenderer::clearGUI() {
     // glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
+// Method to generate a blank texture for the GUI
+void GLGUIRenderer::generateGUITexture() {
+    // Generate a framebuffer, that will be used to clear the texture
+    glGenFramebuffers(1, &mFramebuffer);
+
+    glGenTextures(1, &mGUITextureID);
+    glBindTexture(GL_TEXTURE_2D, mGUITextureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    // face->glyph->bitmap.buffer );
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Unbind the texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Vertices of the quad in the screen
+    float vertices[6][4] = {// Position             // Texture coordinates
+                            {0.f, 0.f + (float)mHeight, 0.0f, 0.0f},
+                            {0.f, 0.f, 0.0f, 1.0f},
+                            {0.f + (float)mWidth, 0.f, 1.0f, 1.0f},
+
+                            {0.f, 0.f + (float)mHeight, 0.0f, 0.0f},
+                            {0.f + (float)mWidth, 0.f, 1.0f, 1.0f},
+                            {0.f + (float)mWidth, 0.f + (float)mHeight, 1.0f, 0.0f}};
+    // Copy these to the corresponding member variable
+    memcpy(mQuadVertices, vertices, 24 * sizeof(float));
+}
+
 // Method to draw an element to the GUI
-void GLGUIRenderer::pixelsToTexture(unsigned char pixels[], const int width,
-                                    const int height, const int posX,
-                                    const int posY) {
+void GLGUIRenderer::pixelsToTexture(const int posX, const int posY) {
     // Bind the texture you want to update
     glBindTexture(GL_TEXTURE_2D, mGUITextureID);
 
     // Update the texture with the new pixel data
-    glTexSubImage2D(GL_TEXTURE_2D,    // Texture target
-                    0,                // Mipmap level
-                    posX, posY,       // Offset in pixels
-                    width, height,    // Width and height of the region
-                    GL_RGBA,          // Format of the pixel data
-                    GL_UNSIGNED_BYTE, // Data type of the pixel data
-                    pixels            // Pointer to the pixel data
+    glTexSubImage2D(GL_TEXTURE_2D,         // Texture target
+                    0,                     // Mipmap level
+                    posX, posY,            // Offset in pixels
+                    mGUIWidth, mGUIHeight, // Width and height of the region
+                    GL_RGBA,               // Format of the pixel data
+                    GL_UNSIGNED_BYTE,      // Data type of the pixel data
+                    mGUIPixels.data()      // Pointer to the pixel data
     );
 
     // Unbind the texture

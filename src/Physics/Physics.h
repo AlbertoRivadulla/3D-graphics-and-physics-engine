@@ -23,9 +23,9 @@
 #include "GLGeometry.h"
 
 #include "Terrain.h"
-#include "PhysicsBody.h"
+#include "Entity.h"
 #include "ParticleSystem.h"
 #include "ForceGenerator.h"
-#include "PhysicsWorld.h"
+#include "WorldManager.h"
 // #include "Colliders.h"
 // #include "CollisionSolver.h"

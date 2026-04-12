@@ -3,7 +3,6 @@
 
 #include "GLGeometry.h"
 #include "GLObject.h"
-#include "utils.h"
 
 namespace GLGeometry {
 class GLElemObject : public GLObject {
@@ -57,6 +56,10 @@ public:
         mModelMatrix = glm::scale(mModelMatrix, scale);
     }
 
+    void setModelMatrix(const glm::mat4 &modelMatrix) {
+        mModelMatrix = modelMatrix;
+    }
+
     // Function to read the model matrix
     glm::mat4 getModelMatrix() { return mModelMatrix; }
 
@@ -95,6 +98,12 @@ public:
     // Function to render
     void draw() {}
 };
+
+struct GLObjectWithMaterial {
+    GLGeometry::GLElemObject *object = nullptr;
+    GLBase::Material *material = nullptr;
+};
+
 } // namespace GLGeometry
 
 #endif

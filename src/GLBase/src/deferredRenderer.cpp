@@ -1,31 +1,23 @@
 #include "GLBase.h"
 #include "shader.h"
+#include <memory>
 
 using namespace GLGeometry;
 
 namespace GLBase {
 // Constructor
 DeferredRenderer::DeferredRenderer()
-    : mShadowMapDirectionalShader(std::string(BASE_DIR_SHADERS) +
-                                      "/GLBase/shadowMapCascadedVertex.glsl",
-                                  std::string(BASE_DIR_SHADERS) +
-                                      "/GLBase/shadowMapCascadedFragment.glsl",
-                                  std::string(BASE_DIR_SHADERS) +
-                                      "/GLBase/shadowMapCascadedGeometry.glsl"),
-      mShadowMapPointShader(
-          std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapVertex.glsl",
-          std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapFragment.glsl"),
-      mShadowMapSpotShader(
-          std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotVertex.glsl",
-          std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotFragment.glsl"),
-      mLightingPassShader(std::string(BASE_DIR_SHADERS) +
-                              "/GLBase/defLightingPassVertex.glsl",
-                          std::string(BASE_DIR_SHADERS) +
-                              "/GLBase/defLightingPassFragment.glsl"),
-      mScreenPostprocessingShader(
-          std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadVertex.glsl",
-          std::string(BASE_DIR_SHADERS) +
-              "/GLBase/defRenderQuadPostproFragment.glsl") {
+    : mShadowMapDirectionalShader(std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapCascadedVertex.glsl",
+                                  std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapCascadedFragment.glsl",
+                                  std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapCascadedGeometry.glsl"),
+      mShadowMapPointShader(std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapVertex.glsl",
+                            std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapFragment.glsl"),
+      mShadowMapSpotShader(std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotVertex.glsl",
+                           std::string(BASE_DIR_SHADERS) + "/GLBase/shadowMapSpotFragment.glsl"),
+      mLightingPassShader(std::string(BASE_DIR_SHADERS) + "/GLBase/defLightingPassVertex.glsl",
+                          std::string(BASE_DIR_SHADERS) + "/GLBase/defLightingPassFragment.glsl"),
+      mScreenPostprocessingShader(std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadVertex.glsl",
+                                  std::string(BASE_DIR_SHADERS) + "/GLBase/defRenderQuadPostproFragment.glsl") {
     // Color to clear the window
     glClearColor(1.f, 0.f, 1.f, 1.0f);
     glClearDepth(1.f);
@@ -48,8 +40,7 @@ DeferredRenderer::~DeferredRenderer() {
 // Do this by defining a lower resolution framebuffer, and then blitting
 // its contents to the main one
 // https://community.khronos.org/t/creating-low-resolution-output-using-glblitframebuffer/75682/2
-void DeferredRenderer::setupDimensions(int winWidth, int winHeight, int width,
-                                       int height, float scaling) {
+void DeferredRenderer::setupDimensions(int winWidth, int winHeight, int width, int height, float scaling) {
     // Setup the diemnsions of the window
     mWinWidth = winWidth;
     mWinHeight = winHeight;
@@ -73,11 +64,9 @@ void DeferredRenderer::setupDimensions(int winWidth, int winHeight, int width,
 void DeferredRenderer::setupScreenQuad() {
     // Vertices of the screen quad
     float screenQuadVertices[] = {// positions  // texCoords
-                                  -1.0f, 1.0f, 0.0f, 1.0f,  -1.0f, -1.0f,
-                                  0.0f,  0.0f, 1.0f, -1.0f, 1.0f,  0.0f,
+                                  -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
-                                  -1.0f, 1.0f, 0.0f, 1.0f,  1.0f,  -1.0f,
-                                  1.0f,  0.0f, 1.0f, 1.0f,  1.0f,  1.0f};
+                                  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
 
     // Generate the VAO and VBO
     glGenVertexArrays(1, &mScreenVAO);
@@ -85,21 +74,17 @@ void DeferredRenderer::setupScreenQuad() {
     glBindVertexArray(mScreenVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mScreenVBO);
     // Set the data in the VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices),
-                 &screenQuadVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), &screenQuadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                          (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                          (void *)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 
     // Configure the screen texture in the shader
     mScreenPostprocessingShader.use();
     mScreenPostprocessingShader.setInt("screenTexture", 0);
     mScreenPostprocessingShader.setInt("gPosition", 1);
-    mScreenPostprocessingShader.setVec3("fogColor",
-                                        glm::vec3(0.43, 0.81, 0.92));
+    mScreenPostprocessingShader.setVec3("fogColor", glm::vec3(0.43, 0.81, 0.92));
 }
 
 // Setup the G-buffer
@@ -114,34 +99,27 @@ void DeferredRenderer::setupGBuffer() {
     // It needs only 3 components per pixel, but I use RGBA for hardware reasons
     glGenTextures(1, &mGPositionTexture);
     glBindTexture(GL_TEXTURE_2D, mGPositionTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0,
-                 GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                           mGPositionTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mGPositionTexture, 0);
     // 2 - Normal and emissive texture
     glGenTextures(1, &mGNormalEmissTexture);
     glBindTexture(GL_TEXTURE_2D, mGNormalEmissTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0,
-                 GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
-                           mGNormalEmissTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mGNormalEmissTexture, 0);
     // 3 - Albedo and specular texture
     glGenTextures(1, &mGAlbedoSpecTexture);
     glBindTexture(GL_TEXTURE_2D, mGAlbedoSpecTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0,
-                 GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D,
-                           mGAlbedoSpecTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, mGAlbedoSpecTexture, 0);
 
     // Configure these textures to be the color attachments of this Framebuffer
-    unsigned int attachments[3]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
-                                GL_COLOR_ATTACHMENT2};
+    unsigned int attachments[3]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
     glDrawBuffers(3, attachments);
 
     // Create a renderbuffer object for the depth and stencil attachments of the
@@ -150,10 +128,8 @@ void DeferredRenderer::setupGBuffer() {
     // it during the lighting pass.
     glGenRenderbuffers(1, &mDepthRBO);
     glBindRenderbuffer(GL_RENDERBUFFER, mDepthRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mRenderWidth,
-                          mRenderHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                              GL_RENDERBUFFER, mDepthRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mRenderWidth, mRenderHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO);
 
     // now that we actually created the framebuffer and added all attachments we
     // want to check if it is actually complete now
@@ -179,15 +155,13 @@ void DeferredRenderer::setupTargetBuffer() {
     glBindTexture(GL_TEXTURE_2D, mTargetTexture);
     // Configure the texture
     // The last 0 means that it is initially empty
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mRenderWidth, mRenderHeight, 0,
-                 GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mRenderWidth, mRenderHeight, 0, GL_RGBA, GL_FLOAT, NULL);
     // Set the mipmap filtering of the texture
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Attach the texture to the FBO
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                           mTargetTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTargetTexture, 0);
 
     // Tell opengl that which color attachment of this framebuffer we will use
     // for rendering
@@ -197,8 +171,7 @@ void DeferredRenderer::setupTargetBuffer() {
     // Configure the depth and stencil renderbuffer object, created in
     // setupGBuffer() This is the same RBO for both FBOs
     glBindRenderbuffer(GL_RENDERBUFFER, mDepthRBO);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                              GL_RENDERBUFFER, mDepthRBO);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRBO);
 
     // now that we actually created the framebuffer and added all attachments we
     // want to check if it is actually complete now
@@ -208,8 +181,7 @@ void DeferredRenderer::setupTargetBuffer() {
 }
 
 // Method to configure the lights in the shader
-void DeferredRenderer::configureLights(const std::vector<Light *> lights,
-                                       glm::vec3 ambientLightColor) {
+void DeferredRenderer::configureLights(std::vector<std::unique_ptr<Light>> &lights, glm::vec3 ambientLightColor) {
     // Counters for each type of light
     unsigned int countDirLights{0};
     unsigned int countSpotLights{0};
@@ -221,7 +193,7 @@ void DeferredRenderer::configureLights(const std::vector<Light *> lights,
 
     // Pass all the lights to the shader
     mLightingPassShader.use();
-    for (auto light : lights) {
+    for (auto &light : lights) {
         // Check the type of the shader
         Shader *shadowShader;
         switch (light->getLightType()) {
@@ -239,9 +211,8 @@ void DeferredRenderer::configureLights(const std::vector<Light *> lights,
         // This configures the shader for the lighting pass, and also passes
         // a pointer to the corresponding shader for the shadow pass, so it
         // is stored by the light object
-        light->configureShader(mLightingPassShader, shadowShader,
-                               countDirLights, countSpotLights,
-                               countPointLights, countShadowMap);
+        light->configureShader(mLightingPassShader, shadowShader, countDirLights, countSpotLights, countPointLights,
+                               countShadowMap);
     }
 
     // Pass the count of each type of light to the shader
@@ -263,14 +234,13 @@ void DeferredRenderer::startFrame() {
 }
 
 // Method to compute the shadow maps
-void DeferredRenderer::computeShadowMaps(
-    const Camera &camera, const std::vector<Light *> lightsWithShadow,
-    const std::vector<GLElemObject *> objectsWithShadow) {
+void DeferredRenderer::computeShadowMaps(const Camera &camera, std::vector<std::unique_ptr<Light>> &lightsWithShadow,
+                                         const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow) {
     // Set face culling to the front faces
     // glCullFace(GL_FRONT);
 
     // Compute the shadow map for each light in the provided list
-    for (auto light : lightsWithShadow) {
+    for (auto &light : lightsWithShadow) {
         light->computeShadowMap(camera, objectsWithShadow);
     }
 
@@ -303,8 +273,7 @@ void DeferredRenderer::startGeometryPass() {
 }
 
 // Configure the lights for the lighting pass
-void DeferredRenderer::configureLightsForLightingPass(
-    const std::vector<Light *> lights) {
+void DeferredRenderer::configureLightsForLightingPass(std::vector<std::unique_ptr<Light>> &lights) {
     // Counters for each type of light
     unsigned int countDirLights{0};
     unsigned int countSpotLights{0};
@@ -316,10 +285,9 @@ void DeferredRenderer::configureLightsForLightingPass(
 
     // Pass all the lights to the shader
     mLightingPassShader.use();
-    for (auto light : lights) {
-        light->configureShaderForLightingPass(mLightingPassShader,
-                                              countDirLights, countSpotLights,
-                                              countPointLights, countShadowMap);
+    for (auto &light : lights) {
+        light->configureShaderForLightingPass(mLightingPassShader, countDirLights, countSpotLights, countPointLights,
+                                              countShadowMap);
     }
 
     // Pass the count of each type of light to the shader
@@ -329,8 +297,7 @@ void DeferredRenderer::configureLightsForLightingPass(
 }
 
 // Method to do the shading pass with the information in the g-buffer
-void DeferredRenderer::processGBuffer(glm::vec3 viewPos,
-                                      const std::vector<Light *> lights) {
+void DeferredRenderer::processGBuffer(glm::vec3 viewPos, std::vector<std::unique_ptr<Light>> &lights) {
     // Bind the lower resolution FBO, and clear it
     // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mTargetBuffer);
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

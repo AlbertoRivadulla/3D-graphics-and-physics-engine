@@ -3,11 +3,23 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include "Transform.h"
 
 using namespace GLBase;
 using namespace GLGeometry;
 
 namespace Physics {
+
+// Struct that describes the collision points between two objects A and B
+// TODO: Make sure this is used somewhere
+struct CollisionPoints {
+    glm::vec3 A;      // Furthest point of A into B
+    glm::vec3 B;      // Furthest point of B into A
+    glm::vec3 Normal; // B – A normalized
+    float Depth;      // Length of B – A
+    bool HasCollision;
+};
+
 // Axis aligned boundary box
 struct AABB {
     // Min and max vertices in model space
@@ -28,10 +40,10 @@ class ConvexCollider;
 // Base collider class
 class Collider {
 public:
-    // Constructor
     Collider();
-    //
-    // ~Collider();
+
+    // Following Core guidelines C.127
+    virtual ~Collider() = default;
 
     // Update the collider and AABB after a transformation
     // This needs to be implemented for each collider

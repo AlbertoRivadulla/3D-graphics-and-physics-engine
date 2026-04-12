@@ -3,6 +3,7 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include <memory>
 
 namespace GLBase {
 class Light;
@@ -21,15 +22,13 @@ public:
     // Do this by defining a lower resolution framebuffer, and then blitting
     // its contents to the main one
     // https://community.khronos.org/t/creating-low-resolution-output-using-glblitframebuffer/75682/2
-    void setupDimensions(int winWidth, int winHeight, int width, int height,
-                         float scaling);
+    void setupDimensions(int winWidth, int winHeight, int width, int height, float scaling);
 
     // Method to get a point to the geometry pass shader
     Shader &getLightingShader() { return mLightingPassShader; }
 
     // Method to configure the lights in the shader
-    void configureLights(const std::vector<Light *> light,
-                         glm::vec3 ambientLightColors = {.1, .1, .1});
+    void configureLights(std::vector<std::unique_ptr<Light>> &light, glm::vec3 ambientLightColors = {.1, .1, .1});
     // // Method to configure the light space matrices
     // // This needs to be called in each frame
     // void configureLightSpaceMatrices(const std::vector<Light*> lights);
@@ -38,18 +37,17 @@ public:
     void startFrame();
 
     // Method to compute the shadow maps
-    void computeShadowMaps(
-        const Camera &camera, const std::vector<Light *> lightsWithShadow,
-        const std::vector<GLGeometry::GLElemObject *> objectsWithShadow);
+    void computeShadowMaps(const Camera &camera, std::vector<std::unique_ptr<Light>> &lightsWithShadow,
+                           const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
 
     // Method to call to start the geometry pass
     void startGeometryPass();
 
     // Configure the lights for the lighting pass
-    void configureLightsForLightingPass(const std::vector<Light *> lights);
+    void configureLightsForLightingPass(std::vector<std::unique_ptr<Light>> &lights);
 
     // Method to do the shading pass with the information in the g-buffer
-    void processGBuffer(glm::vec3 viewPos, const std::vector<Light *> lights);
+    void processGBuffer(glm::vec3 viewPos, std::vector<std::unique_ptr<Light>> &lights);
 
     // Method to call at the end of the frame
     void endFrame(GLGeometry::GLCubemap *skyMap);

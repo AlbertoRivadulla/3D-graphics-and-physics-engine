@@ -1,8 +1,10 @@
 #include "Sandbox.h"
+#include "Colliders.h"
 #include "ForceGenerator.h"
-#include "GLElemObject.h"
-#include "PhysicsBody.h"
+#include "Entity.h"
+#include "RigidBody.h"
 #include "utils.h"
+#include <memory>
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -22,24 +24,19 @@ using namespace Physics;
 //  - Load shaders
 //  - Create lights
 void GLSandbox::setupScene() {
-    // Create the pixels for the GUI, and initalize them all to zero
-    mGUIWidth = mScrWidth / 4;
-    mGUIHeight = mScrHeight / 4;
-    mGUIPixels = new unsigned char[mGUIWidth * mGUIHeight * 4];
-    for (unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i)
-        mGUIPixels[i] = 0;
+    // Initialize the GUI renderer
+    mGUIRenderer.setGUISize(mScrWidth / 4, mScrHeight / 4);
 
     // // Create the cubemap for the sky
-    // mSkymap = new GLCubemap();
-    // mSkymap->setupNoTextures(std::string(BASE_DIR_SHADERS) +
-    // "/GLGeometry/skyboxVertex.glsl",
-    //                          std::string(BASE_DIR_SHADERS) +
-    //                          "/GLGeometry/skyboxFragmentFlat.glsl");
+    // mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
+    // mWorldManager.getGraphicsManager().getSkymap()->setupNoTextures(
+    //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
+    //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
 
     // Skymap with textures
-    mSkymap = new GLCubemap();
-    mSkymap->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
-                               "/textures/skybox");
+    mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
+    mWorldManager.getGraphicsManager().getSkymap()->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
+                                                                      "/textures/skybox");
 
     // Set the position of the camera
     // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
@@ -52,123 +49,89 @@ void GLSandbox::setupScene() {
     // std::string(BASE_DIR_SHADERS) + "/fragment.glsl"));
 
     // Load shaders for the geometry pass
-    mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) +
-                                       "/GLBase/defGeometryPassVertex.glsl",
-                                   std::string(BASE_DIR_SHADERS) +
-                                       "/GLBase/defGeometryPassFragment.glsl"));
-    mGPassShaders.push_back(
-        Shader(std::string(BASE_DIR_SHADERS) +
-                   "/GLBase/defGeometryPassVertexWithTextures.glsl",
-               std::string(BASE_DIR_SHADERS) +
-                   "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
+    mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertex.glsl",
+                                   std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragment.glsl"));
+    mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassVertexWithTextures.glsl",
+                                   std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
 
     // Add a directional light
-    mLights.push_back(new DirectionalLight(
-        {1., 1., 1.},    // Color
-        {10., 10., 10.}, // Position
-        {-1., -1., -1.}, // Direction
-        1.f, 0.f, 0.f)); // Intensity, attenuation linear, attenuation quadratic
-    // // Add a spotlight
-    // mLights.push_back(new SpotLight( {1., 0., 1.},            // Color
-    //                                  {3., 6., 0.},            // Position
-    //                                  {-1., -1., 0.},           // Direction
-    //                                  // {0., 4., 0.},            // Position
-    //                                  // {0., -1., 0.},           // Direction
-    //                                  60.f, 90.f,              // Angles
-    //                                  7.f, 0.05f, 0.1f) );     // Intensity,
-    //                                  attenuation linear, attenuation
-    //                                  quadratic
-    // // Add some point lights
-    // for (int i = 0; i < 2; ++i)
-    // {
-    //     mLights.push_back(new PointLight( {getRandom0To1(), getRandom0To1(),
-    //     getRandom0To1()},
-    //                                       {10.f * getRandom0To1() - 5.f, 10.f
-    //                                       * getRandom0To1() - 2.f, 10.f *
-    //                                       getRandom0To1() - 5.f},
-    //                                       // 0.2f, 0.01f, 0.02f ) );
-    //                                       2.f, 0.01f, 0.02f ) );
-    // }
+    mWorldManager.getGraphicsManager().addLight<DirectionalLight>(
+        glm::vec3(1., 1., 1.),    // Color
+        glm::vec3(10., 10., 10.), // Position
+        glm::vec3(-1., -1., -1.), // Direction
+        1.f, 0.f, 0.f             // Intensity, attenuation linear, attenuation quadratic
+    );
+
+    // Add a spotlight
+    mWorldManager.getGraphicsManager().addLight<SpotLight>(glm::vec3(1., 0., 1.),   // Color
+                                                           glm::vec3(3., 6., 10.),  // Position
+                                                           glm::vec3(-1., -1., 0.), // Direction
+                                                           60., 90.,                // Angles
+                                                           7.,                      // Intensity
+                                                           0.05, 0.1 // Attenuation linear, attenuation quadratioc
+    );
+
+    // Add some point lights
+    for (int i = 0; i < 2; ++i) {
+        mWorldManager.getGraphicsManager().addLight<PointLight>(
+            glm::vec3(getRandom0To1(), getRandom0To1(), getRandom0To1()), // Color
+            glm::vec3(10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f,
+                      10.f * getRandom0To1() - 5.f), // Position
+            2.f, 0.01f, 0.02f);
+    }
 
     /*
-       Add elements to mPhysicsWorld
+       Add elements to the world
        -------------------------------------------------------------------------
-       - Create the RigidBody or CollisionBody, as pointers (using "new ...")
-       - Add it to mPhysicsWorld, either with .addRigidBody or .addCollisionBody
-           - This also adds its GLObject to the list mElementaryObjects
-
-       The objects are deleted from memory automatically, by the destructor of
-       mPhsyicsWorld
     */
 
     // Setup force of gravity
-    mGravity = new Physics::GravityForceGenerator({0.f, -9.8f, 0.f});
-    // mGravity = new Physics::GravityForceGenerator( { 0.f, 0.f, 0.f } );
-    // mGravity = new Physics::GravityForceGenerator( { 0.f, -1.f, 0.f } );
+    auto gravity = std::make_unique<GravityForceGenerator>(glm::vec3(0., -9.8, 0.));
+    mWorldManager.getPhysicsManager().addGravity(std::move(gravity));
 
     // -------------------------------------------------------------------------
     // Terrain
     // -------------------------------------------------------------------------
 
-    // // Add a terrain
-    // Terrain* terrain = new Terrain( &mElementaryObjects );
-    // terrain->addPatchFromTexture( std::string(BASE_DIR_RESOURCES) +
-    // "/textures/heightmaps/iceland_heightmap.png", 0.25f, 0.4f, -15.f );
+    // Add a terrain
+    // auto terrain = std::make_unique<Terrain>();
+    // terrain->addPatchFromTexture(std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.25f,
+    //                              0.4f, -15.f);
     // // terrain->addPatchFromTexture( std::string(BASE_DIR_RESOURCES) +
-    // "/textures/heightmaps/heightmap-01.png", 0.25f, 0.4f, -15.f );
-    // terrain->addMaterial( new Material( mGPassShaders[0], {0.5, 0.5, 0.2},
-    // 0.1 ) );
-    // // MaterialWithTextures* materialTerrain = new MaterialWithTextures(
-    // mGPassShaders[1], {1., 0., 0.}, 0.1 );
-    // // materialTerrain->loadAlbedoTexture( std::string(BASE_DIR_RESOURCES) +
-    // "/textures/wood.png" );
-    // // terrain->addMaterial( materialTerrain );
-    // mPhysicsWorld.addTerrain( terrain );
+    // //     "/textures/heightmaps/heightmap-01.png", 0.25f, 0.4f, -15.f );
+    // terrain->addMaterial<Material>(mGPassShaders[0], glm::vec3(0.5, 0.5, 0.2), 0.1);
+    // // auto materialTerrain = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
+    // // materialTerrain->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/wood.png");
+    // // terrain->addMaterial(std::move(materialTerrain));
+    // mWorldManager.addTerrain(std::move(terrain));
 
     // Add a terrain with to be drawn with the tesselation shader
-    Terrain *terrain = new Terrain(&mElementaryObjects);
-    // terrain->addPatchFromTextureTessellated( std::string(BASE_DIR_RESOURCES)
-    // + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f );
+    auto terrain = std::make_unique<Terrain>();
     terrain->addPatchFromTextureTessellated(
-        std::string(BASE_DIR_RESOURCES) +
-            "/textures/heightmaps/heightmap-02.jpg",
-        0.5f, 80.f, -80.f);
-    terrain->addMaterial(
-        new Material(terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1));
+        std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f);
+    // terrain->addPatchFromTextureTessellated(std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/heightmap-02.jpg",
+    //                                         0.5f, 80.f, -80.f);
+    terrain->addMaterial<Material>(terrain->getTessellationShader(), glm::vec3(0.5, 0.5, 0.2), 0.1);
     mGPassShaders.push_back(terrain->getTessellationShader());
-    mPhysicsWorld.addTerrain(terrain);
+    mWorldManager.addTerrain(std::move(terrain));
 
     // // Add a terrain to be drawn with the tesselation shader
     // int width = 200;
     // int height = 200;
-    // float* heightData = new float[width * height];
-    // for ( int i = 0; i < width; i++ )
-    // {
-    //     for ( int j = 0; j < height; j++ )
-    //     {
-    //         float x = i - width/2.f;
-    //         float y = j - height/2.f;
-    //         heightData[ j*width + i ] = (150.f / ( 1.f + glm::sqrt( x*x + y*y
-    //         ) ));
+    // float *heightData = new float[width * height];
+    // for (int i = 0; i < width; i++) {
+    //     for (int j = 0; j < height; j++) {
+    //         float x = i - width / 2.f;
+    //         float y = j - height / 2.f;
+    //         heightData[j * width + i] = (150.f / (1.f + glm::sqrt(x * x + y * y)));
     //     }
     // }
-    // Terrain* terrain = new Terrain( &mElementaryObjects );
-    // terrain->addPatchFromHeightDataTessellated( heightData, width,
-    // height, 2.f, 20.f, -5.f );
-    // // terrain->addPatchPlaneTessellated( 100.f, 1.f, 0.f );
-    // terrain->addMaterial( new Material( terrain->getTessellationShader(),
-    // {0.5, 0.5, 0.2}, 0.1 ) ); mGPassShaders.push_back(
-    // terrain->getTessellationShader() ); mPhysicsWorld.addTerrain( terrain );
-
-    // // Add a plane
-    // // The arguments are position, scale, rotation angle and rotation axis
-    // CollisionBody* plane = new CollisionBody( { 0., -1., 0. },
-    //                                           { 100., 100., 100. },
-    //                                           -90., { 1., 0., 0. } );
-    // plane->addGeometry( new GLQuad(), mElementaryObjects );
-    // plane->addCollider( new PlaneCollider() );
-    // plane->addMaterial( new Material( mGPassShaders[0], { 0.5, 0.5, 0. }, 0.1
-    // ) ); mPhysicsWorld.addCollisionBody( plane );
+    // auto terrain = std::make_unique<Terrain>();
+    // terrain->addPatchFromHeightDataTessellated(heightData, width, height, 2.f, 20.f, -5.f);
+    // delete[] heightData;
+    // terrain->addMaterial<Material>(terrain->getTessellationShader(), glm::vec3(0.5, 0.5, 0.2), 0.1);
+    // mGPassShaders.push_back(terrain->getTessellationShader());
+    // mWorldManager.addTerrain(std::move(terrain));
 
     // -------------------------------------------------------------------------
     // Objects with physics
@@ -177,85 +140,69 @@ void GLSandbox::setupScene() {
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
-    RigidBody *sphere = new RigidBody({0., 5., 0.}, {1., 1., 1.}, 0.f,
-                                      {1., 0., 0.}, 1.f, {0., 0., 0.});
-    sphere->addGeometry(new GLSphere(16), mElementaryObjects);
-    // sphere->addGeometryNotDrawn( new GLObjectPlaceholder() );
-    sphere->addCollider(new SphereCollider());
-    // sphere->addMaterial( new Material( mGPassShaders[0], {1., 0., 0.}, 0.1 )
-    // );
-    MaterialWithTextures *materialSphTextures =
-        new MaterialWithTextures(mGPassShaders[1], {1., 0., 0.}, 0.1);
-    materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) +
-                                           "/textures/world_8k.jpg");
-    sphere->addMaterial(materialSphTextures);
-    mPhysicsWorld.addRigidBody(sphere);
-    // mPhysicsWorld.addRigidBodyNotDrawn( sphere );
-    // // Add gravity to this object
-    // mPhysicsWorld.addBodyForce( sphere, mGravity );
+    auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+    sphere->addGeometry<GLSphere>(16);
+    sphere->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere->addCollider<SphereCollider>();
+    auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
+    materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
+    sphere->addMaterial(std::move(materialSphTextures));
 
-    // // Add a drag force to it
-    // mForces.push_back( new DragForceGenerator( 0.1, 0.1 ) );
-    // // mPhysicsWorld.addBodyForce( sphere, mForces[0] );
-    // mPhysicsWorld.addBodyForce( sphere, mForces.back() );
+    Entity *spherePtr = mWorldManager.addEntity(std::move(sphere));
+
+    // Add gravity and a drag force to this object
+    mWorldManager.getPhysicsManager().registerBodyGravity(spherePtr);
+    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9);
+    mWorldManager.getPhysicsManager().registerBodyForce(spherePtr, dragForcePtr);
 
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
-    RigidBody *sphere2 = new RigidBody({0., 2., 0.}, {1., 1., 1.}, 45.f,
-                                       {1., 0., 0.}, 1.f, {0., 0., 0.});
-    sphere2->addGeometry(new GLSphere(16), mElementaryObjects);
-    sphere2->addCollider(new SphereCollider());
-    sphere2->addMaterial(new Material(mGPassShaders[0], {0., 1., 0.}, 0.1));
-    mPhysicsWorld.addRigidBody(sphere2);
-    // Add gravity to this object
-    mPhysicsWorld.addBodyForce(sphere2, mGravity);
+    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    sphere2->addGeometry<GLSphere>(16);
+    sphere2->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere2->addCollider<SphereCollider>();
+    sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
 
-    // Join it to the other sphere with a spring
-    mForces.push_back(new SpringForceGenerator(sphere, 5.f, 0.5f, 0.5f));
-    mPhysicsWorld.addBodyForce(sphere2, mForces.back());
+    Entity *sphere2Ptr = mWorldManager.addEntity(std::move(sphere2));
+
+    mWorldManager.getPhysicsManager().registerBodyGravity(sphere2Ptr);
+
+    // Add a spring force between the two objects
+    auto springForcePtr =
+        mWorldManager.getPhysicsManager().addForce<SpringForceGenerator>(spherePtr->getRigidBody(), 5., 0.5, 0.5);
+    mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, springForcePtr);
 
     // // Join it to the other sphere with a bungee
-    // mForces.push_back( new BungeeForceGenerator( sphere, 5.f, 10.f ) );
-    // mPhysicsWorld.addBodyForce( sphere2, mForces.back() );
+    // auto bungeeForcePtr =
+    // mWorldManager.getPhysicsManager().addForce<BungeeForceGenerator>(spherePtr->getRigidBody(), 5., 10.);
+    // mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, bungeeForcePtr);
 
-    // // Add a cylinder
-    // // The arguments of the constructor are position, scale, rotation angle,
-    // // rotation axis, mass, initial velocity
-    // RigidBody* cylinder = new RigidBody( { -5., 2., -1. },
-    //                                     { 1., 1., 1. },
-    //                                     45.f, { 1., 0., 0. },
-    //                                     1.f,
-    //                                     { 15., 15., 0. } );
-    // cylinder->addGeometry( new GLCylinder(16), mElementaryObjects );
-    // cylinder->addCollider( new SphereCollider() );
-    // // cylinder->addMaterial( new Material( mGPassShaders[0], {0., 1., 0.},
-    // 0.1 ) ); cylinder->addMaterial( materialSphTextures );
-    // mPhysicsWorld.addRigidBody( cylinder );
+    // Add a cylinder
+    auto cylinder = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    cylinder->addGeometry<GLCylinder>(16);
+    cylinder->addRigidBody<RigidBody>(1., glm::vec3(0., 1., 0.));
+    cylinder->addCollider<SphereCollider>();
+    cylinder->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 0., 1.), 0.1);
+    // Entity *cylinderPtr = mWorldManager.addEntity(std::move(cylinder));
+    mWorldManager.addEntity(std::move(cylinder));
 
-    // // Add a cube
-    // // The arguments of the constructor are position, scale, rotation angle,
-    // // rotation axis, mass, initial velocity
-    // RigidBody* cube = new RigidBody( { 0., 0., -1. },
-    //                                    { 1., 1., 1. },
-    //                                    0.f, { 1., 0., 0. },
-    //                                    1.f,
-    //                                    { 0., 3., 0. } );
-    // cube->addGeometry( new GLCube(), mElementaryObjects );
-    // cube->addCollider( new ConvexCollider( new GLCube() ) );
-    // cube->addMaterial( new Material( mGPassShaders[0], {0., 0., 1.}, 0.1 ) );
-    // mPhysicsWorld.addRigidBody( cube );
+    // Add a cube
+    auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+    cube->addGeometry<GLCube>();
+    cube->addRigidBody<RigidBody>(1., glm::vec3(1., 0., 0.));
+    cube->addCollider<ConvexCollider>(cube->getGeometry());
+    cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
+    // Entity *cubePtr = mWorldManager.addEntity(std::move(cube));
+    mWorldManager.addEntity(std::move(cube));
 
-    // // Add a particle system
-    // ParticleSystem* particleSystem = new ParticleSystem( mGPassShaders[0],
-    //                                                      { 0., 1., 0. },
-    //                                                      { 1., 1., 1. },
-    //                                                      0.f, { 1., 0., 0. },
-    //                                                      1.f,
-    //                                                      { 0., 0., 0. } );
-    // particleSystem->setParticleGeometry( new GLSphere(4), mElementaryObjects,
-    // &mGPassShaders[0] ); particleSystem->setParticleGravity( { 0.f, -5.f, 0.f
-    // } ); mPhysicsWorld.addParticleSystem( particleSystem );
+    // Add a particle system
+    auto particleSystem =
+        std::make_unique<ParticleSystem>(mGPassShaders[0], glm::vec3(0., 1., 0.), glm::vec3(1., 1., 1.), 0.f,
+                                         glm::vec3(1., 0., 0.), 1.f, glm::vec3(0., 0., 0.));
+    particleSystem->setParticleGeometry(std::make_unique<GLSphere>(4), &mGPassShaders[0]);
+    particleSystem->setParticleGravity({0.f, -5.f, 0.f});
+    mWorldManager.addParticleSystem(std::move(particleSystem));
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -279,20 +226,19 @@ void GLSandbox::setupApplication() {
     mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
 
     // Pass the list of lights to the renderer, to configure the lighting shader
-    mRenderer.configureLights(mLights);
+    mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());
 }
 
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene() {
-    // Update the objects in the physics world
-    mPhysicsWorld.step(mDeltaTime);
+    mWorldManager.simulationStep(mDeltaTime);
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();
     mView = mCamera.getViewMatrix();
 
     // Update the skymap
-    mSkymap->setViewProjection(mView, mProjection);
+    mWorldManager.getGraphicsManager().getSkymap()->setViewProjection(mView, mProjection);
 }
 
 // Render the geometry that will use deferred rendering
@@ -304,11 +250,8 @@ void GLSandbox::renderDeferred() {
         GPassShader.setMat4("projection", mProjection);
     }
 
-    // Draw also the terrain
-    mPhysicsWorld.drawTerrain();
-
-    // Draw all the objects with physics
-    mPhysicsWorld.draw();
+    // Draw all registered entities
+    mWorldManager.draw();
 }
 
 // Render the geometry that will use forward rendering
@@ -343,9 +286,9 @@ void GLSandbox::renderForward() {
     // mAuxElements.drawCone(glm::vec3(-2., 0., 0.), 0., glm::vec3(1., 0., 0.),
     // glm::vec3(1., 1., 1.),
     //                            mView, mProjection);
-
+    //
     // // Draw points in the positions of the lights
-    // for (auto light : mLights)
+    // for (auto &light : mWorldManager.getGraphicsManager().getListOfLights())
     // {
     //     mAuxElements.drawPoint(light->getPosition(), mView, mProjection);
     // }
@@ -354,27 +297,26 @@ void GLSandbox::renderForward() {
     // GUI and text
 
     // // Set the pixels of the GUI to zero
-    // for ( unsigned int i = 0; i < mGUIWidth * mGUIHeight * 4; ++i )
-    //     mGUIPixels[i] = 0;
+    // auto [guiWidth, guiHeight] = mGUIRenderer.getGUISize();
+    // auto &guiPixels = mGUIRenderer.getPixels();
+    // for (unsigned int i = 0; i < guiWidth * guiHeight * 4; ++i)
+    //     guiPixels[i] = 0;
     // // Draw a red rectangle in the lowest corner
-    // for ( unsigned int x = 0; x < mGUIWidth; ++x )
-    // {
-    //     for ( unsigned int y = 0; y < mGUIHeight; ++y )
-    //     {
-    //         unsigned int index = ( y * ( mGUIWidth ) + x ) * 4;
-    //         mGUIPixels[index + 0] = 255; // Red
-    //         mGUIPixels[index + 1] = 0;   // Green
-    //         mGUIPixels[index + 2] = 0;   // Blue
-    //         mGUIPixels[index + 3] = 128; // Alpha (fully opaque)
+    // for (unsigned int x = 0; x < guiWidth; ++x) {
+    //     for (unsigned int y = 0; y < guiHeight; ++y) {
+    //         unsigned int index = (y * (guiWidth) + x) * 4;
+    //         guiPixels[index + 0] = 255; // Red
+    //         guiPixels[index + 1] = 0;   // Green
+    //         guiPixels[index + 2] = 0;   // Blue
+    //         guiPixels[index + 3] = 128; // Alpha (fully opaque)
     //     }
     // }
     //
     // // Draw the GUI elements
-    // mGUIRenderer.pixelsToTexture( mGUIPixels, mGUIWidth, mGUIHeight, 0,
-    // mScrHeight - mGUIHeight ); mGUIRenderer.renderGUI();
+    // mGUIRenderer.pixelsToTexture(0, mScrHeight - guiHeight);
+    // mGUIRenderer.renderGUI();
 
-    // Write text to the screen
-    // mTextRenderer.renderText( std::to_string(mDeltaTime), 100.f, 100.f, 1.f,
-    // glm::vec3( 0.f, 0.5f, 0.f ) ); mTextRenderer.renderText( "This is sample
-    // text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
+    // // Write text to the screen
+    // mTextRenderer.renderText(std::to_string(mDeltaTime), 100.f, 100.f, 1.f, glm::vec3(0.f, 0.5f, 0.f));
+    // mTextRenderer.renderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.2f, 0.2f, 0.2f));
 }
