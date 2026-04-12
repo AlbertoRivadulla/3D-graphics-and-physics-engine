@@ -4,32 +4,27 @@ using namespace GLBase;
 // using namespace GLGeometry;
 
 // Constructor
-GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
-    mApplication(width, height, title),
-    mRenderer(),
-    mLightingShader ( mRenderer.getLightingShader() ), // Reference to the G-pass shader of the renderer
-    mCamera(width, height, glm::vec3(1., 0., 0.)),
-    mAuxElements(width, height),
-    mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
-    mGUIRenderer(width, height),
-    mProjection { glm::mat4(1.) }, mView { glm::mat4(1.) },
-    mPhysicsWorld(),
-    mLastFrame { 0. }, mFrameCounter { 0 }, mTotalTime { 0. },
-    mScrWidth { width }, mScrHeight { height }
-{
+GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
+    : mApplication(width, height, title), mRenderer(),
+      mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass
+                                                      // shader of the renderer
+      mCamera(width, height, glm::vec3(1., 0., 0.)), mAuxElements(width, height),
+      mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"), mGUIRenderer(width, height),
+      mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mWorldManager(), mLastFrame{0.}, mFrameCounter{0},
+      mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
     // Get the actual resolution for the window.
-    // This is needed in case we are using a "retina" display, where the resolution
-    // is scaled.
+    // This is needed in case we are using a "retina" display, where the
+    // resolution is scaled.
     int winWidth;
     int winHeight;
-    mApplication.getWindowDims( winWidth, winHeight );
+    mApplication.getWindowDims(winWidth, winHeight);
 
     // Setup the renderer with the actual resolution for the window
     // The last argument is the scaling
     mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling),
 
-    // Seed a random number generator, with the function defined in utils.h
-    Utils::seedRandomGeneratorClock();
+        // Seed a random number generator, with the function defined in utils.h
+        Utils::seedRandomGeneratorClock();
 
     // Setup the scene
     setupScene();
@@ -39,10 +34,8 @@ GLSandbox::GLSandbox(int width, int height, const char* title, float scaling) :
 }
 
 // Start the application's loop
-void GLSandbox::run()
-{
-    while(!mApplication.mShouldClose)
-    {
+void GLSandbox::run() {
+    while (!mApplication.mShouldClose) {
         // Start the renderer
         // This also clears the window
         mRenderer.startFrame();
@@ -56,13 +49,14 @@ void GLSandbox::run()
         mApplication.processKeyboardInput(mDeltaTime);
 
         // Store in memory the time at the beginning of the drawing
-        float thisFrameTime { (float)glfwGetTime() };
+        float thisFrameTime{(float)glfwGetTime()};
 
         // Update the scene
         updateScene();
 
         // Compute the shadow maps
-        mRenderer.computeShadowMaps(mCamera, mLights, mElementaryObjects);
+        mRenderer.computeShadowMaps(mCamera, mWorldManager.getGraphicsManager().getListOfLights(),
+                                    mWorldManager.getGraphicsManager().getListOfObjects());
 
         // Start the geometry pass
         mRenderer.startGeometryPass();
@@ -71,10 +65,10 @@ void GLSandbox::run()
         renderDeferred();
 
         // Do the shading pass
-        mRenderer.processGBuffer(mCamera.Position, mLights);
+        mRenderer.processGBuffer(mCamera.Position, mWorldManager.getGraphicsManager().getListOfLights());
 
         // End the renderer, which produces the final scene from the g-buffer
-        mRenderer.endFrame(mSkymap);
+        mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());
         // mRenderer.endFrame(mSkymap, mAuxElements);
 
         // Render the geometry that uses forward rendering, after the deferred
@@ -90,8 +84,7 @@ void GLSandbox::run()
         ++mFrameCounter;
         // Every 60 frames, print the amount of time that each of them takes
         // if (mFrameCounter % 60 == 0)
-        if (mFrameCounter % 300 == 0)
-        {
+        if (mFrameCounter % 300 == 0) {
             std::stringstream ss;
             ss << "Average frame time: " << mTotalTime * 1000 / mFrameCounter << " ms - ";
             ss << "FPS: " << 1000. / (mTotalTime * 1000 / mFrameCounter);
@@ -107,26 +100,11 @@ void GLSandbox::run()
         }
 
         // // Wait for the user to press a key
-        // do 
+        // do
         // {
         //     LOG_INFO('\n' << "Press a key to continue...");
         // } while (std::cin.get() != '\n');
     }
 
     LOG_INFO("Execution stopped");
-}
-
-// Destructor
-GLSandbox::~GLSandbox()
-{
-    // Delete the skymap
-    delete mSkymap;
-
-    // Delete the elementary objects
-    for ( auto object : mElementaryObjects )
-        delete object;
-
-    // Delete the lights
-    for ( auto light : mLights ) 
-        delete light;
 }

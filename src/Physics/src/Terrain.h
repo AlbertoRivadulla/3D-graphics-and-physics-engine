@@ -3,65 +3,58 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
-#include "Colliders.h"
-#include "PhysicsBody.h"
+#include "GLTerrainPatch.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
 
-namespace Physics
-{
-    class Terrain
-    {
-        public:
-            // Constructor
-            Terrain( std::vector<GLElemObject*>* elementaryObjects );
-            // Destructor
-            ~Terrain();
+namespace Physics {
+class Terrain {
+public:
+    Terrain();
 
-            // Add a terrain patch from an image
-            void addPatchFromTexture( const std::string& heightmapTexPath, 
-                                      float hScale, float vScale, float yShift=0.f);
-            void addPatchPlaneTessellated( float hScale, float vScale, float yShift=0.f);
-            void addPatchFromTextureTessellated( const std::string& heightmapTexPath, 
-                                                 float hScale, float vScale, float yShift=0.f);
-            void addPatchFromHeightDataTessellated( float* heightMapData,
-                                                    int width, int height, float hScale, 
-                                                    float vScale, float yShift=0.f);
+    // Add a terrain patch from an image
+    void addPatchFromTexture(const std::string &heightmapTexPath, float hScale, float vScale, float yShift = 0.f);
+    void addPatchPlaneTessellated(float hScale, float vScale, float yShift = 0.f);
+    void addPatchFromTextureTessellated(const std::string &heightmapTexPath, float hScale, float vScale,
+                                        float yShift = 0.f);
+    void addPatchFromHeightDataTessellated(float *heightMapData, int width, int height, float hScale, float vScale,
+                                           float yShift = 0.f);
 
-            // Add material
-            void addMaterial( Material* material );
+    template <typename T, typename... Args> void addMaterial(Args &&...args) {
+        static_assert(std::is_base_of<GLBase::Material, T>::value, "T must derive from GLBase::Material");
 
-            // Get the tessellation shader
-            Shader& getTessellationShader();
+        auto material = std::make_unique<T>(std::forward<Args>(args)...);
+        addMaterial(std::move(material));
+    }
+    void addMaterial(std::unique_ptr<GLBase::Material>);
 
-            // Draw the terrain
-            void draw();
+    GLTerrainPatch *getTerrainPatch() { return mTerrainPatch.get(); }
+    Material *getMaterial() { return mMaterial.get(); }
 
-        private:
-            // // List of elementary objects in the corresponding sandbox
-            // std::vector<GLElemObject*>* mElementaryObjects;
+    // Get the tessellation shader
+    Shader &getTessellationShader();
 
-            // Height map and Normal map texture
-            unsigned int mHeightmapTex;
-            unsigned int mNormalmapTex;
-            // Data for the height and normal maps
-            float* mDataHeight;
-            float* mDataNormal;
+private:
+    // // List of elementary objects in the corresponding sandbox
+    // std::vector<GLElemObject*>* mElementaryObjects;
 
-            // Material
-            Material* mMaterial;
+    // Data for the height and normal maps
+    std::vector<float> mDataHeight;
+    std::vector<float> mDataNormal;
 
-            // Terrain patch
-            GLTerrainPatch* mTerrainPatch;
+    // Material
+    std::unique_ptr<Material> mMaterial;
 
-            // Shader for tessellation
-            Shader mTessellationShader;
+    // Terrain patch
+    std::unique_ptr<GLTerrainPatch> mTerrainPatch;
 
-            // Compute the normal map given an array of data for the height map
-            void computeNormalmapData( float* data, int width, int height,
-                                       float hScale, float vScale );
-    };
-}
+    // Shader for tessellation
+    Shader mTessellationShader;
+
+    // Compute the normal map given an array of data for the height map
+    void computeNormalmapData(int width, int height, float hScale, float vScale);
+};
+} // namespace Physics
 
 #endif

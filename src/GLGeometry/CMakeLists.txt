@@ -19,6 +19,7 @@ project(project)
 set(INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Skymap
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty
 
     ${CMAKE_CURRENT_SOURCE_DIR}/../GLBase
@@ -41,19 +42,9 @@ set(LIBS PUBLIC
 )
 
 # Create a variable with a link to all cpp files to compile
-set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLQuad.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCube.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLSphere.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCylinder.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCone.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLPolyhedron.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLParticleSystem.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLCubemap.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLAuxElements.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTextRenderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLGUIRenderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTerrainPatch.cpp
+file(GLOB SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Skymap/*.cpp
 )
 
 # Create the library

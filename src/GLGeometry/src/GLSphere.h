@@ -4,28 +4,26 @@
 #include "GLGeometry.h"
 #include "GLElemObject.h"
 
-namespace GLGeometry
-{
-    class GLSphere : public GLElemObject
-    {
-        private:
-            // This class will use an element buffer object
-            unsigned int mEBO;
+namespace GLGeometry {
+class GLSphere : public GLElemObject {
+private:
+    // This class will use an element buffer object
+    unsigned int mEBO;
 
-            // Data of the mesh
-            // std::vector<Vertex> mVertices;
-            std::vector<unsigned int> mIndices;
+    // Data of the mesh
+    // std::vector<Vertex> mVertices;
+    std::vector<unsigned int> mIndices;
 
-            // Number of vertices in each circle
-            int mNrVertices;
+    // Number of vertices in each circle
+    int mNrVertices;
 
-        public:
-            // Constructor
-            GLSphere(int nrVertices);
+public:
+    // Constructor
+    GLSphere(int nrVertices);
 
-            // Function to render
-            void draw();
-    };
-}
+    // Function to render
+    void draw();
+};
+} // namespace GLGeometry
 
 #endif
