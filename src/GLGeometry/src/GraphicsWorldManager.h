@@ -4,12 +4,15 @@
 #include <memory>
 #include <vector>
 #include "GLBase.h"
+#include "GLTerrainPatch.h"
 
 namespace GLGeometry {
 
 class GraphicsWorldManager {
 public:
     void registerObjectAndMaterial(GLGeometry::GLElemObject *object, GLBase::Material *material);
+
+    void registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch, GLBase::Material *material);
 
     template <typename T, typename... Args> Light *addLight(Args &&...args) {
         static_assert(std::is_base_of<Light, T>::value, "T must derive from GLBase::Light");
@@ -41,6 +44,8 @@ private:
     std::vector<std::unique_ptr<Light>> mLights;
 
     std::unique_ptr<GLCubemap> mSkymap;
+
+    GLObjectWithMaterial mTerrain;
 };
 
 } // namespace GLGeometry

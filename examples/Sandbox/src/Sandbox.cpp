@@ -98,62 +98,45 @@ void GLSandbox::setupScene() {
     // Terrain
     // -------------------------------------------------------------------------
 
-    // // Add a terrain
-    // Terrain* terrain = new Terrain( &mElementaryObjects );
-    // terrain->addPatchFromTexture( std::string(BASE_DIR_RESOURCES) +
-    // "/textures/heightmaps/iceland_heightmap.png", 0.25f, 0.4f, -15.f );
+    // Add a terrain
+    // auto terrain = std::make_unique<Terrain>();
+    // terrain->addPatchFromTexture(std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.25f,
+    //                              0.4f, -15.f);
     // // terrain->addPatchFromTexture( std::string(BASE_DIR_RESOURCES) +
-    // "/textures/heightmaps/heightmap-01.png", 0.25f, 0.4f, -15.f );
-    // terrain->addMaterial( new Material( mGPassShaders[0], {0.5, 0.5, 0.2},
-    // 0.1 ) );
-    // // MaterialWithTextures* materialTerrain = new MaterialWithTextures(
-    // mGPassShaders[1], {1., 0., 0.}, 0.1 );
-    // // materialTerrain->loadAlbedoTexture( std::string(BASE_DIR_RESOURCES) +
-    // "/textures/wood.png" );
-    // // terrain->addMaterial( materialTerrain );
-    // mPhysicsWorld.addTerrain( terrain );
+    // //     "/textures/heightmaps/heightmap-01.png", 0.25f, 0.4f, -15.f );
+    // terrain->addMaterial<Material>(mGPassShaders[0], glm::vec3(0.5, 0.5, 0.2), 0.1);
+    // // auto materialTerrain = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
+    // // materialTerrain->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/wood.png");
+    // // terrain->addMaterial(std::move(materialTerrain));
+    // mWorldManager.addTerrain(std::move(terrain));
 
     // Add a terrain with to be drawn with the tesselation shader
     auto terrain = std::make_unique<Terrain>();
-    // terrain->addPatchFromTextureTessellated(
-    //     std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f);
-    terrain->addPatchFromTextureTessellated(std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/heightmap-02.jpg",
-                                            0.5f, 80.f, -80.f);
-    terrain->addMaterial(new Material(terrain->getTessellationShader(), {0.5, 0.5, 0.2}, 0.1));
+    terrain->addPatchFromTextureTessellated(
+        std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/iceland_heightmap.png", 0.5f, 100.f, -80.f);
+    // terrain->addPatchFromTextureTessellated(std::string(BASE_DIR_RESOURCES) + "/textures/heightmaps/heightmap-02.jpg",
+    //                                         0.5f, 80.f, -80.f);
+    terrain->addMaterial<Material>(terrain->getTessellationShader(), glm::vec3(0.5, 0.5, 0.2), 0.1);
     mGPassShaders.push_back(terrain->getTessellationShader());
     mWorldManager.addTerrain(std::move(terrain));
 
     // // Add a terrain to be drawn with the tesselation shader
     // int width = 200;
     // int height = 200;
-    // float* heightData = new float[width * height];
-    // for ( int i = 0; i < width; i++ )
-    // {
-    //     for ( int j = 0; j < height; j++ )
-    //     {
-    //         float x = i - width/2.f;
-    //         float y = j - height/2.f;
-    //         heightData[ j*width + i ] = (150.f / ( 1.f + glm::sqrt( x*x + y*y
-    //         ) ));
+    // float *heightData = new float[width * height];
+    // for (int i = 0; i < width; i++) {
+    //     for (int j = 0; j < height; j++) {
+    //         float x = i - width / 2.f;
+    //         float y = j - height / 2.f;
+    //         heightData[j * width + i] = (150.f / (1.f + glm::sqrt(x * x + y * y)));
     //     }
     // }
-    // Terrain* terrain = new Terrain( &mElementaryObjects );
-    // terrain->addPatchFromHeightDataTessellated( heightData, width,
-    // height, 2.f, 20.f, -5.f );
-    // // terrain->addPatchPlaneTessellated( 100.f, 1.f, 0.f );
-    // terrain->addMaterial( new Material( terrain->getTessellationShader(),
-    // {0.5, 0.5, 0.2}, 0.1 ) ); mGPassShaders.push_back(
-    // terrain->getTessellationShader() ); mPhysicsWorld.addTerrain( terrain );
-
-    // // Add a plane
-    // // The arguments are position, scale, rotation angle and rotation axis
-    // CollisionBody* plane = new CollisionBody( { 0., -1., 0. },
-    //                                           { 100., 100., 100. },
-    //                                           -90., { 1., 0., 0. } );
-    // plane->addGeometry( new GLQuad(), mElementaryObjects );
-    // plane->addCollider( new PlaneCollider() );
-    // plane->addMaterial( new Material( mGPassShaders[0], { 0.5, 0.5, 0. }, 0.1
-    // ) ); mPhysicsWorld.addCollisionBody( plane );
+    // auto terrain = std::make_unique<Terrain>();
+    // terrain->addPatchFromHeightDataTessellated(heightData, width, height, 2.f, 20.f, -5.f);
+    // delete[] heightData;
+    // terrain->addMaterial<Material>(terrain->getTessellationShader(), glm::vec3(0.5, 0.5, 0.2), 0.1);
+    // mGPassShaders.push_back(terrain->getTessellationShader());
+    // mWorldManager.addTerrain(std::move(terrain));
 
     // -------------------------------------------------------------------------
     // Objects with physics
@@ -271,8 +254,6 @@ void GLSandbox::renderDeferred() {
         GPassShader.setMat4("view", mView);
         GPassShader.setMat4("projection", mProjection);
     }
-
-    mWorldManager.drawTerrain();
 
     // Draw all registered entities
     mWorldManager.draw();

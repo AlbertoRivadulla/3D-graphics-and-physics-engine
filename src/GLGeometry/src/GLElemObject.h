@@ -100,8 +100,8 @@ public:
 };
 
 struct GLObjectWithMaterial {
-    GLGeometry::GLElemObject *object;
-    GLBase::Material *material;
+    GLGeometry::GLElemObject *object = nullptr;
+    GLBase::Material *material = nullptr;
 };
 
 } // namespace GLGeometry

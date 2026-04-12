@@ -49,24 +49,14 @@ std::vector<GLObjectWithMaterial> &WorldManager::getListOfObjectsWithGraphics() 
     return mGraphicsManager.getListOfObjects();
 };
 
-PhysicsManager &WorldManager::getPhysicsManager() {
-    return mPhysicsManager;
-}
+PhysicsManager &WorldManager::getPhysicsManager() { return mPhysicsManager; }
 
-GraphicsWorldManager &WorldManager::getGraphicsManager() {
-    return mGraphicsManager;
-}
+GraphicsWorldManager &WorldManager::getGraphicsManager() { return mGraphicsManager; }
 
 void WorldManager::simulationStep(float deltaTime) { mPhysicsManager.step(deltaTime); }
 
 // Draw the objects in the current frame, to the G-buffer
 void WorldManager::draw() { mGraphicsManager.draw(); }
-
-void WorldManager::drawTerrain() {
-    // TODO: Move this to the GraphicsManager when it has a pointer to the
-    // graphics part of the terrain object.
-    mTerrain->draw();
-}
 
 void WorldManager::registerEntityInManagers(Entity *entity) {
     if (entity->hasPhysics()) {
@@ -87,8 +77,9 @@ void WorldManager::registerParticleSystemInManagers(ParticleSystem *particleSyst
 }
 
 void WorldManager::registerTerrainInManagers(Terrain *terrain) {
-    // TODO: The terrain should also be registered in the Graphics manager
     mPhysicsManager.registerTerrain(terrain);
+
+    mGraphicsManager.registerTerrainAndMaterial(mTerrain->getTerrainPatch(), mTerrain->getMaterial());
 }
 
 } // namespace Physics

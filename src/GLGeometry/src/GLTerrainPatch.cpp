@@ -100,6 +100,11 @@ GLTerrainPatch::GLTerrainPatch(unsigned char *data, int width, int height,
 
 // Function to render
 void GLTerrainPatch::draw() {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mHeightmapTex);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mNormalmapTex);
+
     // Disable face culling for drawing the terrain
     glDisable(GL_CULL_FACE);
     glBindVertexArray(mVAO);
@@ -182,6 +187,11 @@ GLTerrainTessellated::GLTerrainTessellated(int width, int height)
 
 // Function to render
 void GLTerrainTessellated::draw() {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mHeightmapTex);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mNormalmapTex);
+
     // Disable face culling for drawing the terrain
     glDisable(GL_CULL_FACE);
 

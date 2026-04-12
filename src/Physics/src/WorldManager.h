@@ -35,8 +35,6 @@ public:
     // Draw the objects in the current frame, to the G-buffer
     void draw();
 
-    void drawTerrain();
-
 private:
     // This class has ownership of all the following
     std::vector<std::unique_ptr<Entity>> mEntities;

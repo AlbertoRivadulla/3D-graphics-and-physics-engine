@@ -7,6 +7,12 @@ void GraphicsWorldManager::registerObjectAndMaterial(GLGeometry::GLElemObject *o
     mGraphicsObjects.push_back({object, material});
 }
 
+void GraphicsWorldManager::registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch,
+                                                      GLBase::Material *material) {
+    mTerrain.object = terrainPatch;
+    mTerrain.material = material;
+}
+
 Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
     Light *raw = light.get();
     mLights.push_back(std::move(light));
@@ -14,13 +20,16 @@ Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
     return raw;
 }
 
-void GraphicsWorldManager::addSkymap(std::unique_ptr<GLCubemap> skymap) {
-    mSkymap = std::move(skymap);
-}
+void GraphicsWorldManager::addSkymap(std::unique_ptr<GLCubemap> skymap) { mSkymap = std::move(skymap); }
 
 void GraphicsWorldManager::draw() {
-    // // TODO: Draw the terrain first, when this class has a pointer to the graphics part of the terrain
-    // mTerrain->draw();
+    // TODO: Delegate this in a terrain drawer class, that will handle drawing different terrain patches depending on
+    // the camera frustum
+    if (mTerrain.object != nullptr) {
+        mTerrain.material->configShader(mTerrain.object->getModelMatrix());
+
+        mTerrain.object->draw();
+    }
 
     for (auto object : mGraphicsObjects) {
         object.material->configShader(object.object->getModelMatrix());
