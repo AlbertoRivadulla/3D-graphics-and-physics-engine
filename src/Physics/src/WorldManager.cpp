@@ -15,10 +15,6 @@ WorldManager::WorldManager() {}
 WorldManager::~WorldManager() {}
 
 Entity *WorldManager::addEntity(std::unique_ptr<Entity> entity) {
-    // NOTE: Call this as
-    // auto entity = std::make_unique<Entity>(...);
-    // world.addEntity(std::move(entity));
-
     Entity *raw = entity.get();
     mEntities.push_back(std::move(entity));
 

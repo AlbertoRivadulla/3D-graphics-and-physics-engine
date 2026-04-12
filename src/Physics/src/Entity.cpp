@@ -84,8 +84,5 @@ void Entity::updateModelMatrix() {
 
     if (mGeometryObject) {
         mGeometryObject->setModelMatrix(mTransform.modelMatrix);
-        // TODO: I think this model matrix is the same for both objects. If this
-        // fails, uncomment the next line
-        // mGeometryObject->setModelMatrix(mPosition, mRotationMatrix, mScale);
     }
 }

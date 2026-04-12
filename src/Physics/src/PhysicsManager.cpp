@@ -186,17 +186,4 @@ bool PhysicsManager::checkForceIsRegistered(ForceGenerator *force) {
     return false;
 }
 
-// TODO: I think this can be removed
-// // Draw the objects in the current frame, to the G-buffer
-// void DynamicsWorld::draw( Shader& defaultShader )
-// {
-//     // Draw all the collision bodies
-//     for ( auto collisionBody : mCollisionBodies )
-//         collisionBody->draw( defaultShader );
-//
-//     // Draw all the rigid bodies
-//     for ( auto rigidBody : mRigidBodies )
-//         rigidBody->draw( defaultShader );
-// }
-
 } // namespace Physics
