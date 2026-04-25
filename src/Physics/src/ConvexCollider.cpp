@@ -49,6 +49,7 @@ void ConvexCollider::moveCollider(const glm::mat4 &modelMatrix) {
                            mAABB.cornersWorld);
 
     // Update the collider
+    // TODO:
 }
 
 // Methods for finding collisions
@@ -59,7 +60,7 @@ bool ConvexCollider::findCollision(const Collider *other) const {
 bool ConvexCollider::findCollision(const SphereCollider *sphere) const {
     // Test collisions between AABBs
     if (checkCollisionAABB(sphere)) {
-        // TODO
+        // TODO:
         LOG_DEBUG("Collision convex sphere");
         return true;
     }
@@ -74,7 +75,7 @@ bool ConvexCollider::findCollision(const SphereCollider *sphere) const {
 bool ConvexCollider::findCollision(const PlaneCollider *plane) const {
     // Test collision with the AABB
     if (checkCollisionAABBPlane(plane)) {
-        // TODO
+        // TODO:
         return true;
     }
 

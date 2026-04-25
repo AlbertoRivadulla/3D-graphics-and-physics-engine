@@ -1,14 +1,15 @@
 #include "Entity.h"
+#include "glm/gtx/quaternion.hpp"
 
 Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::vec3 rotationAxis) {
     mTransform.position = position;
     mTransform.scale = scale;
 
     // Compute the rotation matrix from the angle and axis given
-    mTransform.rotationMatrix = glm::mat4(1.f);
-    if (rotationAngle != 0.)
-        mTransform.rotationMatrix =
-            glm::rotate(mTransform.rotationMatrix, glm::radians(rotationAngle), glm::normalize(rotationAxis));
+    mTransform.orientation = glm::identity<glm::quat>();
+    if (std::fabs(rotationAngle) > 1e-6f) {
+        mTransform.orientation = glm::angleAxis(glm::radians(rotationAngle), rotationAxis);
+    }
 }
 
 Entity::~Entity() {}
@@ -46,9 +47,10 @@ void Entity::setScale(glm::vec3 scale) {
 
 void Entity::setRotation(float angle, glm::vec3 axis) {
     // Compute the rotation matrix from the angle and axis given
-    mTransform.rotationMatrix = glm::mat4(1.f);
-    if (angle != 0.)
-        mTransform.rotationMatrix = glm::rotate(mTransform.rotationMatrix, glm::radians(angle), glm::normalize(axis));
+    mTransform.orientation = glm::identity<glm::quat>();
+    if (std::fabs(angle) > 1e-6f) {
+        mTransform.orientation = glm::angleAxis(glm::radians(angle), axis);
+    }
 
     updateModelMatrix();
 }
@@ -75,7 +77,7 @@ void Entity::integrate(float deltaTime) {
 void Entity::updateModelMatrix() {
     mTransform.modelMatrix = glm::mat4(1.f);
     mTransform.modelMatrix = glm::translate(mTransform.modelMatrix, mTransform.position);
-    mTransform.modelMatrix = mTransform.modelMatrix * mTransform.rotationMatrix;
+    mTransform.modelMatrix = mTransform.modelMatrix * glm::toMat4(mTransform.orientation);
     mTransform.modelMatrix = glm::scale(mTransform.modelMatrix, mTransform.scale);
 
     if (mCollider) {
