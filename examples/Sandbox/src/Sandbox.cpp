@@ -63,11 +63,11 @@ void GLSandbox::setupScene() {
     );
 
     // Add a spotlight
-    mWorldManager.getGraphicsManager().addLight<SpotLight>(glm::vec3(1., 0., 1.),   // Color
-                                                           glm::vec3(3., 6., 10.),  // Position
-                                                           glm::vec3(-1., -1., 0.), // Direction
-                                                           60., 90.,                // Angles
-                                                           7.,                      // Intensity
+    mWorldManager.getGraphicsManager().addLight<SpotLight>(glm::vec3(1., 0., 1.),                // Color
+                                                           glm::vec3(3., 6., 10.),               // Position
+                                                           glm::vec3(-1., -1., 0.),              // Direction
+                                                           glm::radians(60.), glm::radians(90.), // Angles
+                                                           7.,                                   // Intensity
                                                            0.05, 0.1 // Attenuation linear, attenuation quadratioc
     );
 
@@ -158,7 +158,8 @@ void GLSandbox::setupScene() {
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
-    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::degrees(45.f),
+                                            glm::vec3(1., 0., 0.));
     sphere2->addGeometry<GLSphere>(16);
     sphere2->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
     sphere2->addCollider<SphereCollider>();
@@ -179,7 +180,8 @@ void GLSandbox::setupScene() {
     // mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, bungeeForcePtr);
 
     // Add a cylinder
-    auto cylinder = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    auto cylinder = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), glm::degrees(45.f),
+                                             glm::vec3(1., 0., 0.));
     cylinder->addGeometry<GLCylinder>(16);
     cylinder->addRigidBody<RigidBody>(1., glm::vec3(0., 1., 0.));
     cylinder->addCollider<SphereCollider>();
@@ -190,7 +192,7 @@ void GLSandbox::setupScene() {
     // Add a cube
     auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     cube->addGeometry<GLCube>();
-    cube->addRigidBody<RigidBody>(1., glm::vec3(1., 0., 0.));
+    cube->addRigidBody<RigidBody>(1., glm::vec3(1., 0., 0.), glm::vec3(1.5, 1.5, 0.));
     cube->addCollider<ConvexCollider>(cube->getGeometry());
     cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
     // Entity *cubePtr = mWorldManager.addEntity(std::move(cube));
@@ -267,15 +269,15 @@ void GLSandbox::renderForward() {
     // 0.), glm::vec3(0., 1., 1.),
     //                            mView, mProjection);
     // // Draw a rectangle
-    // mAuxElements.drawRectangle(glm::vec3(-2., 1., 0.), -45., glm::vec3(1.,
+    // mAuxElements.drawRectangle(glm::vec3(-2., 1., 0.), glm::degrees(-45.f), glm::vec3(1.,
     // 0., 0.), glm::vec3(1., 2., 1.),
     //                            mView, mProjection);
     // // Draw a box
-    // mAuxElements.drawBox(glm::vec3(2., 1., 0.), -45., glm::vec3(1., 0., 0.),
+    // mAuxElements.drawBox(glm::vec3(2., 1., 0.), glm::degrees(-45.f), glm::vec3(1., 0., 0.),
     // glm::vec3(1., 2., 1.),
     //                            mView, mProjection);
     // // Draw a cylinder
-    // mAuxElements.drawCylinder(glm::vec3(-2., 3., 0.), -45., glm::vec3(1., 0.,
+    // mAuxElements.drawCylinder(glm::vec3(-2., 3., 0.), glm::degrees(-45.f), glm::vec3(1., 0.,
     // 0.), glm::vec3(1., 2., 1.),
     //                            mView, mProjection);
     // // Draw a sphere

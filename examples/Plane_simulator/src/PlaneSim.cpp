@@ -3,6 +3,7 @@
 #include "ForceGenerator.h"
 #include "Entity.h"
 #include "RigidBody.h"
+#include "glm/trigonometric.hpp"
 #include "utils.h"
 #include <memory>
 
@@ -105,7 +106,7 @@ void PlaneSim::setupScene() {
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
-    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), 45.f, glm::vec3(1., 0., 0.));
+    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::radians(45.f), glm::vec3(1., 0., 0.));
     sphere2->addGeometry<GLSphere>(16);
     sphere2->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
     sphere2->addCollider<SphereCollider>();

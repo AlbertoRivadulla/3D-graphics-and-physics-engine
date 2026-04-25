@@ -1,18 +1,20 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <numbers>
 #include "GLBase.h"
 
 namespace GLBase {
 // Default camera values
 // Angle with respect to the camera's y axis.
 // Default to -90 degrees. Otherwise the camera will be looking to the right.
-const float YAW{-90.};
+const float YAW{glm::radians(-90.)};
 // Angle with respect to the camera's x axis.
-const float PITCH{0.};
+const float PITCH{glm::radians(0.)};
 const float SPEED{10.};
-const float SENSITIVITY{0.1};
-const float FOV{45.}; // Field of view
+// const float SENSITIVITY{0.1};
+const float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
+const float FOV{glm::radians(45.)}; // Field of view
 
 // Forward declare the camera class
 class Camera;

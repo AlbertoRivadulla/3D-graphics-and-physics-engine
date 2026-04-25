@@ -1,29 +1,28 @@
 #include "RigidBody.h"
+#include "glm/geometric.hpp"
 
 using namespace GLBase;
 
 namespace Physics {
 
 // Constructor
-RigidBody::RigidBody(float mass, glm::vec3 velocity)
-    : mTransform{nullptr}, mMassInver{1.f / mass}, mVelocity{velocity},
-      // mAcceleration { glm::vec3( 0.f, 0.f, 0.f ) },
-      mDamping{0.995f}, mForceAccum{glm::vec3(0.f, 0.f, 0.f)}
-// mTorqueAccum { glm::vec3( 0.f, 0.f, 0.f ) },
-// //
+RigidBody::RigidBody(float mass, glm::vec3 velocity, glm::vec3 angularVelocity)
+    : mTransform{nullptr}, mInvMass{1.f / mass}, mVelocity{velocity}, mAngularVelocity(angularVelocity),
+      mDamping{0.995f}, mForceAccum{glm::vec3(0.f, 0.f, 0.f)}, mTorqueAccum{glm::vec3(0.f, 0.f, 0.f)} // //
 // mAngularVelocity { glm::vec3( 0.f, 0.f, 0.f ) },
 // mForce { glm::vec3( 0.f, 0.f, 0.f ) },
 // mTorque { glm::vec3( 0.f, 0.f, 0.f ) }
 {
     setMass(mass);
+
+    // TODO: Set inertia tensor and its inverse
 }
 
-void RigidBody::setTransformPtr(Transform *transform) {
-    mTransform = transform;
-}
+void RigidBody::setTransformPtr(Transform *transform) { mTransform = transform; }
 
-// Set velocity and acceleration
 void RigidBody::setVelocity(glm::vec3 velocity) { mVelocity = velocity; }
+
+void RigidBody::setAngularVelocity(glm::vec3 angularVelocity) { mAngularVelocity = angularVelocity; }
 
 // Set velocity damping
 void RigidBody::setDamping(float damping) { mDamping = damping; }
@@ -32,14 +31,14 @@ void RigidBody::setDamping(float damping) { mDamping = damping; }
 void RigidBody::setMass(float mass) {
     if (mass < 0.f) {
         mMass = -1.f;
-        mMassInver = 0.f;
+        mInvMass = 0.f;
     } else {
         mMass = mass;
-        mMassInver = 1.f / mass;
+        mInvMass = 1.f / mass;
     }
 }
 void RigidBody::setInvMass(float invMass) {
-    mMassInver = invMass;
+    mInvMass = invMass;
     if (invMass == 0.f)
         mMass = -1.f;
     else
@@ -52,7 +51,7 @@ glm::vec3 RigidBody::getPosition() { return mTransform->position; }
 glm::vec3 RigidBody::getVelocity() { return mVelocity; }
 
 // Check if it has infinite mass
-bool RigidBody::hasInfiniteMass() { return mMassInver < 0.f; }
+bool RigidBody::hasInfiniteMass() { return mInvMass < 0.f; }
 
 // Add a force
 void RigidBody::addForce(const glm::vec3 &force) { mForceAccum += force; }
@@ -60,13 +59,20 @@ void RigidBody::addForce(const glm::vec3 &force) { mForceAccum += force; }
 // Set the accumulators to zero
 void RigidBody::clearAccumulators() {
     mForceAccum = glm::vec3(0.f, 0.f, 0.f);
-    // mTorqueAccum = glm::vec3( 0.f, 0.f, 0.f );
+    mTorqueAccum = glm::vec3(0.f, 0.f, 0.f);
+}
+
+void RigidBody::rotateInertiaTensor() {
+    glm::mat3 R = glm::toMat3(mTransform->orientation);
+
+    // I_world_inv = R * I_local_inv * R^T
+    mInvInertiaTensorWorld = R * mInvInertiaTensorLocal * glm::transpose(R);
 }
 
 // Integrate forward in time by the given duration
 void RigidBody::integrate(float deltaTime) {
     // Compute acceleration from the force
-    glm::vec3 resultingAcc = mForceAccum * mMassInver;
+    glm::vec3 resultingAcc = mForceAccum * mInvMass;
     // Update linear velocity
     mVelocity += resultingAcc * deltaTime;
     // Drag on the velocity, so it does not increase due to numerical errors
@@ -75,10 +81,22 @@ void RigidBody::integrate(float deltaTime) {
     // Update the position
     mTransform->position += mVelocity * deltaTime;
 
-    // TODO: Handle rotations also here
+    // TODO: Handle torque
+    // glm::vec3 angularAccel = mInvInertiaTensorWorld * mTorqueAccum;
+    // mAngularVelocity += angularAccel * deltaTime;
+
+    // Integrate angular velocity
+    // The derivative of a quaternion is: dq/dt = 0.5 * w * q, where w is the angular velocity as a pure quaternion
+    glm::quat w(0.f, mAngularVelocity.x, mAngularVelocity.y, mAngularVelocity.z);
+    mTransform->orientation += (w * mTransform->orientation) * 0.5f * deltaTime;
+    // Prevent drift due to numeric errors
+    mTransform->orientation = glm::normalize(mTransform->orientation);
 
     // Reset the net force and torque on the object
     clearAccumulators();
+
+    // TODO:
+    // Rotate the inertia tensor in world space
 }
 
 } // namespace Physics

@@ -36,7 +36,6 @@ public:
     virtual ~GLElemObject() = default;
 
     // Function to set the model matrix
-    // FIX: I think this is not used
     void setModelMatrix(const glm::vec3 &translation,
                         const float &rotationAngle,
                         const glm::vec3 &rotationAxis, const glm::vec3 &scale) {
@@ -44,11 +43,10 @@ public:
         mModelMatrix = glm::translate(mModelMatrix, translation);
         if (rotationAngle != 0.)
             mModelMatrix =
-                glm::rotate(mModelMatrix, glm::radians(rotationAngle),
+                glm::rotate(mModelMatrix, rotationAngle,
                             glm::normalize(rotationAxis));
         mModelMatrix = glm::scale(mModelMatrix, scale);
     }
-    // FIX: I think this is not used
     void setModelMatrix(const glm::vec3 &translation,
                         const glm::mat4 &rotationMatrix,
                         const glm::vec3 &scale) {

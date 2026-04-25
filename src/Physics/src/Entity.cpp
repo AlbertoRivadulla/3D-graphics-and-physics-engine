@@ -8,7 +8,7 @@ Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::ve
     // Compute the rotation matrix from the angle and axis given
     mTransform.orientation = glm::identity<glm::quat>();
     if (std::fabs(rotationAngle) > 1e-6f) {
-        mTransform.orientation = glm::angleAxis(glm::radians(rotationAngle), rotationAxis);
+        mTransform.orientation = glm::angleAxis(rotationAngle, rotationAxis);
     }
 }
 
@@ -49,7 +49,7 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
     // Compute the rotation matrix from the angle and axis given
     mTransform.orientation = glm::identity<glm::quat>();
     if (std::fabs(angle) > 1e-6f) {
-        mTransform.orientation = glm::angleAxis(glm::radians(angle), axis);
+        mTransform.orientation = glm::angleAxis(angle, axis);
     }
 
     updateModelMatrix();

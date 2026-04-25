@@ -236,7 +236,7 @@ void GLAuxElements::drawRectangle(const glm::vec3 &translation,
     // Compute the model matrix
     glm::mat4 model{glm::translate(glm::mat4(1.), translation)};
     if (rotationAngle != 0.)
-        model = glm::rotate(model, glm::radians(rotationAngle),
+        model = glm::rotate(model, rotationAngle,
                             glm::normalize(rotationAxis));
     model = glm::scale(model, scale);
 
@@ -325,7 +325,7 @@ void GLAuxElements::drawBox(const glm::vec3 &translation,
     // Compute the model matrix
     glm::mat4 model{glm::translate(glm::mat4(1.), translation)};
     if (rotationAngle != 0.)
-        model = glm::rotate(model, glm::radians(rotationAngle),
+        model = glm::rotate(model, rotationAngle,
                             glm::normalize(rotationAxis));
     model = glm::scale(model, scale);
 
@@ -420,7 +420,7 @@ void GLAuxElements::drawCylinder(const glm::vec3 &translation,
     // Compute the model matrix
     glm::mat4 model{glm::translate(glm::mat4(1.), translation)};
     if (rotationAngle != 0.)
-        model = glm::rotate(model, glm::radians(rotationAngle),
+        model = glm::rotate(model, rotationAngle,
                             glm::normalize(rotationAxis));
     model = glm::scale(model, scale);
 
@@ -547,7 +547,7 @@ void GLAuxElements::drawSphere(const glm::vec3 &translation,
     // Compute the model matrix
     glm::mat4 model{glm::translate(glm::mat4(1.), translation)};
     if (rotationAngle != 0.)
-        model = glm::rotate(model, glm::radians(rotationAngle),
+        model = glm::rotate(model, rotationAngle,
                             glm::normalize(rotationAxis));
     model = glm::scale(model, scale);
 
@@ -640,7 +640,7 @@ void GLAuxElements::drawCone(const glm::vec3 &translation,
     // Compute the model matrix
     glm::mat4 model{glm::translate(glm::mat4(1.), translation)};
     if (rotationAngle != 0.)
-        model = glm::rotate(model, glm::radians(rotationAngle),
+        model = glm::rotate(model, rotationAngle,
                             glm::normalize(rotationAxis));
     model = glm::scale(model, scale);
 
