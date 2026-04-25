@@ -90,7 +90,7 @@ void PlaneSim::setupScene() {
     // rotation axis, mass, initial velocity
     auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     sphere->addGeometry<GLSphere>(16);
-    sphere->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
     sphere->addCollider<SphereCollider>();
     auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
     materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
@@ -108,7 +108,7 @@ void PlaneSim::setupScene() {
     // rotation axis, mass, initial velocity
     auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::radians(45.f), glm::vec3(1., 0., 0.));
     sphere2->addGeometry<GLSphere>(16);
-    sphere2->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere2->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
     sphere2->addCollider<SphereCollider>();
     sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
 

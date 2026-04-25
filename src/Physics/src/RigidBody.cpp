@@ -6,19 +6,21 @@ using namespace GLBase;
 namespace Physics {
 
 // Constructor
-RigidBody::RigidBody(float mass, glm::vec3 velocity, glm::vec3 angularVelocity)
-    : mTransform{nullptr}, mInvMass{1.f / mass}, mVelocity{velocity}, mAngularVelocity(angularVelocity),
-      mDamping{0.995f}, mForceAccum{glm::vec3(0.f, 0.f, 0.f)}, mTorqueAccum{glm::vec3(0.f, 0.f, 0.f)} // //
-// mAngularVelocity { glm::vec3( 0.f, 0.f, 0.f ) },
-// mForce { glm::vec3( 0.f, 0.f, 0.f ) },
-// mTorque { glm::vec3( 0.f, 0.f, 0.f ) }
+RigidBody::RigidBody(float mass, glm::mat3 inertiaTensor, glm::vec3 velocity, glm::vec3 angularVelocity)
+    : mTransform{nullptr}, mInvMass{1.f / mass}, mInvInertiaTensorLocal(glm::inverse(inertiaTensor)),
+      mVelocity{velocity}, mAngularVelocity(angularVelocity), mDamping{0.995f}, mForceAccum{glm::vec3(0.f, 0.f, 0.f)},
+      mTorqueAccum{glm::vec3(0.f, 0.f, 0.f)} // //
 {
     setMass(mass);
 
-    // TODO: Set inertia tensor and its inverse
+    // Initialize the world inertia tensor with the local value
+    mInvInertiaTensorWorld = mInvInertiaTensorLocal;
 }
 
-void RigidBody::setTransformPtr(Transform *transform) { mTransform = transform; }
+void RigidBody::setTransformPtr(Transform *transform) {
+    mTransform = transform;
+    rotateInertiaTensor();
+}
 
 void RigidBody::setVelocity(glm::vec3 velocity) { mVelocity = velocity; }
 
@@ -45,16 +47,35 @@ void RigidBody::setInvMass(float invMass) {
         mMass = 1.f / invMass;
 }
 
-// Getters
 float RigidBody::getMass() { return mMass; }
 glm::vec3 RigidBody::getPosition() { return mTransform->position; }
 glm::vec3 RigidBody::getVelocity() { return mVelocity; }
 
-// Check if it has infinite mass
 bool RigidBody::hasInfiniteMass() { return mInvMass < 0.f; }
 
-// Add a force
 void RigidBody::addForce(const glm::vec3 &force) { mForceAccum += force; }
+
+void RigidBody::addForceLocal(const glm::vec3 &forceLocal) {
+    glm::vec3 forceWorld = mTransform->orientation * forceLocal;
+
+    addForce(forceWorld);
+}
+
+void RigidBody::addForceAtPoint(const glm::vec3 &force, const glm::vec3 &point) {
+    // The force and point are both expressed in world coordinates
+    mForceAccum += force;
+
+    glm::vec3 r = point - mTransform->position;
+    mTorqueAccum += glm::cross(r, force);
+}
+
+void RigidBody::addForceAtPointLocal(const glm::vec3 &forceLocal, const glm::vec3 &pointLocal) {
+    // The force and point are both expressed in local coordinates
+    glm::vec3 forceWorld = mTransform->orientation * forceLocal;
+    glm::vec3 pointWorld = mTransform->orientation * pointLocal + mTransform->position;
+
+    addForceAtPoint(forceWorld, pointWorld);
+}
 
 // Set the accumulators to zero
 void RigidBody::clearAccumulators() {
@@ -73,7 +94,6 @@ void RigidBody::rotateInertiaTensor() {
 void RigidBody::integrate(float deltaTime) {
     // Compute acceleration from the force
     glm::vec3 resultingAcc = mForceAccum * mInvMass;
-    // Update linear velocity
     mVelocity += resultingAcc * deltaTime;
     // Drag on the velocity, so it does not increase due to numerical errors
     mVelocity *= powf(mDamping, deltaTime);
@@ -81,9 +101,10 @@ void RigidBody::integrate(float deltaTime) {
     // Update the position
     mTransform->position += mVelocity * deltaTime;
 
-    // TODO: Handle torque
-    // glm::vec3 angularAccel = mInvInertiaTensorWorld * mTorqueAccum;
-    // mAngularVelocity += angularAccel * deltaTime;
+    // Compute angular acceleration from the torque
+    glm::vec3 angularAccel = mInvInertiaTensorWorld * mTorqueAccum;
+    mAngularVelocity += angularAccel * deltaTime;
+    mAngularVelocity *= powf(mDamping, deltaTime);
 
     // Integrate angular velocity
     // The derivative of a quaternion is: dq/dt = 0.5 * w * q, where w is the angular velocity as a pure quaternion
@@ -95,8 +116,7 @@ void RigidBody::integrate(float deltaTime) {
     // Reset the net force and torque on the object
     clearAccumulators();
 
-    // TODO:
-    // Rotate the inertia tensor in world space
+    rotateInertiaTensor();
 }
 
 } // namespace Physics

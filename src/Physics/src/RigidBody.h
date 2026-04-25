@@ -3,13 +3,15 @@
 
 #include "GLBase.h"
 #include "Transform.h"
+#include "InertiaTensors.h"
 
 namespace Physics {
 
 // Class for objects with both collisions and dynamics
 class RigidBody {
 public:
-    RigidBody(float mass, glm::vec3 velocity = {0.f, 0.f, 0.f}, glm::vec3 angularVelocity = {0.f, 0.f, 0.f});
+    RigidBody(float mass, glm::mat3 inertiaTensor, glm::vec3 velocity = {0.f, 0.f, 0.f},
+              glm::vec3 angularVelocity = {0.f, 0.f, 0.f});
 
     void setTransformPtr(Transform *transform);
 
@@ -28,11 +30,11 @@ public:
 
     bool hasInfiniteMass();
 
-    // Add a force, expressed in world coordinates
     void addForce(const glm::vec3 &force);
+    void addForceLocal(const glm::vec3 &forceLocal);
 
-    // TODO: Function addForceAtPoint
-    // Add a force at a point, both expressed in world coordinates
+    void addForceAtPoint(const glm::vec3 &force, const glm::vec3 &point);
+    void addForceAtPointLocal(const glm::vec3 &forceLocal, const glm::vec3 &pointLocal);
 
     void integrate(float deltaTime);
 
@@ -42,7 +44,6 @@ protected:
     float mMass;
     float mInvMass;
 
-    glm::mat3 mInertiaTensorLocal;
     glm::mat3 mInvInertiaTensorLocal;
     glm::mat3 mInvInertiaTensorWorld;
 

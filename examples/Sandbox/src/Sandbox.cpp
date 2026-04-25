@@ -3,6 +3,7 @@
 #include "ForceGenerator.h"
 #include "Entity.h"
 #include "RigidBody.h"
+#include "glm/ext/matrix_transform.hpp"
 #include "utils.h"
 #include <memory>
 
@@ -142,7 +143,7 @@ void GLSandbox::setupScene() {
     // rotation axis, mass, initial velocity
     auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     sphere->addGeometry<GLSphere>(16);
-    sphere->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
     sphere->addCollider<SphereCollider>();
     auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
     materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
@@ -161,7 +162,7 @@ void GLSandbox::setupScene() {
     auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::degrees(45.f),
                                             glm::vec3(1., 0., 0.));
     sphere2->addGeometry<GLSphere>(16);
-    sphere2->addRigidBody<RigidBody>(1.f, glm::vec3(0., 0., 0.));
+    sphere2->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
     sphere2->addCollider<SphereCollider>();
     sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
 
@@ -183,7 +184,7 @@ void GLSandbox::setupScene() {
     auto cylinder = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), glm::degrees(45.f),
                                              glm::vec3(1., 0., 0.));
     cylinder->addGeometry<GLCylinder>(16);
-    cylinder->addRigidBody<RigidBody>(1., glm::vec3(0., 1., 0.));
+    cylinder->addRigidBody<RigidBody>(1., InertiaTensors::cylinder(1., 1., 1.), glm::vec3(0., 1., 0.));
     cylinder->addCollider<SphereCollider>();
     cylinder->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 0., 1.), 0.1);
     // Entity *cylinderPtr = mWorldManager.addEntity(std::move(cylinder));
@@ -192,7 +193,7 @@ void GLSandbox::setupScene() {
     // Add a cube
     auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     cube->addGeometry<GLCube>();
-    cube->addRigidBody<RigidBody>(1., glm::vec3(1., 0., 0.), glm::vec3(1.5, 1.5, 0.));
+    cube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(1., 0., 0.), glm::vec3(1.5, 1.5, 0.));
     cube->addCollider<ConvexCollider>(cube->getGeometry());
     cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
     // Entity *cubePtr = mWorldManager.addEntity(std::move(cube));
