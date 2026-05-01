@@ -100,7 +100,7 @@ void PlaneSim::setupScene() {
 
     // Add gravity and a drag force to this object
     mWorldManager.getPhysicsManager().registerBodyGravity(spherePtr);
-    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9);
+    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9, 0., 0.);
     mWorldManager.getPhysicsManager().registerBodyForce(spherePtr, dragForcePtr);
 
     // Add a sphere

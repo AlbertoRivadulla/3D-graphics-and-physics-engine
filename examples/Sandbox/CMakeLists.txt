@@ -30,6 +30,7 @@ set(INCLUDE
     ${LIBRARY_SOURCE_DIR}/src/GLSandbox
     ${LIBRARY_SOURCE_DIR}/src/Physics
     ${LIBRARY_SOURCE_DIR}/src/Utils
+    ${LIBRARY_SOURCE_DIR}/src/Interfaces
 
     # ${PROJECT_SOURCE_DIR}/src/GLBase
     # ${PROJECT_SOURCE_DIR}/src/GLGeometry
@@ -49,6 +50,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/src/SandboxBase.cpp
     ${PROJECT_SOURCE_DIR}/src/Sandbox.cpp
+    ${PROJECT_SOURCE_DIR}/src/SandboxObjectController.cpp
 )
 
 add_executable(main ${SOURCES})

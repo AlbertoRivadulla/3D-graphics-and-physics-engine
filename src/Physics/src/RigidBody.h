@@ -1,7 +1,7 @@
 #ifndef RIGIDBODY_H
 #define RIGIDBODY_H
 
-#include "GLBase.h"
+// #include "GLBase.h"
 #include "Transform.h"
 #include "InertiaTensors.h"
 

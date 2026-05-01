@@ -1,8 +1,10 @@
 #ifndef DIRECTIONALLIGHT_H
 #define DIRECTIONALLIGHT_H
 
-#include "GLBase.h"
-#include "GLGeometry.h"
+// #include "GLBase.h"
+// #include "GLGeometry.h"
+#include "GLElemObject.h"
+#include "camera.h"
 
 namespace GLBase {
 // Enum for the different types of lights

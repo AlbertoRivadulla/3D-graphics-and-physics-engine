@@ -1,8 +1,9 @@
 #ifndef GLOBJECTELEMENTARY_H
 #define GLOBJECTELEMENTARY_H
 
-#include "GLGeometry.h"
 #include "GLObject.h"
+#include "shader.h"
+#include "mesh.h"
 
 namespace GLGeometry {
 class GLElemObject : public GLObject {

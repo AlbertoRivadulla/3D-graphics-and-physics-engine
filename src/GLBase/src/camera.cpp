@@ -1,4 +1,4 @@
-#include "GLBase.h"
+#include "camera.h"
 #include "utils.h"
 
 namespace GLBase {
@@ -172,7 +172,7 @@ void Camera::updateCameraVectors() {
 CameraKeyboardInputHandler::CameraKeyboardInputHandler(Camera *camera) { mCamera = camera; }
 
 // Method to process input
-void CameraKeyboardInputHandler::process(GLFWwindow *window, float deltaTime) const {
+void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) const {
     // The keys WASD move the camera around the scene
     float cameraSpeed{mCamera->MovementSpeed * deltaTime};
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -198,7 +198,7 @@ void CameraKeyboardInputHandler::process(GLFWwindow *window, float deltaTime) co
 CameraMouseInputHandler::CameraMouseInputHandler(Camera *camera) { mCamera = camera; }
 
 // Method to process input
-void CameraMouseInputHandler::process(double xpos, double ypos) const {
+void CameraMouseInputHandler::processInput(double xpos, double ypos) const {
     // If it is the first time that the mouse is moved, the last position is
     // the same as the current one
     if (mCamera->mFirstMouse) {
@@ -239,7 +239,7 @@ void CameraMouseInputHandler::process(double xpos, double ypos) const {
 CameraScrollInputHandler::CameraScrollInputHandler(Camera *camera) { mCamera = camera; }
 
 // Method to process input
-void CameraScrollInputHandler::process(double xoffset, double yoffset) const {
+void CameraScrollInputHandler::processInput(double xoffset, double yoffset) const {
     // Change the field of view with vertical scroll.
     mCamera->Fov -= (float)yoffset;
     // Constraint it to be between (1, 45) degrees

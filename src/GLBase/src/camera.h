@@ -2,7 +2,9 @@
 #define CAMERA_H
 
 #include <numbers>
-#include "GLBase.h"
+#include <glm/glm.hpp>
+
+#include "inputHandler.h"
 
 namespace GLBase {
 // Default camera values
@@ -25,8 +27,9 @@ public:
     // Constructor
     CameraKeyboardInputHandler(Camera *camera);
 
-    // Method to process input
-    void process(GLFWwindow *window, float deltaTime) const;
+    bool isValid() const override { return mCamera != nullptr; }
+
+    void processInput(GLFWwindow *window, float deltaTime) const override;
 
 private:
     // Pointer to the camera
@@ -38,8 +41,9 @@ public:
     // Constructor
     CameraMouseInputHandler(Camera *camera);
 
-    // Method to process input
-    void process(double xpos, double ypos) const;
+    bool isValid() const override { return mCamera != nullptr; }
+
+    void processInput(double xpos, double ypos) const override;
 
 private:
     // Pointer to the camera
@@ -51,8 +55,9 @@ public:
     // Constructor
     CameraScrollInputHandler(Camera *camera);
 
-    // Method to process input
-    void process(double xoffset, double yoffset) const;
+    bool isValid() const override { return mCamera != nullptr; }
+
+    void processInput(double xoffset, double yoffset) const override;
 
 private:
     // Pointer to the camera

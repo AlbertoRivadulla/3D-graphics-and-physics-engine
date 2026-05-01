@@ -1,7 +1,7 @@
 #ifndef GLAUXELEMENTS_H
 #define GLAUXELEMENTS_H
 
-#include "GLGeometry.h"
+// #include "GLGeometry.h"
 #include "GLElemObject.h"
 
 using namespace GLBase;

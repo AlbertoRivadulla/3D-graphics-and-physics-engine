@@ -1,9 +1,8 @@
 #ifndef PARTICLESYSTEM_H
 #define PARTICLESYSTEM_H
 
-#include "GLBase.h"
-#include "GLGeometry.h"
 #include "Transform.h"
+#include "GLParticleSystem.h"
 
 using namespace GLGeometry;
 using namespace GLBase;

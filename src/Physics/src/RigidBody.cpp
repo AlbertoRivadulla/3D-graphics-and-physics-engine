@@ -1,8 +1,6 @@
 #include "RigidBody.h"
 #include "glm/geometric.hpp"
 
-using namespace GLBase;
-
 namespace Physics {
 
 // Constructor

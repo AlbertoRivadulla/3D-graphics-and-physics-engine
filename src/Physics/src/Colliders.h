@@ -1,12 +1,10 @@
 #ifndef COLLIDERS_H
 #define COLLIDERS_H
 
-#include "GLBase.h"
-#include "GLGeometry.h"
-#include "Transform.h"
+#include <glm/glm.hpp>
+#include <vector>
 
-using namespace GLBase;
-using namespace GLGeometry;
+#include "GLElemObject.h"
 
 namespace Physics {
 
@@ -159,7 +157,7 @@ class ConvexCollider : public Collider {
 public:
     // Constructor with a GLElemObject as argument
     // This computes the AABB
-    ConvexCollider(GLElemObject *elemObject);
+    ConvexCollider(GLGeometry::GLElemObject *elemObject);
 
     // Update the collider and AABB after a transformation
     void moveCollider(const glm::mat4 &modelMatrix);
@@ -179,7 +177,7 @@ private:
     std::vector<glm::vec3> mVerticesWorld;
 
     // Compute the AABB in model space from a vector of vertices
-    void computeAABB(GLElemObject *elemObject);
+    void computeAABB(GLGeometry::GLElemObject *elemObject);
 
     // // Method to find the furthest point in a given direction, needed for
     // // the GJK algorithm

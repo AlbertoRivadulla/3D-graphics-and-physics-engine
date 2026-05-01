@@ -1,7 +1,7 @@
 #ifndef GLCONE_H
 #define GLCONE_H
 
-#include "GLGeometry.h"
+// #include "GLGeometry.h"
 #include "GLElemObject.h"
 
 using namespace GLBase;

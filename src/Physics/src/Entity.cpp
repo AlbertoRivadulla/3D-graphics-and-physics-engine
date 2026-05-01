@@ -14,7 +14,7 @@ Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::ve
 
 Entity::~Entity() {}
 
-void Entity::addGeometry(std::unique_ptr<GLElemObject> geometry) {
+void Entity::addGeometry(std::unique_ptr<GLGeometry::GLElemObject> geometry) {
     mGeometryObject = std::move(geometry);
 
     updateModelMatrix();

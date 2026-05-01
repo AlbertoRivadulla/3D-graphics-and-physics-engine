@@ -4,6 +4,7 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Physics.h"
+#include "SandboxObjectController.h"
 #include "WorldManager.h"
 
 using namespace GLGeometry;
@@ -13,6 +14,9 @@ class GLSandbox {
     //==============================
     // User defined variables and logic
     //==============================
+
+    // An input controller for an object
+    SandboxObjectController mObjectController;
 
 private:
     //==============================

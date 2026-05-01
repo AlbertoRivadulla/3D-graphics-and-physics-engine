@@ -1,8 +1,6 @@
 #ifndef GLOBJECT_H
 #define GLOBJECT_H
 
-#include "GLGeometry.h"
-
 namespace GLGeometry {
 class GLObject {
 public:

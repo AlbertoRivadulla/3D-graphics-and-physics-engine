@@ -3,6 +3,7 @@
 #include "ForceGenerator.h"
 #include "Entity.h"
 #include "RigidBody.h"
+#include "SandboxObjectController.h"
 #include "utils.h"
 #include <memory>
 
@@ -192,10 +193,10 @@ void GLSandbox::setupScene() {
     // Add a cube
     auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     cube->addGeometry<GLCube>();
-    cube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(5., 0., 0.), glm::vec3(1.5, 1.5, 0.));
+    cube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(5., 0., 0.),
+                                  glm::vec3(1.5, 1.5, 0.));
     cube->addCollider<ConvexCollider>(cube->getGeometry());
     cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
-    // Entity *cubePtr = mWorldManager.addEntity(std::move(cube));
     auto cubePtr = mWorldManager.addEntity(std::move(cube));
 
     auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.1, 0.02, 0.01, 0.002);
@@ -208,6 +209,20 @@ void GLSandbox::setupScene() {
     particleSystem->setParticleGeometry(std::make_unique<GLSphere>(4), &mGPassShaders[0]);
     particleSystem->setParticleGravity({0.f, -5.f, 0.f});
     mWorldManager.addParticleSystem(std::move(particleSystem));
+
+    // Add another cube that is controlled by the user
+    auto controlledCube =
+        std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+    controlledCube->addGeometry<GLCube>();
+    controlledCube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(0., 0., 0.),
+                                            glm::vec3(0., 0., 0.));
+    controlledCube->addCollider<ConvexCollider>(controlledCube->getGeometry());
+    controlledCube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 1., 0.), 0.1);
+    auto controlledCubePtr = mWorldManager.addEntity(std::move(controlledCube));
+
+    mObjectController = SandboxObjectController(controlledCubePtr);
+
+    // TODO: Add a controller that makes the camera follow the object
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -229,6 +244,9 @@ void GLSandbox::setupApplication() {
     mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
     mInputHandler.addMouseHandler(&mCamera.mMouseHandler);
     mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
+
+    // Pass to the input handler the controller for the object
+    mInputHandler.addKeyboardHandler(mObjectController.getKeyboardInputHandler());
 
     // Pass the list of lights to the renderer, to configure the lighting shader
     mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());
