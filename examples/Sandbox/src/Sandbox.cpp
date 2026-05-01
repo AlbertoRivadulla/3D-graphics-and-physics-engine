@@ -197,10 +197,7 @@ void GLSandbox::setupScene() {
                                   glm::vec3(1.5, 1.5, 0.));
     cube->addCollider<ConvexCollider>(cube->getGeometry());
     cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
-    auto cubePtr = mWorldManager.addEntity(std::move(cube));
-
-    auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.1, 0.02, 0.01, 0.002);
-    mWorldManager.getPhysicsManager().registerBodyForce(cubePtr, cubeDragForcePtr);
+    mWorldManager.addEntity(std::move(cube));
 
     // Add a particle system
     auto particleSystem =
@@ -221,6 +218,9 @@ void GLSandbox::setupScene() {
     auto controlledCubePtr = mWorldManager.addEntity(std::move(controlledCube));
 
     mObjectController = SandboxObjectController(controlledCubePtr);
+
+    auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.4, 0.02, 0.1, 0.02);
+    mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
 
     // TODO: Add a controller that makes the camera follow the object
 }

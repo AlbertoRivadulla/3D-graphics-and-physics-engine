@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "glm/geometric.hpp"
+#include "utils.h"
 
 namespace Physics {
 
