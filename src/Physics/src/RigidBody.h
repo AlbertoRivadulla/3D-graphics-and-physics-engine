@@ -27,6 +27,7 @@ public:
     float getMass();
     glm::vec3 getPosition();
     glm::vec3 getVelocity();
+    glm::vec3 getAngularVelocity();
 
     bool hasInfiniteMass();
 
@@ -35,6 +36,9 @@ public:
 
     void addForceAtPoint(const glm::vec3 &force, const glm::vec3 &point);
     void addForceAtPointLocal(const glm::vec3 &forceLocal, const glm::vec3 &pointLocal);
+
+    void addTorque(const glm::vec3 &torque);
+    void addTorqueLocal(const glm::vec3 &torqueLocal);
 
     void integrate(float deltaTime);
 
@@ -48,7 +52,6 @@ protected:
     glm::mat3 mInvInertiaTensorWorld;
 
     glm::vec3 mVelocity;
-    // glm::vec3 mAcceleration;
     glm::vec3 mAngularVelocity;
 
     // Damping applied to linear motion, to ensure objects are not accelerated

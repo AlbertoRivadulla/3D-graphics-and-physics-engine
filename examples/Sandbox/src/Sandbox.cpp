@@ -3,7 +3,6 @@
 #include "ForceGenerator.h"
 #include "Entity.h"
 #include "RigidBody.h"
-#include "glm/ext/matrix_transform.hpp"
 #include "utils.h"
 #include <memory>
 
@@ -153,7 +152,7 @@ void GLSandbox::setupScene() {
 
     // Add gravity and a drag force to this object
     mWorldManager.getPhysicsManager().registerBodyGravity(spherePtr);
-    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9);
+    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9, 0.9, 0.9);
     mWorldManager.getPhysicsManager().registerBodyForce(spherePtr, dragForcePtr);
 
     // Add a sphere
@@ -193,11 +192,14 @@ void GLSandbox::setupScene() {
     // Add a cube
     auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
     cube->addGeometry<GLCube>();
-    cube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(1., 0., 0.), glm::vec3(1.5, 1.5, 0.));
+    cube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(5., 0., 0.), glm::vec3(1.5, 1.5, 0.));
     cube->addCollider<ConvexCollider>(cube->getGeometry());
     cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
     // Entity *cubePtr = mWorldManager.addEntity(std::move(cube));
-    mWorldManager.addEntity(std::move(cube));
+    auto cubePtr = mWorldManager.addEntity(std::move(cube));
+
+    auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.1, 0.02, 0.01, 0.002);
+    mWorldManager.getPhysicsManager().registerBodyForce(cubePtr, cubeDragForcePtr);
 
     // Add a particle system
     auto particleSystem =

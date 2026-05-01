@@ -34,7 +34,7 @@ private:
 // Drag force generator
 class DragForceGenerator : public ForceGenerator {
 public:
-    DragForceGenerator(float k1, float k2);
+    DragForceGenerator(float kLinear1, float kLinear2, float kAngular1, float kAngular2);
 
     bool isValid() const override { return true; }
 
@@ -42,8 +42,10 @@ public:
 
 private:
     // Coefficients for velocity and velocity square
-    float mK1;
-    float mK2;
+    float mKLinear1;
+    float mKLinear2;
+    float mKAngular1;
+    float mKAngular2;
 };
 
 // Spring force generator

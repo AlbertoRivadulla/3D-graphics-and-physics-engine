@@ -50,6 +50,7 @@ void RigidBody::setInvMass(float invMass) {
 float RigidBody::getMass() { return mMass; }
 glm::vec3 RigidBody::getPosition() { return mTransform->position; }
 glm::vec3 RigidBody::getVelocity() { return mVelocity; }
+glm::vec3 RigidBody::getAngularVelocity() { return mAngularVelocity; }
 
 bool RigidBody::hasInfiniteMass() { return mInvMass < 0.f; }
 
@@ -75,6 +76,14 @@ void RigidBody::addForceAtPointLocal(const glm::vec3 &forceLocal, const glm::vec
     glm::vec3 pointWorld = mTransform->orientation * pointLocal + mTransform->position;
 
     addForceAtPoint(forceWorld, pointWorld);
+}
+
+void RigidBody::addTorque(const glm::vec3 &torque) { mTorqueAccum += torque; }
+
+void RigidBody::addTorqueLocal(const glm::vec3 &torqueLocal) {
+    glm::vec3 torqueWorld = mTransform->orientation * torqueLocal;
+
+    addTorque(torqueWorld);
 }
 
 // Set the accumulators to zero

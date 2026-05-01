@@ -21,18 +21,21 @@ void InputHandler::addScrollHandler(ScrollInputHandler *handler) {
 
 // Methods to process input
 void InputHandler::processKeyboardInput(GLFWwindow *window, float deltaTime) {
+    // TODO: Modernize this loop, with ranges
     for (auto handler : mKeyboardHandlers) {
         handler->process(window, deltaTime);
     }
 }
 
 void InputHandler::processMouseInput(double xpos, double ypos) {
+    // TODO: Modernize this loop, with ranges
     for (auto handler : mMouseHandlers) {
         handler->process(xpos, ypos);
     }
 }
 
 void InputHandler::processScrollInput(double xoffset, double yoffset) {
+    // TODO: Modernize this loop, with ranges
     for (auto handler : mScrollHandlers) {
         handler->process(xoffset, yoffset);
     }
