@@ -3,7 +3,11 @@
 
 // Header needed to import images for textures
 #include <stb_image.h>
-#include "GLBase.h"
+#include <string>
+#include <glm/glm.hpp>
+#include <glad/glad.h>
+
+#include "utils.h"
 
 namespace GLBase {
 class Shader {

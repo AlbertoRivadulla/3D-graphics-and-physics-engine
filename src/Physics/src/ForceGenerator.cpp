@@ -19,23 +19,23 @@ void GravityForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
 
 //--------------------------------------------------------------------------
 // Class DragForceGenerator
-DragForceGenerator::DragForceGenerator(float k1, float k2) : mK1{k1}, mK2{k2} {}
+DragForceGenerator::DragForceGenerator(float kLinear1, float kLinear2, float kAngular1, float kAngular2)
+    : mKLinear1{kLinear1}, mKLinear2{kLinear2}, mKAngular1{kAngular1}, mKAngular2{kAngular2} {}
 
 void DragForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
-    // Get the velocity of the particle
     glm::vec3 velocity = rigidBody->getVelocity();
-    // Magnitude of the velocity
     float speed = glm::length(velocity);
-    // Apply the force
-    rigidBody->addForce(-velocity * (mK1 + mK2 * speed));
+    rigidBody->addForce(-velocity * (mKLinear1 + mKLinear2 * speed));
+
+    glm::vec3 angularVelocity = rigidBody->getAngularVelocity();
+    float angularSpeed = glm::length(angularVelocity);
+    rigidBody->addTorque(-angularVelocity * (mKAngular1 + mKAngular2 * angularSpeed));
 }
 
 //--------------------------------------------------------------------------
 // Class SpringForceGenerator
 SpringForceGenerator::SpringForceGenerator(RigidBody *other, float springConst, float dampingCoeff, float restLength)
-    : mOtherBody{other}, mSpringConst{springConst}, mDampingCoeff{dampingCoeff}, mRestLength{restLength} {
-
-    }
+    : mOtherBody{other}, mSpringConst{springConst}, mDampingCoeff{dampingCoeff}, mRestLength{restLength} {}
 
 void SpringForceGenerator::updateForce(RigidBody *rigidBody, float deltaTime) {
     glm::vec3 separation = rigidBody->getPosition() - mOtherBody->getPosition();

@@ -1,12 +1,7 @@
 #ifndef PHYSICS_BODY_H
 #define PHYSICS_BODY_H
 
-// #include "Physics.h"
-
-// #include "ForceGenerator.h"
-#include "GLBase.h"
 #include "GLElemObject.h"
-#include "GLGeometry.h"
 #include "Colliders.h"
 #include "RigidBody.h"
 #include "Transform.h"
@@ -21,13 +16,13 @@ public:
     // Add geometrical object, and copy it to the list of elementary objects of
     // the GLSandbox class
     template <typename T, typename... Args> void addGeometry(Args &&...args) {
-        static_assert(std::is_base_of<GLElemObject, T>::value, "T must derive from GLElemObject");
+        static_assert(std::is_base_of<GLGeometry::GLElemObject, T>::value, "T must derive from GLGeometry::GLElemObject");
 
         mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
 
         updateModelMatrix();
     }
-    void addGeometry(std::unique_ptr<GLElemObject>);
+    void addGeometry(std::unique_ptr<GLGeometry::GLElemObject>);
 
     template <typename T, typename... Args> void addCollider(Args &&...args) {
         static_assert(std::is_base_of<Physics::Collider, T>::value, "T must derive from Physics::Collider");

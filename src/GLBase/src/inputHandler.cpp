@@ -1,48 +1,65 @@
 #include "GLBase.h"
 
 namespace GLBase {
-// Methods to add input handlers
+
 void InputHandler::addKeyboardHandler(KeyboardInputHandler *handler) {
+    if (!handler->isValid()) {
+        LOG_ERROR("InputHandler::addKeyboardHandler: the given handler is not valid.");
+        return;
+    }
+
     mKeyboardHandlers.push_back(handler);
 }
 
 void InputHandler::addMouseHandler(MouseInputHandler *handler) {
+    if (!handler->isValid()) {
+        LOG_ERROR("InputHandler::addMouseHandler: the given handler is not valid.");
+        return;
+    }
+
     mMouseHandlers.push_back(handler);
 }
 
 void InputHandler::addScrollHandler(ScrollInputHandler *handler) {
+    if (!handler->isValid()) {
+        LOG_ERROR("InputHandler::addScrollHandler: the given handler is not valid.");
+        return;
+    }
+
     mScrollHandlers.push_back(handler);
 }
 
-// void addControllerHandler(ControllerInputHandler* handler)
-// {
-//     mControllerHandlers.push_back(handler);
-// }
+void InputHandler::addGamepadHandler(GamepadInputHandler *handler) {
+    if (!handler->isValid()) {
+        LOG_ERROR("InputHandler::addGamepadHandler: the given handler is not valid.");
+        return;
+    }
 
-// Methods to process input
+    mGamepadHandlers.push_back(handler);
+}
+
 void InputHandler::processKeyboardInput(GLFWwindow *window, float deltaTime) {
-    for (auto handler : mKeyboardHandlers) {
-        handler->process(window, deltaTime);
+    for (const auto &handler : mKeyboardHandlers) {
+        handler->processInput(window, deltaTime);
     }
 }
 
 void InputHandler::processMouseInput(double xpos, double ypos) {
-    for (auto handler : mMouseHandlers) {
-        handler->process(xpos, ypos);
+    for (const auto &handler : mMouseHandlers) {
+        handler->processInput(xpos, ypos);
     }
 }
 
 void InputHandler::processScrollInput(double xoffset, double yoffset) {
-    for (auto handler : mScrollHandlers) {
-        handler->process(xoffset, yoffset);
+    for (const auto &handler : mScrollHandlers) {
+        handler->processInput(xoffset, yoffset);
     }
 }
 
-// void processControllerInput(float deltaTime)
-// {
-//     for (auto handler : mControllerHandlers)
-//     {
-//         handler->process(window, deltaTime);
-//     }
-// }
+void InputHandler::processGamepadInput(float deltaTime) {
+    for (const auto &handler : mGamepadHandlers) {
+        handler->processInput(deltaTime);
+    }
+}
+
 } // namespace GLBase

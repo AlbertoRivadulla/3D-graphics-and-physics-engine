@@ -11,17 +11,6 @@
 #include <map>
 #include <random>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/norm.hpp>
-
-#include "GLBase.h"
-#include "GLGeometry.h"
-
 #include "Terrain.h"
 #include "Entity.h"
 #include "ParticleSystem.h"

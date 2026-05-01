@@ -2,13 +2,14 @@
 #define TRANSFORM_H
 
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Physics {
 
 struct Transform {
     glm::vec3 position;
     glm::vec3 scale;
-    glm::mat4 rotationMatrix;
+    glm::quat orientation;
 
     glm::mat4 modelMatrix;
 };

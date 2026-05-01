@@ -1,18 +1,22 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "GLBase.h"
+#include <numbers>
+#include <glm/glm.hpp>
+
+#include "inputHandler.h"
 
 namespace GLBase {
 // Default camera values
 // Angle with respect to the camera's y axis.
 // Default to -90 degrees. Otherwise the camera will be looking to the right.
-const float YAW{-90.};
+const float YAW{glm::radians(-90.)};
 // Angle with respect to the camera's x axis.
-const float PITCH{0.};
+const float PITCH{glm::radians(0.)};
 const float SPEED{10.};
-const float SENSITIVITY{0.1};
-const float FOV{45.}; // Field of view
+// const float SENSITIVITY{0.1};
+const float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
+const float FOV{glm::radians(45.)}; // Field of view
 
 // Forward declare the camera class
 class Camera;
@@ -23,8 +27,9 @@ public:
     // Constructor
     CameraKeyboardInputHandler(Camera *camera);
 
-    // Method to process input
-    void process(GLFWwindow *window, float deltaTime) const;
+    bool isValid() const override { return mCamera != nullptr; }
+
+    void processInput(GLFWwindow *window, float deltaTime) const override;
 
 private:
     // Pointer to the camera
@@ -36,8 +41,9 @@ public:
     // Constructor
     CameraMouseInputHandler(Camera *camera);
 
-    // Method to process input
-    void process(double xpos, double ypos) const;
+    bool isValid() const override { return mCamera != nullptr; }
+
+    void processInput(double xpos, double ypos) const override;
 
 private:
     // Pointer to the camera
@@ -49,8 +55,9 @@ public:
     // Constructor
     CameraScrollInputHandler(Camera *camera);
 
-    // Method to process input
-    void process(double xoffset, double yoffset) const;
+    bool isValid() const override { return mCamera != nullptr; }
+
+    void processInput(double xoffset, double yoffset) const override;
 
 private:
     // Pointer to the camera

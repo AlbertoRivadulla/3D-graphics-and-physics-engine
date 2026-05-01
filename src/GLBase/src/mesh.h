@@ -1,7 +1,10 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "GLBase.h"
+#include <string>
+#include <vector>
+
+#include "shader.h"
 
 namespace GLBase {
 // Struct for a vertex in OpenGL

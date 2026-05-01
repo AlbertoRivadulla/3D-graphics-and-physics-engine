@@ -1,6 +1,6 @@
-#include "GLGeometry.h"
+#include "GLCone.h"
 
-using namespace GLBase;
+// using namespace GLBase;
 
 namespace GLGeometry {
 // Constructor

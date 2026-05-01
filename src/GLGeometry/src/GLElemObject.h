@@ -1,8 +1,9 @@
 #ifndef GLOBJECTELEMENTARY_H
 #define GLOBJECTELEMENTARY_H
 
-#include "GLGeometry.h"
 #include "GLObject.h"
+#include "shader.h"
+#include "mesh.h"
 
 namespace GLGeometry {
 class GLElemObject : public GLObject {
@@ -43,7 +44,7 @@ public:
         mModelMatrix = glm::translate(mModelMatrix, translation);
         if (rotationAngle != 0.)
             mModelMatrix =
-                glm::rotate(mModelMatrix, glm::radians(rotationAngle),
+                glm::rotate(mModelMatrix, rotationAngle,
                             glm::normalize(rotationAxis));
         mModelMatrix = glm::scale(mModelMatrix, scale);
     }

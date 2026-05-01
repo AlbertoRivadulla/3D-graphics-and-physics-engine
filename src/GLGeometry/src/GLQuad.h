@@ -1,10 +1,7 @@
 #ifndef GLQUAD_H
 #define GLQUAD_H
 
-#include "GLGeometry.h"
 #include "GLElemObject.h"
-
-using namespace GLBase;
 
 namespace GLGeometry {
 class GLQuad : public GLElemObject {

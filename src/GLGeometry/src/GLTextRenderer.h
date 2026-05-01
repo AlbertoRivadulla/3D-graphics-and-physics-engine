@@ -6,7 +6,7 @@
     https://learnopengl.com/In-Practice/Text-Rendering
 */
 
-#include "GLGeometry.h"
+#include "shader.h"
 #include <map>
 
 // Freetype library for rendering text

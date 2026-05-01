@@ -16,10 +16,10 @@ ParticleSystem::ParticleSystem(Shader &shader, glm::vec3 position, glm::vec3 sca
     mTransform.scale = scale;
 
     // Compute the rotation matrix from the angle and axis given
-    mTransform.rotationMatrix = glm::mat4(1.f);
-    if (rotationAngle != 0.)
-        mTransform.rotationMatrix =
-            glm::rotate(mTransform.rotationMatrix, glm::radians(rotationAngle), glm::normalize(rotationAxis));
+    mTransform.orientation = glm::identity<glm::quat>();
+    if (std::fabs(rotationAngle) > 1e-6f) {
+        mTransform.orientation = glm::angleAxis(rotationAngle, rotationAxis);
+    }
 
     mMaterial = std::make_unique<GLBase::Material>(shader, glm::vec3(0.f, 0.f, 0.f), 0.f);
 }

@@ -332,10 +332,10 @@ SpotLight::SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
             LIGHT_SPOT),
       mDirection{glm::normalize(direction)} {
     // Outer angle
-    mAngleOuter = glm::radians(angleOuter);
+    mAngleOuter = angleOuter;
     // Compute the cosines of the two angles
-    mCosAngleInner = glm::cos(glm::radians(angleInner / 2.f));
-    mCosAngleOuter = glm::cos(glm::radians(angleOuter / 2.f));
+    mCosAngleInner = glm::cos(angleInner / 2.f);
+    mCosAngleOuter = glm::cos(angleOuter / 2.f);
 
     // Compute the maximum distance of influence of the light, where the
     // intensity becomes 5/256 times its value at d = 0

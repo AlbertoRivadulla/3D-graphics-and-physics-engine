@@ -1,53 +1,48 @@
 #ifndef INPUTPROCESSOR_H
 #define INPUTPROCESSOR_H
 
-#include "GLBase.h"
+#include <GLFW/glfw3.h>
+#include <vector>
+#include "interfaces.h"
 
 namespace GLBase {
-class KeyboardInputHandler {
+class KeyboardInputHandler : public IValidatable {
 public:
-    // Method to process input
-    virtual void process(GLFWwindow *window, float deltaTime) const = 0;
+    virtual void processInput(GLFWwindow *window, float deltaTime) const = 0;
 };
 
-class MouseInputHandler {
+class MouseInputHandler : public IValidatable {
 public:
-    // Method to process input
-    virtual void process(double xpos, double ypos) const = 0;
+    virtual void processInput(double xpos, double ypos) const = 0;
 };
 
-class ScrollInputHandler {
+class ScrollInputHandler : public IValidatable {
 public:
-    // Method to process input
-    virtual void process(double xoffset, double yoffset) const = 0;
+    virtual void processInput(double xoffset, double yoffset) const = 0;
 };
 
-class ControllerInputHandler {
+class GamepadInputHandler : public IValidatable {
 public:
-    // Method to process input
-    virtual void process(GLFWwindow *window, float deltaTime) const = 0;
+    virtual void processInput(float deltaTime) const = 0;
 };
 
 class InputHandler {
 public:
-    // Methods to add input handlers
     void addKeyboardHandler(KeyboardInputHandler *handler);
     void addMouseHandler(MouseInputHandler *handler);
     void addScrollHandler(ScrollInputHandler *handler);
-    // void addControllerHandler(ControllerInputHandler* handler);
+    void addGamepadHandler(GamepadInputHandler* handler);
 
-    // Methods to process input
     void processKeyboardInput(GLFWwindow *window, float deltaTime);
     void processMouseInput(double xpos, double ypos);
     void processScrollInput(double xoffset, double yoffset);
-    // void processControllerInput(float deltaTime);
+    void processGamepadInput(float deltaTime);
 
 private:
-    // Vectors of pointers to input handlers
     std::vector<KeyboardInputHandler *> mKeyboardHandlers;
     std::vector<MouseInputHandler *> mMouseHandlers;
     std::vector<ScrollInputHandler *> mScrollHandlers;
-    // std::vector<ControllerInputHandler*> mScrollHanders;
+    std::vector<GamepadInputHandler*> mGamepadHandlers;
 };
 } // namespace GLBase
 
