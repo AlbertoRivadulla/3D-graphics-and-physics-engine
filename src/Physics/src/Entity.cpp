@@ -33,6 +33,11 @@ void Entity::addRigidBody(std::unique_ptr<Physics::RigidBody> rigidBody) {
 
 void Entity::addMaterial(std::unique_ptr<GLBase::Material> material) { mMaterial = std::move(material); }
 
+void Entity::registerObserver(std::shared_ptr<IEntityObserver> observer) {
+    // This implicitly converts the shared_ptr to weak_ptr
+    mObservers.push_back(observer);
+}
+
 void Entity::setPosition(glm::vec3 position) {
     mTransform.position = position;
 
@@ -55,7 +60,7 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
     updateModelMatrix();
 }
 
-glm::vec3 Entity::getPosition() { return mTransform.position; }
+glm::vec3 Entity::getPosition() const { return mTransform.position; }
 
 Physics::Collider *Entity::getCollider() { return mCollider.get(); }
 Physics::RigidBody *Entity::getRigidBody() { return mRigidBody.get(); }
@@ -72,6 +77,8 @@ void Entity::integrate(float deltaTime) {
 
         updateModelMatrix();
     }
+
+    notifyObservers(deltaTime);
 }
 
 void Entity::updateModelMatrix() {
@@ -87,4 +94,35 @@ void Entity::updateModelMatrix() {
     if (mGeometryObject) {
         mGeometryObject->setModelMatrix(mTransform.modelMatrix);
     }
+}
+
+void Entity::notifyObservers(float deltaTime) {
+    if (mObservers.empty())
+        return;
+
+    for (auto it = mObservers.begin(); it != mObservers.end();) {
+        if (auto observer = it->lock()) { // This converts the weak_ptr into a shared_ptr
+            observer->onEntityUpdated(*this, deltaTime);
+            ++it;
+        } else {
+            // If it->lock() failed, the shared_ptr is no longer valid
+            it = mObservers.erase(it);
+        }
+    }
+
+    // NOTE: A class Vehicle : public Entity that has a vector of IEntityObserverT<Vehicle> should override this method with:
+    //
+    // void Vehicle::notifyObservers(float deltaTime) {
+    // Entity::notifyObservers(deltaTime);
+    //
+    // if (mVehicleObservers.empty()) return;
+    //
+    // for (auto it = mVehicleObservers.begin(); it != mVehicleObservers.end(); ) {
+    //     if (auto observer = it->lock()) {
+    //         observer->onEntityUpdated(*this, deltaTime);
+    //         ++it;
+    //     } else {
+    //         it = mVehicleObservers.erase(it);  // auto-cleanup expired observers
+    //     }
+    // }
 }

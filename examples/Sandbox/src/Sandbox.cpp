@@ -1,11 +1,13 @@
+#include <memory>
+
 #include "Sandbox.h"
 #include "Colliders.h"
 #include "ForceGenerator.h"
 #include "Entity.h"
 #include "RigidBody.h"
 #include "SandboxObjectController.h"
+#include "SandboxObserver.h"
 #include "utils.h"
-#include <memory>
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -221,6 +223,10 @@ void GLSandbox::setupScene() {
 
     auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.4, 0.02, 0.1, 0.02);
     mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
+
+    // Add a test observer for this object
+    auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
+    controlledCubePtr->registerObserver(controlledCubeObs);
 
     // TODO: Add a controller that makes the camera follow the object
 }

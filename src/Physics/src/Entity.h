@@ -5,6 +5,7 @@
 #include "Colliders.h"
 #include "RigidBody.h"
 #include "Transform.h"
+#include "interfaces.h"
 
 // Class for objects with collisions
 class Entity {
@@ -48,13 +49,15 @@ public:
     }
     void addMaterial(std::unique_ptr<GLBase::Material>);
 
+    void registerObserver(std::shared_ptr<IEntityObserver> observer);
+
     void setPosition(glm::vec3 position);
 
     void setScale(glm::vec3 scale);
 
     void setRotation(float angle, glm::vec3 axis);
 
-    glm::vec3 getPosition();
+    glm::vec3 getPosition() const;
 
     Physics::Collider *getCollider();
     Physics::RigidBody *getRigidBody();
@@ -77,7 +80,11 @@ protected:
 
     std::unique_ptr<GLBase::Material> mMaterial;
 
+    std::vector<std::weak_ptr<IEntityObserver>> mObservers;
+
     void updateModelMatrix();
+
+    void notifyObservers(float deltaTime);
 };
 
 #endif
