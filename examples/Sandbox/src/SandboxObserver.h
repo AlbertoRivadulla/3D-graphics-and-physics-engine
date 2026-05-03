@@ -20,12 +20,14 @@ private:
 
 class CameraFollowEntityObserver : public IEntityObserver {
 public:
-    CameraFollowEntityObserver(GLBase::Camera *cameraPtr);
+    CameraFollowEntityObserver(GLBase::Camera *cameraPtr, const glm::vec3 &initialObjPos);
 
     void onEntityUpdated(const Entity &entity, float deltaTime) override;
 
 private:
     GLBase::Camera *mCamera;
+
+    glm::vec3 mLastObjectPos;
 };
 
 #endif

@@ -10,9 +10,9 @@ namespace GLBase {
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), mWidth{width}, mHeight{height}, mNear{0.1},
       mFar{100.}, mFov{FOV}, mPosition{position}, mWorldUp{up}, mYaw{yaw}, mPitch{pitch},
-      mFront{glm::vec3(0., 0., -1.)}, mMovementSpeed{SPEED}, mMouseSensitivity{MOUSE_SENSITIVITY}, mLastX{0.},
-      mLastY{0.}, mFirstMouse{true}, mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f},
-      mIsOrthographic{false} {
+      mFront{glm::vec3(0., 0., -1.)}, mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f},
+      mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f} {
+    setTrackingParameters();
     updateCameraVectors();
 }
 
@@ -21,25 +21,21 @@ Camera::Camera(int width, int height, float posX, float posY, float posZ, float 
                float pitch)
     : mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), mWidth{width}, mHeight{height}, mNear{0.1},
       mFar{100.}, mFov{FOV}, mPosition{glm::vec3(posX, posY, posZ)}, mWorldUp{glm::vec3(upX, upY, upZ)}, mYaw{yaw},
-      mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)}, mMovementSpeed{SPEED}, mMouseSensitivity{MOUSE_SENSITIVITY},
-      mLastX{0.}, mLastY{0.}, mFirstMouse{true}, mOrthoHalfWidth{3.f * (float)width / (float)height},
-      mOrthoHalfHeight{3.f}, mIsOrthographic{false} {
+      mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)}, mOrthoHalfWidth{3.f * (float)width / (float)height},
+      mOrthoHalfHeight{3.f}, mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f} {
+    setTrackingParameters();
     updateCameraVectors();
 }
 
-// Method to make the camera orthographic
 void Camera::setOrthographic() { mIsOrthographic = true; }
-// Method to make the camera perspective
 void Camera::setPerspective() { mIsOrthographic = false; }
 
-// Method to set the frustum of the camera
 void Camera::setFrustum(float near, float far) {
     mNear = near;
     mFar = far;
 }
 
-// Method to change the width and height of the viewport
-void Camera::setDimensions(int width, int height) {
+void Camera::setViewportDimensions(int width, int height) {
     mWidth = width;
     mHeight = height;
 }
@@ -50,20 +46,59 @@ void Camera::setOrthographicSize(float size) {
     mOrthoHalfHeight = size / 2.f;
 }
 
-void Camera::lookAtPoint(glm::vec3 target) {
-    mFront = glm::normalize(target - mPosition);
+// Set parameters for the camera tracking an object
+void Camera::setTrackingParameters(float mouseDecayRate, float objectTargetDecayRate, float orientationStiffness,
+                                   float orientationDamping) {
+    mMouseDecayRate = mouseDecayRate;
+    mObjectTargetDecayRate = objectTargetDecayRate;
 
-    mYaw = atan2f(mFront.z, mFront.x);
-    mPitch = glm::clamp(asinf(mFront.y), glm::radians(-89.f), glm::radians(89.f));
+    mOrientationStiffness = orientationStiffness;
+    mOrientationDamping = orientationDamping;
+}
 
-    computeRightUpVectors();
+void Camera::lookAtPoint(glm::vec3 point) {
+    glm::vec3 pointDirection = glm::normalize(point - mPosition);
+
+    mYaw = atan2f(pointDirection.z, pointDirection.x);
+    mPitch = glm::clamp(asinf(pointDirection.y), glm::radians(-89.f), glm::radians(89.f));
+
+    mObjectTargetInfluence = 0.f;
+
+    updateCameraVectors();
+}
+
+void Camera::setLookAtTarget(glm::vec3 target, float objectTargetInfluence) {
+    glm::vec3 targetDirection = glm::normalize(target - mPosition);
+
+    mObjectTargetYaw = atan2f(targetDirection.z, targetDirection.x);
+    mObjectTargetPitch = glm::clamp(asinf(targetDirection.y), glm::radians(-89.f), glm::radians(89.f));
+
+    mObjectTargetInfluence = objectTargetInfluence;
 }
 
 const glm::vec3 &Camera::getPosition() const { return mPosition; }
 
 void Camera::setPosition(glm::vec3 position) { mPosition = position; }
 
-// Method to get the projection matrix
+void Camera::update(float deltaTime) {
+    mMouseInfluence *= expf(-mMouseDecayRate * deltaTime);
+    mObjectTargetInfluence *= expf(-mMouseDecayRate * deltaTime);
+
+    float totalInfluence = mMouseInfluence + mObjectTargetInfluence;
+    if (totalInfluence < 0.001f) {
+        // Nothing is moving
+        return;
+    }
+
+    springTowardsTarget(deltaTime);
+
+    float mouseWeight = mMouseInfluence / totalInfluence;
+    mYaw = glm::mix(mYaw, mMouseTargetYaw, mouseWeight);
+    mPitch = glm::mix(mPitch, mMouseTargetPitch, mouseWeight);
+
+    updateCameraVectors();
+}
+
 glm::mat4 Camera::getProjectionMatrix() {
     if (mIsOrthographic)
         mProjectionMatrix =
@@ -81,7 +116,6 @@ glm::mat4 Camera::getViewMatrix() {
     return mViewMatrix;
 }
 
-// Method to get the near and far planes of the frustum
 void Camera::getNearFarPlanes(float &near, float &far) const {
     near = mNear;
     far = mFar;
@@ -108,7 +142,6 @@ std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace(const float &zNear, c
 
 // Calculate the front vector from the camera's updated Euler angles
 void Camera::updateCameraVectors() {
-    // Calculare the front vector
     glm::vec3 front;
     front.x = cos(mYaw) * cos(mPitch);
     front.y = sin(mPitch);
@@ -123,7 +156,20 @@ void Camera::computeRightUpVectors() {
     mUp = glm::normalize(glm::cross(mRight, mFront));
 }
 
-// Method to obtain the two possible projections
+// Move in a spring-like manner towards the target yaw and pitch
+void Camera::springTowardsTarget(float deltaTime) {
+    float yawAccel = (mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
+    float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
+
+    mYawVelocity += yawAccel * deltaTime;
+    mPitchVelocity += pitchAccel * deltaTime;
+
+    mYaw += mObjectTargetInfluence * mYawVelocity * deltaTime;
+    mPitch += mObjectTargetInfluence * mPitchVelocity * deltaTime;
+
+    mPitch = glm::clamp(mPitch, glm::radians(-89.0f), glm::radians(89.0f));
+}
+
 glm::mat4 Camera::getPerspectiveProjection() {
     return glm::perspective(mFov, (float)mWidth / (float)mHeight, mNear, mFar);
 }
@@ -169,78 +215,69 @@ std::vector<glm::vec4> Camera::computeFrustumCornersWorldSpace(const glm::mat4 &
 // Keyboard input handler
 //==============================
 
-// Constructor
-CameraKeyboardInputHandler::CameraKeyboardInputHandler(Camera *camera) { mCamera = camera; }
+CameraKeyboardInputHandler::CameraKeyboardInputHandler(Camera *camera) : mCamera(camera), mMovementSpeed(SPEED) {}
 
-// Method to process input
-void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) const {
+void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) {
     // The keys WASD move the camera around the scene
-    float cameraSpeed{mCamera->mMovementSpeed * deltaTime};
+    float travelDistance{mMovementSpeed * deltaTime};
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        cameraSpeed *= 5.f;
+        travelDistance *= 5.f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        mCamera->mPosition += cameraSpeed * mCamera->mFront;
+        mCamera->mPosition += travelDistance * mCamera->mFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        mCamera->mPosition -= cameraSpeed * mCamera->mFront;
+        mCamera->mPosition -= travelDistance * mCamera->mFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        mCamera->mPosition -= cameraSpeed * mCamera->mRight;
+        mCamera->mPosition -= travelDistance * mCamera->mRight;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        mCamera->mPosition += cameraSpeed * mCamera->mRight;
+        mCamera->mPosition += travelDistance * mCamera->mRight;
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        mCamera->mPosition += cameraSpeed * mCamera->mUp;
+        mCamera->mPosition += travelDistance * mCamera->mUp;
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        mCamera->mPosition -= cameraSpeed * mCamera->mUp;
+        mCamera->mPosition -= travelDistance * mCamera->mUp;
 }
 
 // Mouse input handler
 //==============================
 
-// Constructor
-CameraMouseInputHandler::CameraMouseInputHandler(Camera *camera) { mCamera = camera; }
+CameraMouseInputHandler::CameraMouseInputHandler(Camera *camera)
+    : mCamera(camera), mMouseSensitivity(MOUSE_SENSITIVITY), mFirstMouse(true), mLastX(0.f), mLastY(0.f) {}
 
-// Method to process input
-void CameraMouseInputHandler::processInput(double xpos, double ypos) const {
+void CameraMouseInputHandler::processInput(double xpos, double ypos) {
     // If it is the first time that the mouse is moved, the last position is
     // the same as the current one
-    if (mCamera->mFirstMouse) {
-        mCamera->mLastX = xpos;
-        mCamera->mLastY = ypos;
-        mCamera->mFirstMouse = false;
+    if (mFirstMouse) {
+        mLastX = xpos;
+        mLastY = ypos;
+        mFirstMouse = false;
     }
 
     // Compute the change in the position of the mouse since the previous frame
-    float xoffset = xpos - mCamera->mLastX;
-    float yoffset = mCamera->mLastY - ypos; // reversed since y-coordinates go from bottom to top
+    float xOffset = xpos - mLastX;
+    float yOffset = mLastY - ypos; // reversed since y-coordinates go from bottom to top
     // Update the previous position of the mouse stored
-    mCamera->mLastX = xpos;
-    mCamera->mLastY = ypos;
-    // Multiply the offsets by the mouse sensitivity value
-    xoffset *= mCamera->mMouseSensitivity;
-    yoffset *= mCamera->mMouseSensitivity;
+    mLastX = xpos;
+    mLastY = ypos;
 
-    // Add the offset values to the global variables yaw and pitch (rotation
+    if (mCamera->mMouseInfluence < 0.01f) {
+        // The mouse was idle, so sync the angles to the current values
+        mCamera->mMouseTargetYaw = mCamera->mYaw;
+        mCamera->mMouseTargetPitch = mCamera->mPitch;
+    }
+
+    // Add the offset values to the variables yaw and pitch (rotation
     // around the camera's vertical (y) and horizontal (x) axes)
-    mCamera->mYaw += xoffset;
-    mCamera->mPitch += yoffset;
-
-    // Constrain the pitch to be between (-90, 90) degrees
-    if (mCamera->mPitch > glm::radians(89.))
-        mCamera->mPitch = glm::radians(89.);
-    if (mCamera->mPitch < glm::radians(-89.))
-        mCamera->mPitch = glm::radians(-89.);
-
-    // Update the Front, Up and Right camera vectors
-    mCamera->updateCameraVectors();
+    mCamera->mMouseTargetYaw += xOffset * mMouseSensitivity;
+    mCamera->mMouseTargetPitch =
+        glm::clamp(mCamera->mMouseTargetPitch + yOffset * mMouseSensitivity, glm::radians(-89.f), glm::radians(89.f));
+    mCamera->mMouseInfluence = 1.f;
 }
 
 // Scroll input handler
 //==============================
 
-// Constructor
-CameraScrollInputHandler::CameraScrollInputHandler(Camera *camera) { mCamera = camera; }
+CameraScrollInputHandler::CameraScrollInputHandler(Camera *camera) : mCamera(camera) {}
 
-// Method to process input
-void CameraScrollInputHandler::processInput(double xoffset, double yoffset) const {
+void CameraScrollInputHandler::processInput(double xoffset, double yoffset) {
     // Change the field of view with vertical scroll.
     mCamera->mFov -= (float)yoffset;
     // Constraint it to be between (1, 45) degrees

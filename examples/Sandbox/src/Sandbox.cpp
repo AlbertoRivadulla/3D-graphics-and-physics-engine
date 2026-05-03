@@ -224,16 +224,13 @@ void GLSandbox::setupScene() {
     auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.4, 0.02, 0.1, 0.02);
     mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
 
-    // Place the camera so it looks and follows the object
-    mCamera.setPosition(controlledCubePtr->getPosition() + glm::vec3(-5., 0., -4.));
-    mCamera.lookAtPoint(controlledCubePtr->getPosition());
-
     // Add a test observer for this object
     auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
     controlledCubePtr->registerObserver(controlledCubeObs);
 
     // Add an observer that makes the camera follow the object
-    auto cameraTrackCubeObs = mWorldManager.addObserver<CameraFollowEntityObserver>(&mCamera);
+    auto cameraTrackCubeObs =
+        mWorldManager.addObserver<CameraFollowEntityObserver>(&mCamera, controlledCubePtr->getPosition());
     controlledCubePtr->registerObserver(cameraTrackCubeObs);
 }
 
@@ -268,7 +265,7 @@ void GLSandbox::setupApplication() {
 void GLSandbox::updateScene() {
     mWorldManager.simulationStep(mDeltaTime);
 
-    // TODO: Update the camera with the time delta
+    mCamera.update(mDeltaTime);
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();

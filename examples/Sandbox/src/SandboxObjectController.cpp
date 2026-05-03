@@ -2,7 +2,7 @@
 
 ObjectKeyboardInputHandler::ObjectKeyboardInputHandler(Physics::RigidBody *body) : mBody{body} {}
 
-void ObjectKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) const {
+void ObjectKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
         mBody->addForceLocal(glm::vec3(10., 0., 0.));
     if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)

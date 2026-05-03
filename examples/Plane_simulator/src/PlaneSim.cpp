@@ -143,6 +143,8 @@ void PlaneSim::setupApplication() {
 void PlaneSim::updateScene() {
     mWorldManager.simulationStep(mDeltaTime);
 
+    mCamera.update(mDeltaTime);
+
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();
     mView = mCamera.getViewMatrix();

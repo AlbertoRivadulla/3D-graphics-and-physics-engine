@@ -18,61 +18,62 @@ const float SPEED{10.};
 const float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
 const float FOV{glm::radians(45.)}; // Field of view
 
-// Forward declare the camera class
 class Camera;
 
-// Input handlers for the camera
 class CameraKeyboardInputHandler : public KeyboardInputHandler {
 public:
-    // Constructor
     CameraKeyboardInputHandler(Camera *camera);
 
     bool isValid() const override { return mCamera != nullptr; }
 
-    void processInput(GLFWwindow *window, float deltaTime) const override;
+    void processInput(GLFWwindow *window, float deltaTime) override;
 
 private:
-    // Pointer to the camera
     Camera *mCamera;
+
+    float mMovementSpeed;
 };
 
 class CameraMouseInputHandler : public MouseInputHandler {
 public:
-    // Constructor
     CameraMouseInputHandler(Camera *camera);
 
     bool isValid() const override { return mCamera != nullptr; }
 
-    void processInput(double xpos, double ypos) const override;
+    void processInput(double xpos, double ypos) override;
 
 private:
-    // Pointer to the camera
     Camera *mCamera;
+
+    float mMouseSensitivity;
+
+    // Boolean variable that determines whether it is the first mouse mouvement
+    // in the execution
+    bool mFirstMouse;
+
+    // Last position of the mouse
+    float mLastX;
+    float mLastY;
 };
 
 class CameraScrollInputHandler : public ScrollInputHandler {
 public:
-    // Constructor
     CameraScrollInputHandler(Camera *camera);
 
     bool isValid() const override { return mCamera != nullptr; }
 
-    void processInput(double xoffset, double yoffset) const override;
+    void processInput(double xoffset, double yoffset) override;
 
 private:
-    // Pointer to the camera
     Camera *mCamera;
 };
 
-// Abstract camera class
 class Camera {
-    // Declare the input handler classes as friends
     friend class CameraKeyboardInputHandler;
     friend class CameraMouseInputHandler;
     friend class CameraScrollInputHandler;
 
 public:
-    // Input handlers
     CameraKeyboardInputHandler mKeyboardHandler;
     CameraMouseInputHandler mMouseHandler;
     CameraScrollInputHandler mScrollHandler;
@@ -85,32 +86,34 @@ public:
     Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw = YAW,
            float pitch = PITCH);
 
-    // Method to make the camera orthographic
     void setOrthographic();
-    // Method to make the camera perspective
     void setPerspective();
 
-    // Methods to configure the camera
-    // Method to set the frustum of the camera
     void setFrustum(float near, float far);
-    // Method to change the width and height of the viewport
-    void setDimensions(int width, int height);
+    void setViewportDimensions(int width, int height);
     // Method to set the dimension of the orthographic projection matrix
     void setOrthographicSize(float size);
+
+    // Set parameters for the camera tracking an object
+    void setTrackingParameters(float mouseDecayRate = 0.f, float objectTargetDecayRate = 0.f,
+                               float orientationStiffness = 0.f, float orientationDamping = 0.f);
 
     // Look at a given point in world space
     void lookAtPoint(glm::vec3 target);
 
+    // Set the target to look at
+    void setLookAtTarget(glm::vec3 target, float objectTargetInfluence = 1.f);
+
     const glm::vec3 &getPosition() const;
     void setPosition(glm::vec3 position);
 
-    // Method to get the projection matrix
+    void update(float deltaTime);
+
     glm::mat4 getProjectionMatrix();
 
     // Compute the view matrix calculated from the Euler angles
     glm::mat4 getViewMatrix();
 
-    // Method to get the near and far planes of the frustum
     void getNearFarPlanes(float &near, float &far) const;
 
     std::vector<glm::vec4> algo() const;
@@ -145,17 +148,6 @@ private:
     glm::vec3 mUp;
     glm::vec3 mRight;
 
-    // Camera options
-    float mMovementSpeed;
-    float mMouseSensitivity;
-
-    // Last position of the mouse
-    float mLastX;
-    float mLastY;
-    // Boolean variable that determines whether it is the first mouse mouvement
-    // in the execution
-    bool mFirstMouse;
-
     // Dimensions of the orthographic camera
     float mOrthoHalfWidth;
     float mOrthoHalfHeight;
@@ -167,9 +159,29 @@ private:
     // Bool that says if the camera is orthographic or perspective
     bool mIsOrthographic;
 
+    float mYawVelocity;
+    float mPitchVelocity;
+
+    // Mouse driven orientation
+    float mMouseInfluence; // 1 when the mouse just moved
+    float mMouseDecayRate; // 0 = no decay of mouse angles
+    float mMouseTargetYaw;
+    float mMouseTargetPitch;
+
+    // Target driven orientation
+    float mObjectTargetInfluence; // 1 when the target just moved
+    float mObjectTargetDecayRate; // 0 = no decay of target angles
+    float mObjectTargetYaw;
+    float mObjectTargetPitch;
+    float mOrientationStiffness;
+    float mOrientationDamping;
+
     // Calculate the front vector from the camera's updated Euler angles
     void updateCameraVectors();
     void computeRightUpVectors();
+
+    // Move in a spring-like manner towards the target yaw and pitch
+    void springTowardsTarget(float deltaTime);
 
     // Method to obtain the two possible projections
     glm::mat4 getPerspectiveProjection();
