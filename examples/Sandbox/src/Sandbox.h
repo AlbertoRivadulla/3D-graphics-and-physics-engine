@@ -4,8 +4,9 @@
 #include "GLBase.h"
 #include "GLGeometry.h"
 #include "Physics.h"
-#include "SandboxObjectController.h"
 #include "WorldManager.h"
+#include "SandboxObjectController.h"
+#include "cameraDefaultInputHandlers.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -36,6 +37,9 @@ private:
 
     // Main camera
     Camera mCamera;
+    CameraKeyboardInputHandler mCameraKeyboardInputHandler;
+    CameraMouseInputHandler mCameraMouseInputHandler;
+    CameraScrollInputHandler mCameraScrollInputHandler;
 
     // Main input handler
     InputHandler mInputHandler;

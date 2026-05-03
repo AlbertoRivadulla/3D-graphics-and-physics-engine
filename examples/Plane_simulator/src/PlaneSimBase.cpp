@@ -5,9 +5,9 @@ using namespace GLBase;
 
 PlaneSim::PlaneSim(int width, int height, const char *title, float scaling)
     : mApplication(width, height, title), mRenderer(),
-      mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass
-                                                      // shader of the renderer
-      mCamera(width, height, glm::vec3(1., 0., 0.)), mAuxElements(width, height),
+      mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass shader of the renderer
+      mCamera(width, height, glm::vec3(1., 0., 0.)), mCameraKeyboardInputHandler(&mCamera),
+      mCameraMouseInputHandler(&mCamera), mCameraScrollInputHandler(&mCamera), mAuxElements(width, height),
       mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"), mGUIRenderer(width, height),
       mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mLastFrame{0.}, mFrameCounter{0}, mTotalTime{0.},
       mScrWidth{width}, mScrHeight{height} {

@@ -8,10 +8,9 @@ namespace GLBase {
 
 // Constructor with vector values
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-    : mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), mWidth{width}, mHeight{height}, mNear{0.1},
-      mFar{100.}, mFov{FOV}, mPosition{position}, mWorldUp{up}, mYaw{yaw}, mPitch{pitch},
-      mFront{glm::vec3(0., 0., -1.)}, mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f},
-      mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f} {
+    : mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mPosition{position}, mWorldUp{up},
+      mYaw{yaw}, mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)}, mOrthoHalfWidth{3.f * (float)width / (float)height},
+      mOrthoHalfHeight{3.f}, mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f} {
     setTrackingParameters();
     updateCameraVectors();
 }
@@ -19,10 +18,10 @@ Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float ya
 // Constructor with scalar values
 Camera::Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw,
                float pitch)
-    : mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), mWidth{width}, mHeight{height}, mNear{0.1},
-      mFar{100.}, mFov{FOV}, mPosition{glm::vec3(posX, posY, posZ)}, mWorldUp{glm::vec3(upX, upY, upZ)}, mYaw{yaw},
-      mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)}, mOrthoHalfWidth{3.f * (float)width / (float)height},
-      mOrthoHalfHeight{3.f}, mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f} {
+    : mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mPosition{glm::vec3(posX, posY, posZ)},
+      mWorldUp{glm::vec3(upX, upY, upZ)}, mYaw{yaw}, mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)},
+      mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f}, mIsOrthographic{false},
+      mYawVelocity{0.f}, mPitchVelocity{0.f} {
     setTrackingParameters();
     updateCameraVectors();
 }
@@ -62,6 +61,8 @@ void Camera::lookAtPoint(glm::vec3 point) {
     mYaw = atan2f(pointDirection.z, pointDirection.x);
     mPitch = glm::clamp(asinf(pointDirection.y), glm::radians(-89.f), glm::radians(89.f));
 
+    mObjectTargetYaw = mYaw;
+    mObjectTargetPitch = mPitch;
     mObjectTargetInfluence = 0.f;
 
     updateCameraVectors();
@@ -80,9 +81,40 @@ const glm::vec3 &Camera::getPosition() const { return mPosition; }
 
 void Camera::setPosition(glm::vec3 position) { mPosition = position; }
 
+void Camera::moveFrontwards(float distance) { mPosition += distance * mFront; }
+
+void Camera::moveRightwards(float distance) { mPosition += distance * mRight; }
+
+void Camera::moveUpwards(float distance) { mPosition += distance * mUp; }
+
+void Camera::moveMouseTargetAngles(float xDistance, float yDistance) {
+    if (mMouseInfluence < 0.0001f) {
+        // The mouse was idle, so sync the angles to the current values
+        mMouseTargetYaw = mYaw;
+        mMouseTargetPitch = mPitch;
+    }
+
+    // Add the offset values to the variables yaw and pitch (rotation
+    // around the camera's vertical (y) and horizontal (x) axes)
+    mMouseTargetYaw = Utils::wrapAngle(mMouseTargetYaw + xDistance);
+    mMouseTargetPitch = glm::clamp(mMouseTargetPitch + yDistance, glm::radians(-89.0f), glm::radians(89.0f));
+    mMouseInfluence = 1.f;
+}
+
+void Camera::increaseDecreaseFov(float fovChange) { mFov = glm::clamp(mFov + fovChange, FOV_MIN, FOV_MAX); }
+
 void Camera::update(float deltaTime) {
     mMouseInfluence *= expf(-mMouseDecayRate * deltaTime);
-    mObjectTargetInfluence *= expf(-mMouseDecayRate * deltaTime);
+    mObjectTargetInfluence *= expf(-mObjectTargetDecayRate * deltaTime);
+
+    if (mObjectTargetInfluence > 0.5f && mMouseInfluence / mObjectTargetInfluence < 0.5f) {
+        // As mouse influence decays, pull mouse target toward entity target
+        // so when mouse fully releases there is no gap between the two
+        float syncRate = 1.0f - mMouseInfluence; // 0 when mouse active, 1 when idle
+        mMouseTargetYaw =
+            Utils::wrapAngle(mMouseTargetYaw + syncRate * Utils::wrapAngle(mObjectTargetYaw - mMouseTargetYaw) * deltaTime);
+        mMouseTargetPitch += syncRate * (mObjectTargetPitch - mMouseTargetPitch) * deltaTime;
+    }
 
     float totalInfluence = mMouseInfluence + mObjectTargetInfluence;
     if (totalInfluence < 0.001f) {
@@ -93,7 +125,7 @@ void Camera::update(float deltaTime) {
     springTowardsTarget(deltaTime);
 
     float mouseWeight = mMouseInfluence / totalInfluence;
-    mYaw = glm::mix(mYaw, mMouseTargetYaw, mouseWeight);
+    mYaw = Utils::wrapAngle(mYaw + Utils::wrapAngle(mMouseTargetYaw - mYaw) * mouseWeight);
     mPitch = glm::mix(mPitch, mMouseTargetPitch, mouseWeight);
 
     updateCameraVectors();
@@ -156,18 +188,30 @@ void Camera::computeRightUpVectors() {
     mUp = glm::normalize(glm::cross(mRight, mFront));
 }
 
+void Camera::springToward(float desiredYaw, float desiredPitch, float deltaTime) {
+    float yawAccel = Utils::wrapAngle(desiredYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
+    float pitchAccel = (desiredPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
+
+    mYawVelocity += yawAccel * deltaTime;
+    mPitchVelocity += pitchAccel * deltaTime;
+
+    mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
+    mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
+                        glm::radians(89.0f));
+}
+
 // Move in a spring-like manner towards the target yaw and pitch
 void Camera::springTowardsTarget(float deltaTime) {
-    float yawAccel = (mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
+    float yawAccel =
+        Utils::wrapAngle(mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
     float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
 
     mYawVelocity += yawAccel * deltaTime;
     mPitchVelocity += pitchAccel * deltaTime;
 
-    mYaw += mObjectTargetInfluence * mYawVelocity * deltaTime;
-    mPitch += mObjectTargetInfluence * mPitchVelocity * deltaTime;
-
-    mPitch = glm::clamp(mPitch, glm::radians(-89.0f), glm::radians(89.0f));
+    mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
+    mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
+                        glm::radians(89.0f));
 }
 
 glm::mat4 Camera::getPerspectiveProjection() {
@@ -206,85 +250,6 @@ std::vector<glm::vec4> Camera::computeFrustumCornersWorldSpace(const glm::mat4 &
     }
 
     return frustumCorners;
-}
-
-//==============================
-// Methods of the input handlers for the camera
-//==============================
-
-// Keyboard input handler
-//==============================
-
-CameraKeyboardInputHandler::CameraKeyboardInputHandler(Camera *camera) : mCamera(camera), mMovementSpeed(SPEED) {}
-
-void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) {
-    // The keys WASD move the camera around the scene
-    float travelDistance{mMovementSpeed * deltaTime};
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        travelDistance *= 5.f;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        mCamera->mPosition += travelDistance * mCamera->mFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        mCamera->mPosition -= travelDistance * mCamera->mFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        mCamera->mPosition -= travelDistance * mCamera->mRight;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        mCamera->mPosition += travelDistance * mCamera->mRight;
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        mCamera->mPosition += travelDistance * mCamera->mUp;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        mCamera->mPosition -= travelDistance * mCamera->mUp;
-}
-
-// Mouse input handler
-//==============================
-
-CameraMouseInputHandler::CameraMouseInputHandler(Camera *camera)
-    : mCamera(camera), mMouseSensitivity(MOUSE_SENSITIVITY), mFirstMouse(true), mLastX(0.f), mLastY(0.f) {}
-
-void CameraMouseInputHandler::processInput(double xpos, double ypos) {
-    // If it is the first time that the mouse is moved, the last position is
-    // the same as the current one
-    if (mFirstMouse) {
-        mLastX = xpos;
-        mLastY = ypos;
-        mFirstMouse = false;
-    }
-
-    // Compute the change in the position of the mouse since the previous frame
-    float xOffset = xpos - mLastX;
-    float yOffset = mLastY - ypos; // reversed since y-coordinates go from bottom to top
-    // Update the previous position of the mouse stored
-    mLastX = xpos;
-    mLastY = ypos;
-
-    if (mCamera->mMouseInfluence < 0.01f) {
-        // The mouse was idle, so sync the angles to the current values
-        mCamera->mMouseTargetYaw = mCamera->mYaw;
-        mCamera->mMouseTargetPitch = mCamera->mPitch;
-    }
-
-    // Add the offset values to the variables yaw and pitch (rotation
-    // around the camera's vertical (y) and horizontal (x) axes)
-    mCamera->mMouseTargetYaw += xOffset * mMouseSensitivity;
-    mCamera->mMouseTargetPitch =
-        glm::clamp(mCamera->mMouseTargetPitch + yOffset * mMouseSensitivity, glm::radians(-89.f), glm::radians(89.f));
-    mCamera->mMouseInfluence = 1.f;
-}
-
-// Scroll input handler
-//==============================
-
-CameraScrollInputHandler::CameraScrollInputHandler(Camera *camera) : mCamera(camera) {}
-
-void CameraScrollInputHandler::processInput(double xoffset, double yoffset) {
-    // Change the field of view with vertical scroll.
-    mCamera->mFov -= (float)yoffset;
-    // Constraint it to be between (1, 45) degrees
-    if (mCamera->mFov < 1.)
-        mCamera->mFov = 1.;
-    if (mCamera->mFov > 45.)
-        mCamera->mFov = 45.;
 }
 
 } // namespace GLBase

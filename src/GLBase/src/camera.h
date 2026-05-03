@@ -1,83 +1,26 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <vector>
 #include <numbers>
 #include <glm/glm.hpp>
-
-#include "inputHandler.h"
 
 namespace GLBase {
 // Default camera values
 // Angle with respect to the camera's y axis.
 // Default to -90 degrees. Otherwise the camera will be looking to the right.
-const float YAW{glm::radians(-90.)};
+constexpr float YAW{glm::radians(-90.)};
 // Angle with respect to the camera's x axis.
-const float PITCH{glm::radians(0.)};
-const float SPEED{10.};
+constexpr float PITCH{glm::radians(0.)};
+constexpr float SPEED{10.};
 // const float SENSITIVITY{0.1};
-const float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
-const float FOV{glm::radians(45.)}; // Field of view
-
-class Camera;
-
-class CameraKeyboardInputHandler : public KeyboardInputHandler {
-public:
-    CameraKeyboardInputHandler(Camera *camera);
-
-    bool isValid() const override { return mCamera != nullptr; }
-
-    void processInput(GLFWwindow *window, float deltaTime) override;
-
-private:
-    Camera *mCamera;
-
-    float mMovementSpeed;
-};
-
-class CameraMouseInputHandler : public MouseInputHandler {
-public:
-    CameraMouseInputHandler(Camera *camera);
-
-    bool isValid() const override { return mCamera != nullptr; }
-
-    void processInput(double xpos, double ypos) override;
-
-private:
-    Camera *mCamera;
-
-    float mMouseSensitivity;
-
-    // Boolean variable that determines whether it is the first mouse mouvement
-    // in the execution
-    bool mFirstMouse;
-
-    // Last position of the mouse
-    float mLastX;
-    float mLastY;
-};
-
-class CameraScrollInputHandler : public ScrollInputHandler {
-public:
-    CameraScrollInputHandler(Camera *camera);
-
-    bool isValid() const override { return mCamera != nullptr; }
-
-    void processInput(double xoffset, double yoffset) override;
-
-private:
-    Camera *mCamera;
-};
+constexpr float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
+constexpr float FOV_DEFAULT{glm::radians(45.)}; // Field of view
+constexpr float FOV_MIN{glm::radians(1.f)};
+constexpr float FOV_MAX{glm::radians(90.f)};
 
 class Camera {
-    friend class CameraKeyboardInputHandler;
-    friend class CameraMouseInputHandler;
-    friend class CameraScrollInputHandler;
-
 public:
-    CameraKeyboardInputHandler mKeyboardHandler;
-    CameraMouseInputHandler mMouseHandler;
-    CameraScrollInputHandler mScrollHandler;
-
     // Constructor with vector values
     Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
            float yaw = YAW, float pitch = PITCH);
@@ -106,6 +49,14 @@ public:
 
     const glm::vec3 &getPosition() const;
     void setPosition(glm::vec3 position);
+
+    void moveFrontwards(float distance);
+    void moveRightwards(float distance);
+    void moveUpwards(float distance);
+
+    void moveMouseTargetAngles(float xDistance, float yDistance);
+
+    void increaseDecreaseFov(float fovChange);
 
     void update(float deltaTime);
 
@@ -180,6 +131,9 @@ private:
     void updateCameraVectors();
     void computeRightUpVectors();
 
+
+    void springToward(float desiredYaw, float desiredPitch, float deltaTime);
+
     // Move in a spring-like manner towards the target yaw and pitch
     void springTowardsTarget(float deltaTime);
 
@@ -190,17 +144,6 @@ private:
     std::vector<glm::vec4> computeFrustumCornersWorldSpace(const glm::mat4 &projectionMatrix) const;
 };
 
-// class OrthographicCamera : public Camera
-// {
-//     public:
-//         glm::mat4 getProjectionMatrix();
-// };
-//
-// class PerspectiveCamera : public Camera
-// {
-//     public:
-//         glm::mat4 getProjectionMatrix();
-// };
 } // namespace GLBase
 
 #endif

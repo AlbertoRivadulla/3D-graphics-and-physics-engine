@@ -250,9 +250,9 @@ void GLSandbox::setupApplication() {
     mCamera.setFrustum(0.1f, 500.f);
 
     // Pass pointers to the input handler of the camera
-    mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
-    mInputHandler.addMouseHandler(&mCamera.mMouseHandler);
-    mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
+    mInputHandler.addKeyboardHandler(&mCameraKeyboardInputHandler);
+    mInputHandler.addMouseHandler(&mCameraMouseInputHandler);
+    mInputHandler.addScrollHandler(&mCameraScrollInputHandler);
 
     // Pass to the input handler the controller for the object
     mInputHandler.addKeyboardHandler(mObjectController.getKeyboardInputHandler());

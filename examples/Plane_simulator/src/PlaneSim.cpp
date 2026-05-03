@@ -132,9 +132,9 @@ void PlaneSim::setupApplication() {
     // mCamera.setFrustum(0.1f, 200.f);
     mCamera.setFrustum(0.1f, 500.f);
 
-    mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
-    mInputHandler.addMouseHandler(&mCamera.mMouseHandler);
-    mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
+    mInputHandler.addKeyboardHandler(&mCameraKeyboardInputHandler);
+    mInputHandler.addMouseHandler(&mCameraMouseInputHandler);
+    mInputHandler.addScrollHandler(&mCameraScrollInputHandler);
 
     // Pass the list of lights to the renderer, to configure the lighting shader
     mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());

@@ -5,7 +5,7 @@ CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr
     : mCamera(cameraPtr), mLastObjectPos(initialObjPos) {
     // Set the parameters of camera tracking to be over cricital damping,
     //  damping = 2 * sqrt(stiffness)
-    mCamera->setTrackingParameters(5.f, 5.f, 50.f, 20.f);
+    mCamera->setTrackingParameters(1.f, 5.f, 10.f, 6.5f);
 
     // Place the camera so it looks and follows the object
     mCamera->setPosition(initialObjPos + glm::vec3(-5., 0., -4.));

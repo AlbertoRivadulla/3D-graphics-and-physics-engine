@@ -5,6 +5,7 @@
 #include "GLGeometry.h"
 #include "Physics.h"
 #include "WorldManager.h"
+#include "cameraDefaultInputHandlers.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -32,6 +33,9 @@ private:
 
     // Main camera
     Camera mCamera;
+    CameraKeyboardInputHandler mCameraKeyboardInputHandler;
+    CameraMouseInputHandler mCameraMouseInputHandler;
+    CameraScrollInputHandler mCameraScrollInputHandler;
 
     // Main input handler
     InputHandler mInputHandler;

@@ -53,6 +53,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/inputHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/deferredRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cameraDefaultInputHandlers.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp
