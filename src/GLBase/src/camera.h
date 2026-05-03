@@ -39,13 +39,16 @@ public:
 
     // Set parameters for the camera tracking an object
     void setTrackingParameters(float mouseDecayRate = 0.f, float objectTargetDecayRate = 0.f,
-                               float orientationStiffness = 0.f, float orientationDamping = 0.f);
+                               float orientationStiffness = 0.f, float orientationDamping = 0.f,
+                               float positionStiffness = 0.f, float positionDamping = 0.f);
 
     // Look at a given point in world space
     void lookAtPoint(glm::vec3 target);
 
     // Set the target to look at
     void setLookAtTarget(glm::vec3 target, float objectTargetInfluence = 1.f);
+
+    void setPositionTarget(glm::vec3 targetPosition);
 
     const glm::vec3 &getPosition() const;
     void setPosition(glm::vec3 position);
@@ -110,9 +113,6 @@ private:
     // Bool that says if the camera is orthographic or perspective
     bool mIsOrthographic;
 
-    float mYawVelocity;
-    float mPitchVelocity;
-
     // Mouse driven orientation
     float mMouseInfluence; // 1 when the mouse just moved
     float mMouseDecayRate; // 0 = no decay of mouse angles
@@ -126,13 +126,18 @@ private:
     float mObjectTargetPitch;
     float mOrientationStiffness;
     float mOrientationDamping;
+    float mYawVelocity;
+    float mPitchVelocity;
+
+    // Target driven position
+    float mPositionStiffness;
+    float mPositionDamping;
+    glm::vec3 mObjectTargetPosition;
+    glm::vec3 mPositionVelocity;
 
     // Calculate the front vector from the camera's updated Euler angles
     void updateCameraVectors();
     void computeRightUpVectors();
-
-
-    void springToward(float desiredYaw, float desiredPitch, float deltaTime);
 
     // Move in a spring-like manner towards the target yaw and pitch
     void springTowardsTarget(float deltaTime);

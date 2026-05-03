@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "src/logger.h"
 #include "utils.h"
 
 namespace GLBase {
@@ -10,7 +11,10 @@ namespace GLBase {
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mPosition{position}, mWorldUp{up},
       mYaw{yaw}, mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)}, mOrthoHalfWidth{3.f * (float)width / (float)height},
-      mOrthoHalfHeight{3.f}, mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f} {
+      mOrthoHalfHeight{3.f}, mIsOrthographic{false}, mYawVelocity{0.f}, mPitchVelocity{0.f},
+      mPositionVelocity(glm::vec3(0.f, 0.f, 0.f)) {
+    mObjectTargetPosition = mPosition;
+
     setTrackingParameters();
     updateCameraVectors();
 }
@@ -21,7 +25,9 @@ Camera::Camera(int width, int height, float posX, float posY, float posZ, float 
     : mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mPosition{glm::vec3(posX, posY, posZ)},
       mWorldUp{glm::vec3(upX, upY, upZ)}, mYaw{yaw}, mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)},
       mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f}, mIsOrthographic{false},
-      mYawVelocity{0.f}, mPitchVelocity{0.f} {
+      mYawVelocity{0.f}, mPitchVelocity{0.f}, mPositionVelocity(glm::vec3(0.f, 0.f, 0.f)) {
+    mObjectTargetPosition = mPosition;
+
     setTrackingParameters();
     updateCameraVectors();
 }
@@ -47,12 +53,15 @@ void Camera::setOrthographicSize(float size) {
 
 // Set parameters for the camera tracking an object
 void Camera::setTrackingParameters(float mouseDecayRate, float objectTargetDecayRate, float orientationStiffness,
-                                   float orientationDamping) {
+                                   float orientationDamping, float positionStiffness, float positionDamping) {
     mMouseDecayRate = mouseDecayRate;
     mObjectTargetDecayRate = objectTargetDecayRate;
 
     mOrientationStiffness = orientationStiffness;
     mOrientationDamping = orientationDamping;
+
+    mPositionStiffness = positionStiffness;
+    mPositionDamping = positionDamping;
 }
 
 void Camera::lookAtPoint(glm::vec3 point) {
@@ -77,9 +86,14 @@ void Camera::setLookAtTarget(glm::vec3 target, float objectTargetInfluence) {
     mObjectTargetInfluence = objectTargetInfluence;
 }
 
+void Camera::setPositionTarget(glm::vec3 targetPosition) { mObjectTargetPosition = targetPosition; }
+
 const glm::vec3 &Camera::getPosition() const { return mPosition; }
 
-void Camera::setPosition(glm::vec3 position) { mPosition = position; }
+void Camera::setPosition(glm::vec3 position) {
+    mPosition = position;
+    mObjectTargetPosition = position;
+}
 
 void Camera::moveFrontwards(float distance) { mPosition += distance * mFront; }
 
@@ -111,8 +125,8 @@ void Camera::update(float deltaTime) {
         // As mouse influence decays, pull mouse target toward entity target
         // so when mouse fully releases there is no gap between the two
         float syncRate = 1.0f - mMouseInfluence; // 0 when mouse active, 1 when idle
-        mMouseTargetYaw =
-            Utils::wrapAngle(mMouseTargetYaw + syncRate * Utils::wrapAngle(mObjectTargetYaw - mMouseTargetYaw) * deltaTime);
+        mMouseTargetYaw = Utils::wrapAngle(mMouseTargetYaw +
+                                           syncRate * Utils::wrapAngle(mObjectTargetYaw - mMouseTargetYaw) * deltaTime);
         mMouseTargetPitch += syncRate * (mObjectTargetPitch - mMouseTargetPitch) * deltaTime;
     }
 
@@ -188,20 +202,9 @@ void Camera::computeRightUpVectors() {
     mUp = glm::normalize(glm::cross(mRight, mFront));
 }
 
-void Camera::springToward(float desiredYaw, float desiredPitch, float deltaTime) {
-    float yawAccel = Utils::wrapAngle(desiredYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
-    float pitchAccel = (desiredPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
-
-    mYawVelocity += yawAccel * deltaTime;
-    mPitchVelocity += pitchAccel * deltaTime;
-
-    mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
-    mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
-                        glm::radians(89.0f));
-}
-
 // Move in a spring-like manner towards the target yaw and pitch
 void Camera::springTowardsTarget(float deltaTime) {
+    // Update orientations
     float yawAccel =
         Utils::wrapAngle(mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
     float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
@@ -212,6 +215,16 @@ void Camera::springTowardsTarget(float deltaTime) {
     mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
     mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
                         glm::radians(89.0f));
+
+    LOG_INFO("Target position " << printVector(mObjectTargetPosition));
+
+    // Update the position
+    glm::vec3 posAcceleration =
+        (mObjectTargetPosition - mPosition) * mPositionStiffness - mPositionVelocity * mPositionDamping;
+    mPositionVelocity += posAcceleration * deltaTime;
+    mPosition += mPositionVelocity * deltaTime;
+
+    LOG_INFO("Final position " << printVector(mPosition));
 }
 
 glm::mat4 Camera::getPerspectiveProjection() {

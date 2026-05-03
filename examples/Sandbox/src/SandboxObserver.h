@@ -27,6 +27,8 @@ public:
 private:
     GLBase::Camera *mCamera;
 
+    glm::vec3 mCameraPositionOffset;
+
     glm::vec3 mLastObjectPos;
 };
 
