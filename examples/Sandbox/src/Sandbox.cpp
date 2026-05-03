@@ -42,10 +42,10 @@ void GLSandbox::setupScene() {
                                                                       "/textures/skybox");
 
     // Set the position of the camera
-    // mCamera.Position = glm::vec3(0.f, 0.f, 5.f);
-    // mCamera.Position = glm::vec3(0.f, 1.5f, 10.f);
-    // mCamera.Position = glm::vec3(0.f, 5.f, 20.f);
-    mCamera.Position = glm::vec3(20.f, -20.f, 30.f);
+    // mCamera.setPosition(glm::vec3(0.f, 0.f, 5.f));
+    // mCamera.setPosition(glm::vec3(0.f, 1.5f, 10.f));
+    // mCamera.setPosition(glm::vec3(0.f, 5.f, 20.f));
+    mCamera.setPosition(glm::vec3(20.f, -20.f, 30.f));
 
     // // Load a shader
     // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl",
@@ -224,11 +224,17 @@ void GLSandbox::setupScene() {
     auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.4, 0.02, 0.1, 0.02);
     mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
 
+    // Place the camera so it looks and follows the object
+    mCamera.setPosition(controlledCubePtr->getPosition() + glm::vec3(-5., 0., -4.));
+    mCamera.lookAtPoint(controlledCubePtr->getPosition());
+
     // Add a test observer for this object
     auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
     controlledCubePtr->registerObserver(controlledCubeObs);
 
-    // TODO: Add a controller that makes the camera follow the object
+    // Add an observer that makes the camera follow the object
+    auto cameraTrackCubeObs = mWorldManager.addObserver<CameraFollowEntityObserver>(&mCamera);
+    controlledCubePtr->registerObserver(cameraTrackCubeObs);
 }
 
 // Pass pointers to objects to the application, for the input processing
@@ -261,6 +267,8 @@ void GLSandbox::setupApplication() {
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene() {
     mWorldManager.simulationStep(mDeltaTime);
+
+    // TODO: Update the camera with the time delta
 
     // Get the view and projection matrices
     mProjection = mCamera.getProjectionMatrix();

@@ -72,37 +72,18 @@ class Camera {
     friend class CameraScrollInputHandler;
 
 public:
-    // Width and height of the viewport
-    int mWidth;
-    int mHeight;
-    // Near and far planes of the frustum
-    float mNear;
-    float mFar;
-    // Camera attributes
-    glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
-    // Euler angles of the camera
-    float Yaw;
-    float Pitch;
-    // Field of view
-    float Fov;
-
     // Input handlers
     CameraKeyboardInputHandler mKeyboardHandler;
     CameraMouseInputHandler mMouseHandler;
     CameraScrollInputHandler mScrollHandler;
 
     // Constructor with vector values
-    Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.),
-           glm::vec3 up = glm::vec3(0., 1., 0.), float yaw = YAW,
-           float pitch = PITCH);
+    Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
+           float yaw = YAW, float pitch = PITCH);
 
     // Constructor with scalar values
-    Camera(int width, int height, float posX, float posY, float posZ, float upX,
-           float upY, float upZ, float yaw = YAW, float pitch = PITCH);
+    Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw = YAW,
+           float pitch = PITCH);
 
     // Method to make the camera orthographic
     void setOrthographic();
@@ -117,6 +98,12 @@ public:
     // Method to set the dimension of the orthographic projection matrix
     void setOrthographicSize(float size);
 
+    // Look at a given point in world space
+    void lookAtPoint(glm::vec3 target);
+
+    const glm::vec3 &getPosition() const;
+    void setPosition(glm::vec3 position);
+
     // Method to get the projection matrix
     glm::mat4 getProjectionMatrix();
 
@@ -126,17 +113,41 @@ public:
     // Method to get the near and far planes of the frustum
     void getNearFarPlanes(float &near, float &far) const;
 
+    std::vector<glm::vec4> algo() const;
+
     // Get the position of the eight corners of the frustum
     std::vector<glm::vec4> getFrustumCornersWorldSpace() const;
     // Get the position of the eight corners of the subfrustum index of the
     // total of subfrustums
-    std::vector<glm::vec4> getFrustumCornersWorldSpace(const float &zNear,
-                                                       const float &zFar) const;
+    std::vector<glm::vec4> getFrustumCornersWorldSpace(const float &zNear, const float &zFar) const;
 
 private:
+    // Width and height of the viewport
+    int mWidth;
+    int mHeight;
+    // Near and far planes of the frustum
+    float mNear;
+    float mFar;
+
+    float mFov;
+    glm::vec3 mPosition;
+
+    // This is a constant
+    glm::vec3 mWorldUp;
+
+    // Euler angles of the camera
+    float mYaw;
+    float mPitch;
+
+    // Camera attributes
+    // These are computed from the ones above
+    glm::vec3 mFront;
+    glm::vec3 mUp;
+    glm::vec3 mRight;
+
     // Camera options
-    float MovementSpeed;
-    float MouseSensitivity;
+    float mMovementSpeed;
+    float mMouseSensitivity;
 
     // Last position of the mouse
     float mLastX;
@@ -158,10 +169,13 @@ private:
 
     // Calculate the front vector from the camera's updated Euler angles
     void updateCameraVectors();
+    void computeRightUpVectors();
 
     // Method to obtain the two possible projections
     glm::mat4 getPerspectiveProjection();
     glm::mat4 getOrthographicProjection();
+
+    std::vector<glm::vec4> computeFrustumCornersWorldSpace(const glm::mat4 &projectionMatrix) const;
 };
 
 // class OrthographicCamera : public Camera

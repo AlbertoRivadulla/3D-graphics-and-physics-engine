@@ -48,7 +48,7 @@ void PlaneSim::run() {
 
         renderDeferred();
 
-        mRenderer.processGBuffer(mCamera.Position, mWorldManager.getGraphicsManager().getListOfLights());
+        mRenderer.processGBuffer(mCamera.getPosition(), mWorldManager.getGraphicsManager().getListOfLights());
 
         mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());
 

@@ -39,7 +39,7 @@ void PlaneSim::setupScene() {
     mWorldManager.getGraphicsManager().getSkymap()->setSunPosition(sunPhi, sunTheta);
 
     // Set the position of the camera
-    mCamera.Position = glm::vec3(20.f, -20.f, 30.f);
+    mCamera.setPosition(glm::vec3(20.f, -20.f, 30.f));
 
     // Load shaders for the geometry pass
     mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) +
@@ -149,7 +149,7 @@ void PlaneSim::updateScene() {
 
     // Update the skymap
     mWorldManager.getGraphicsManager().getSkymap()->setViewProjection(mView, mProjection);
-    mWorldManager.getGraphicsManager().getSkymap()->setCameraPosition(mCamera.Position);
+    mWorldManager.getGraphicsManager().getSkymap()->setCameraPosition(mCamera.getPosition());
 }
 
 void PlaneSim::renderDeferred() {

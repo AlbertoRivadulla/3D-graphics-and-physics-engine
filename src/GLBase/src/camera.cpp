@@ -8,21 +8,22 @@ namespace GLBase {
 
 // Constructor with vector values
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-    : mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, Position{position}, Front{glm::vec3(0., 0., -1.)},
-      WorldUp{up}, Yaw{yaw}, Pitch{pitch}, Fov{FOV}, mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this),
-      MovementSpeed{SPEED}, MouseSensitivity{MOUSE_SENSITIVITY}, mLastX{0.}, mLastY{0.}, mFirstMouse{true},
-      mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f}, mIsOrthographic{false} {
+    : mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), mWidth{width}, mHeight{height}, mNear{0.1},
+      mFar{100.}, mFov{FOV}, mPosition{position}, mWorldUp{up}, mYaw{yaw}, mPitch{pitch},
+      mFront{glm::vec3(0., 0., -1.)}, mMovementSpeed{SPEED}, mMouseSensitivity{MOUSE_SENSITIVITY}, mLastX{0.},
+      mLastY{0.}, mFirstMouse{true}, mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f},
+      mIsOrthographic{false} {
     updateCameraVectors();
 }
 
 // Constructor with scalar values
 Camera::Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw,
                float pitch)
-    : mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, Position{glm::vec3(posX, posY, posZ)},
-      Front{glm::vec3(0., 0., -1.)}, WorldUp{glm::vec3(upX, upY, upZ)}, Yaw{yaw}, Pitch{pitch}, Fov{FOV},
-      mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), MovementSpeed{SPEED},
-      MouseSensitivity{MOUSE_SENSITIVITY}, mLastX{0.}, mLastY{0.}, mFirstMouse{true},
-      mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f}, mIsOrthographic{false} {
+    : mKeyboardHandler(this), mMouseHandler(this), mScrollHandler(this), mWidth{width}, mHeight{height}, mNear{0.1},
+      mFar{100.}, mFov{FOV}, mPosition{glm::vec3(posX, posY, posZ)}, mWorldUp{glm::vec3(upX, upY, upZ)}, mYaw{yaw},
+      mPitch{pitch}, mFront{glm::vec3(0., 0., -1.)}, mMovementSpeed{SPEED}, mMouseSensitivity{MOUSE_SENSITIVITY},
+      mLastX{0.}, mLastY{0.}, mFirstMouse{true}, mOrthoHalfWidth{3.f * (float)width / (float)height},
+      mOrthoHalfHeight{3.f}, mIsOrthographic{false} {
     updateCameraVectors();
 }
 
@@ -49,33 +50,33 @@ void Camera::setOrthographicSize(float size) {
     mOrthoHalfHeight = size / 2.f;
 }
 
+void Camera::lookAtPoint(glm::vec3 target) {
+    mFront = glm::normalize(target - mPosition);
+
+    mYaw = atan2f(mFront.z, mFront.x);
+    mPitch = glm::clamp(asinf(mFront.y), glm::radians(-89.f), glm::radians(89.f));
+
+    computeRightUpVectors();
+}
+
+const glm::vec3 &Camera::getPosition() const { return mPosition; }
+
+void Camera::setPosition(glm::vec3 position) { mPosition = position; }
+
 // Method to get the projection matrix
 glm::mat4 Camera::getProjectionMatrix() {
     if (mIsOrthographic)
         mProjectionMatrix =
             glm::ortho(-mOrthoHalfWidth, mOrthoHalfWidth, -mOrthoHalfHeight, mOrthoHalfHeight, mNear, mFar);
     else
-        mProjectionMatrix = glm::perspective(Fov, (float)mWidth / (float)mHeight, mNear, mFar);
+        mProjectionMatrix = glm::perspective(mFov, (float)mWidth / (float)mHeight, mNear, mFar);
 
     return mProjectionMatrix;
 }
 
-// Method to obtain the two possible projections
-glm::mat4 Camera::getPerspectiveProjection() {
-    return glm::perspective(Fov, (float)mWidth / (float)mHeight, mNear, mFar);
-}
-
-glm::mat4 Camera::getOrthographicProjection() {
-    // float aspectRatio = (float)mWidth / (float)mHeight;
-    // return glm::ortho(-5.0f * aspectRatio, 5.0f * aspectRatio, -5.0f, 5.0f,
-    // mNear - 1.f, mFar);
-
-    return glm::ortho(-mOrthoHalfWidth, mOrthoHalfWidth, -mOrthoHalfHeight, mOrthoHalfHeight, mNear, mFar);
-}
-
 // Compute the view matrix calculated from the Euler angles
 glm::mat4 Camera::getViewMatrix() {
-    mViewMatrix = glm::lookAt(Position, Position + Front, Up);
+    mViewMatrix = glm::lookAt(mPosition, mPosition + mFront, mUp);
 
     return mViewMatrix;
 }
@@ -87,33 +88,10 @@ void Camera::getNearFarPlanes(float &near, float &far) const {
 }
 
 // Get the position of the eight corners of the frustum
-// Following https://learnopengl.com/Guest-Articles/2021/CSM
 std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace() const {
-    // Compute the matrix to go from screen space coordinates to world
-    // coordinates
-    const glm::mat4 screenToWorld{glm::inverse(mProjectionMatrix * mViewMatrix)};
-
-    // Initialize a vector for the eight corners of the frustum
-    std::vector<glm::vec4> frustumCorners;
-    frustumCorners.reserve(8);
-
-    // Compute the eight coners in world space
-    for (unsigned int x = 0; x < 2; ++x) {
-        for (unsigned int y = 0; y < 2; ++y) {
-            for (unsigned int z = 0; z < 2; ++z) {
-                const glm::vec4 point = screenToWorld * glm::vec4(2.f * x - 1.f, 2.f * y - 1.f,
-                                                                  // (2.f * z - 1.f) / 2.f,
-                                                                  2.f * z - 1.f, 1.f);
-                frustumCorners.push_back(point / point.w);
-            }
-        }
-    }
-
-    return frustumCorners;
+    return computeFrustumCornersWorldSpace(mProjectionMatrix);
 }
 
-// Get the position of the eight corners of the frustum
-// Following https://learnopengl.com/Guest-Articles/2021/CSM
 // Get the position of the eight corners of the subfrustum index of the
 // total of subfrustums
 std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace(const float &zNear, const float &zFar) const {
@@ -123,11 +101,47 @@ std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace(const float &zNear, c
     // };
 
     // Get the projection matrix of the subfrustum
-    glm::mat4 subProjection{glm::perspective(Fov, (float)mWidth / (float)mHeight, zNear, zFar)};
+    glm::mat4 subProjection{glm::perspective(mFov, (float)mWidth / (float)mHeight, zNear, zFar)};
 
+    return computeFrustumCornersWorldSpace(subProjection);
+}
+
+// Calculate the front vector from the camera's updated Euler angles
+void Camera::updateCameraVectors() {
+    // Calculare the front vector
+    glm::vec3 front;
+    front.x = cos(mYaw) * cos(mPitch);
+    front.y = sin(mPitch);
+    front.z = sin(mYaw) * cos(mPitch);
+    mFront = glm::normalize(front);
+
+    computeRightUpVectors();
+}
+
+void Camera::computeRightUpVectors() {
+    mRight = glm::normalize(glm::cross(mFront, mWorldUp));
+    mUp = glm::normalize(glm::cross(mRight, mFront));
+}
+
+// Method to obtain the two possible projections
+glm::mat4 Camera::getPerspectiveProjection() {
+    return glm::perspective(mFov, (float)mWidth / (float)mHeight, mNear, mFar);
+}
+
+glm::mat4 Camera::getOrthographicProjection() {
+    // float aspectRatio = (float)mWidth / (float)mHeight;
+    // return glm::ortho(-5.0f * aspectRatio, 5.0f * aspectRatio, -5.0f, 5.0f,
+    // mNear - 1.f, mFar);
+
+    return glm::ortho(-mOrthoHalfWidth, mOrthoHalfWidth, -mOrthoHalfHeight, mOrthoHalfHeight, mNear, mFar);
+}
+
+// Get the position of the eight corners of the frustum
+// Following https://learnopengl.com/Guest-Articles/2021/CSM
+std::vector<glm::vec4> Camera::computeFrustumCornersWorldSpace(const glm::mat4 &projectionMatrix) const {
     // Compute the matrix to go from screen space coordinates to world
     // coordinates
-    const glm::mat4 screenToWorld{glm::inverse(subProjection * mViewMatrix)};
+    const glm::mat4 screenToWorld{glm::inverse(projectionMatrix * mViewMatrix)};
 
     // Initialize a vector for the eight corners of the frustum
     std::vector<glm::vec4> frustumCorners;
@@ -146,19 +160,6 @@ std::vector<glm::vec4> Camera::getFrustumCornersWorldSpace(const float &zNear, c
     }
 
     return frustumCorners;
-}
-
-// Calculate the front vector from the camera's updated Euler angles
-void Camera::updateCameraVectors() {
-    // Calculare the front vector
-    glm::vec3 front;
-    front.x = cos(Yaw) * cos(Pitch);
-    front.y = sin(Pitch);
-    front.z = sin(Yaw) * cos(Pitch);
-    Front = glm::normalize(front);
-    // Calculate the Right and Up vectors
-    Right = glm::normalize(glm::cross(Front, WorldUp));
-    Up = glm::normalize(glm::cross(Right, Front));
 }
 
 //==============================
@@ -174,21 +175,21 @@ CameraKeyboardInputHandler::CameraKeyboardInputHandler(Camera *camera) { mCamera
 // Method to process input
 void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) const {
     // The keys WASD move the camera around the scene
-    float cameraSpeed{mCamera->MovementSpeed * deltaTime};
+    float cameraSpeed{mCamera->mMovementSpeed * deltaTime};
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         cameraSpeed *= 5.f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        mCamera->Position += cameraSpeed * mCamera->Front;
+        mCamera->mPosition += cameraSpeed * mCamera->mFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        mCamera->Position -= cameraSpeed * mCamera->Front;
+        mCamera->mPosition -= cameraSpeed * mCamera->mFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        mCamera->Position -= cameraSpeed * mCamera->Right;
+        mCamera->mPosition -= cameraSpeed * mCamera->mRight;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        mCamera->Position += cameraSpeed * mCamera->Right;
+        mCamera->mPosition += cameraSpeed * mCamera->mRight;
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        mCamera->Position += cameraSpeed * mCamera->Up;
+        mCamera->mPosition += cameraSpeed * mCamera->mUp;
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        mCamera->Position -= cameraSpeed * mCamera->Up;
+        mCamera->mPosition -= cameraSpeed * mCamera->mUp;
 }
 
 // Mouse input handler
@@ -214,19 +215,19 @@ void CameraMouseInputHandler::processInput(double xpos, double ypos) const {
     mCamera->mLastX = xpos;
     mCamera->mLastY = ypos;
     // Multiply the offsets by the mouse sensitivity value
-    xoffset *= mCamera->MouseSensitivity;
-    yoffset *= mCamera->MouseSensitivity;
+    xoffset *= mCamera->mMouseSensitivity;
+    yoffset *= mCamera->mMouseSensitivity;
 
     // Add the offset values to the global variables yaw and pitch (rotation
     // around the camera's vertical (y) and horizontal (x) axes)
-    mCamera->Yaw += xoffset;
-    mCamera->Pitch += yoffset;
+    mCamera->mYaw += xoffset;
+    mCamera->mPitch += yoffset;
 
     // Constrain the pitch to be between (-90, 90) degrees
-    if (mCamera->Pitch > glm::radians(89.))
-        mCamera->Pitch = glm::radians(89.);
-    if (mCamera->Pitch < glm::radians(-89.))
-        mCamera->Pitch = glm::radians(-89.);
+    if (mCamera->mPitch > glm::radians(89.))
+        mCamera->mPitch = glm::radians(89.);
+    if (mCamera->mPitch < glm::radians(-89.))
+        mCamera->mPitch = glm::radians(-89.);
 
     // Update the Front, Up and Right camera vectors
     mCamera->updateCameraVectors();
@@ -241,12 +242,12 @@ CameraScrollInputHandler::CameraScrollInputHandler(Camera *camera) { mCamera = c
 // Method to process input
 void CameraScrollInputHandler::processInput(double xoffset, double yoffset) const {
     // Change the field of view with vertical scroll.
-    mCamera->Fov -= (float)yoffset;
+    mCamera->mFov -= (float)yoffset;
     // Constraint it to be between (1, 45) degrees
-    if (mCamera->Fov < 1.)
-        mCamera->Fov = 1.;
-    if (mCamera->Fov > 45.)
-        mCamera->Fov = 45.;
+    if (mCamera->mFov < 1.)
+        mCamera->mFov = 1.;
+    if (mCamera->mFov > 45.)
+        mCamera->mFov = 45.;
 }
 
 } // namespace GLBase

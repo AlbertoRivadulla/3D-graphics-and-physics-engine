@@ -65,7 +65,7 @@ void GLSandbox::run() {
         renderDeferred();
 
         // Do the shading pass
-        mRenderer.processGBuffer(mCamera.Position, mWorldManager.getGraphicsManager().getListOfLights());
+        mRenderer.processGBuffer(mCamera.getPosition(), mWorldManager.getGraphicsManager().getListOfLights());
 
         // End the renderer, which produces the final scene from the g-buffer
         mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());

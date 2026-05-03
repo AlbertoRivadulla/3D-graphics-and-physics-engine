@@ -30,8 +30,8 @@ public:
     // Setup the screen quad
     void setupScreenQuad();
 
-    void setViewProjection(glm::mat4 &view, glm::mat4 &projection);
-    void setCameraPosition(glm::vec3 &cameraPosition);
+    void setViewProjection(const glm::mat4 &view, const glm::mat4 &projection);
+    void setCameraPosition(const glm::vec3 &cameraPosition);
     void setSunPosition(float phi, float theta);
 
     // Function to render

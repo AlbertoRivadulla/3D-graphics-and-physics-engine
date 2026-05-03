@@ -53,7 +53,7 @@ void GLCubemap::setupScreenQuad() {
                           (void *)(2 * sizeof(float)));
 }
 
-void GLCubemap::setViewProjection(glm::mat4 &view, glm::mat4 &projection) {
+void GLCubemap::setViewProjection(const glm::mat4 &view, const glm::mat4 &projection) {
     // Pass the inverse of the view and projection matrices to the shader
     // In the view matrix, remove the translation components
     mShader.use();
@@ -61,7 +61,7 @@ void GLCubemap::setViewProjection(glm::mat4 &view, glm::mat4 &projection) {
     mShader.setMat4("projectionInv", glm::inverse(projection));
 }
 
-void GLCubemap::setCameraPosition(glm::vec3 &cameraPosition) {
+void GLCubemap::setCameraPosition(const glm::vec3 &cameraPosition) {
     mShader.use();
     mShader.setVec3("cameraPos", cameraPosition);
 }

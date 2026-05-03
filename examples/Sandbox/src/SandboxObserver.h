@@ -3,6 +3,7 @@
 
 #include "interfaces.h"
 #include "Entity.h"
+#include "camera.h"
 #include "utils.h"
 
 class PrintPositionEntityObserver : public IEntityObserver {
@@ -15,6 +16,16 @@ public:
 
 private:
     std::string mObjectName;
+};
+
+class CameraFollowEntityObserver : public IEntityObserver {
+public:
+    CameraFollowEntityObserver(GLBase::Camera *cameraPtr);
+
+    void onEntityUpdated(const Entity &entity, float deltaTime) override;
+
+private:
+    GLBase::Camera *mCamera;
 };
 
 #endif
