@@ -1,4 +1,6 @@
 #include "Sandbox.h"
+#include "camera.h"
+#include "cameraDefaultInputHandlers.h"
 
 using namespace GLBase;
 // using namespace GLGeometry;
@@ -7,11 +9,10 @@ using namespace GLBase;
 GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
     : mApplication(width, height, title), mRenderer(),
       mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass shader of the renderer
-      mCamera(width, height, glm::vec3(1., 0., 0.)), mCameraKeyboardInputHandler(&mCamera),
-      mCameraMouseInputHandler(&mCamera), mCameraScrollInputHandler(&mCamera), mAuxElements(width, height),
-      mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"), mGUIRenderer(width, height),
-      mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mWorldManager(), mLastFrame{0.}, mFrameCounter{0},
-      mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
+      mCameraKeyboardInputHandler(), mCameraMouseInputHandler(), mCameraScrollInputHandler(),
+      mAuxElements(width, height), mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
+      mGUIRenderer(width, height), mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mWorldManager(), mLastFrame{0.},
+      mFrameCounter{0}, mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
     // Get the actual resolution for the window.
     // This is needed in case we are using a "retina" display, where the
     // resolution is scaled.
@@ -21,10 +22,19 @@ GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
 
     // Setup the renderer with the actual resolution for the window
     // The last argument is the scaling
-    mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling),
+    mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling);
 
-        // Seed a random number generator, with the function defined in utils.h
-        Utils::seedRandomGeneratorClock();
+    // Store a pointer to the graphics world manager
+    mGraphicsWorldManagerPtr = &mWorldManager.getGraphicsManager();
+
+    mCameraPtr = mGraphicsWorldManagerPtr->setupCamera<GLBase::Camera>(width, height, glm::vec3(1., 0., 0.));
+
+    mCameraKeyboardInputHandler.setCamera(mCameraPtr);
+    mCameraMouseInputHandler.setCamera(mCameraPtr);
+    mCameraScrollInputHandler.setCamera(mCameraPtr);
+
+    // Seed a random number generator, with the function defined in utils.h
+    Utils::seedRandomGeneratorClock();
 
     // Setup the scene
     setupScene();
@@ -55,8 +65,8 @@ void GLSandbox::run() {
         updateScene();
 
         // Compute the shadow maps
-        mRenderer.computeShadowMaps(mCamera, mWorldManager.getGraphicsManager().getListOfLights(),
-                                    mWorldManager.getGraphicsManager().getListOfObjects());
+        mRenderer.computeShadowMaps(*mCameraPtr, mGraphicsWorldManagerPtr->getListOfLights(),
+                                    mGraphicsWorldManagerPtr->getListOfObjects());
 
         // Start the geometry pass
         mRenderer.startGeometryPass();
@@ -65,11 +75,10 @@ void GLSandbox::run() {
         renderDeferred();
 
         // Do the shading pass
-        mRenderer.processGBuffer(mCamera.getPosition(), mWorldManager.getGraphicsManager().getListOfLights());
+        mRenderer.processGBuffer(mCameraPtr->getPosition(), mGraphicsWorldManagerPtr->getListOfLights());
 
         // End the renderer, which produces the final scene from the g-buffer
-        mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());
-        // mRenderer.endFrame(mSkymap, mAuxElements);
+        mRenderer.endFrame(mGraphicsWorldManagerPtr->getSkymap());
 
         // Render the geometry that uses forward rendering, after the deferred
         // renderer is done

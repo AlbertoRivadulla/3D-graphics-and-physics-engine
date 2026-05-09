@@ -1,5 +1,4 @@
 #include "SandboxObserver.h"
-#include "src/logger.h"
 
 CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr, const glm::vec3 &initialObjPos)
     : mCamera(cameraPtr), mLastObjectPos(initialObjPos) {

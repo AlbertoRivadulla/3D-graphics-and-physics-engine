@@ -10,7 +10,11 @@ namespace GLBase {
 
 class CameraKeyboardInputHandler : public KeyboardInputHandler {
 public:
+    CameraKeyboardInputHandler();
+
     CameraKeyboardInputHandler(Camera *camera);
+
+    void setCamera(Camera *camera);
 
     bool isValid() const override { return mCamera != nullptr; }
 
@@ -24,7 +28,11 @@ private:
 
 class CameraMouseInputHandler : public MouseInputHandler {
 public:
+    CameraMouseInputHandler();
+
     CameraMouseInputHandler(Camera *camera);
+
+    void setCamera(Camera *camera);
 
     bool isValid() const override { return mCamera != nullptr; }
 
@@ -46,7 +54,11 @@ private:
 
 class CameraScrollInputHandler : public ScrollInputHandler {
 public:
+    CameraScrollInputHandler();
+
     CameraScrollInputHandler(Camera *camera);
+
+    void setCamera(Camera *camera);
 
     bool isValid() const override { return mCamera != nullptr; }
 

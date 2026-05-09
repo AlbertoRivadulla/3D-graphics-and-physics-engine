@@ -21,6 +21,8 @@ constexpr float FOV_MAX{glm::radians(90.f)};
 
 class Camera {
 public:
+    Camera() = default;
+
     // Constructor with vector values
     Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
            float yaw = YAW, float pitch = PITCH);

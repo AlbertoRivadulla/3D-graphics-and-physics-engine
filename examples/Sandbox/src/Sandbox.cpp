@@ -31,21 +31,21 @@ void GLSandbox::setupScene() {
     mGUIRenderer.setGUISize(mScrWidth / 4, mScrHeight / 4);
 
     // // Create the cubemap for the sky
-    // mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
-    // mWorldManager.getGraphicsManager().getSkymap()->setupNoTextures(
+    // mGraphicsWorldManagerPtr->addSkymap<GLCubemap>();
+    // mGraphicsWorldManagerPtr->getSkymap()->setupNoTextures(
     //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxVertex.glsl",
     //     std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragmentFlat.glsl");
 
     // Skymap with textures
-    mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
-    mWorldManager.getGraphicsManager().getSkymap()->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
+    mGraphicsWorldManagerPtr->addSkymap<GLCubemap>();
+    mGraphicsWorldManagerPtr->getSkymap()->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
                                                                       "/textures/skybox");
 
     // Set the position of the camera
-    // mCamera.setPosition(glm::vec3(0.f, 0.f, 5.f));
-    // mCamera.setPosition(glm::vec3(0.f, 1.5f, 10.f));
-    // mCamera.setPosition(glm::vec3(0.f, 5.f, 20.f));
-    mCamera.setPosition(glm::vec3(20.f, -20.f, 30.f));
+    // mCameraPtr->setPosition(glm::vec3(0.f, 0.f, 5.f));
+    // mCameraPtr->setPosition(glm::vec3(0.f, 1.5f, 10.f));
+    // mCameraPtr->setPosition(glm::vec3(0.f, 5.f, 20.f));
+    mCameraPtr->setPosition(glm::vec3(20.f, -20.f, 30.f));
 
     // // Load a shader
     // mShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) + "/vertex.glsl",
@@ -58,7 +58,7 @@ void GLSandbox::setupScene() {
                                    std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
 
     // Add a directional light
-    mWorldManager.getGraphicsManager().addLight<DirectionalLight>(
+    mGraphicsWorldManagerPtr->addLight<DirectionalLight>(
         glm::vec3(1., 1., 1.),    // Color
         glm::vec3(10., 10., 10.), // Position
         glm::vec3(-1., -1., -1.), // Direction
@@ -66,7 +66,7 @@ void GLSandbox::setupScene() {
     );
 
     // Add a spotlight
-    mWorldManager.getGraphicsManager().addLight<SpotLight>(glm::vec3(1., 0., 1.),                // Color
+    mGraphicsWorldManagerPtr->addLight<SpotLight>(glm::vec3(1., 0., 1.),                // Color
                                                            glm::vec3(3., 6., 10.),               // Position
                                                            glm::vec3(-1., -1., 0.),              // Direction
                                                            glm::radians(60.), glm::radians(90.), // Angles
@@ -76,7 +76,7 @@ void GLSandbox::setupScene() {
 
     // Add some point lights
     for (int i = 0; i < 2; ++i) {
-        mWorldManager.getGraphicsManager().addLight<PointLight>(
+        mGraphicsWorldManagerPtr->addLight<PointLight>(
             glm::vec3(getRandom0To1(), getRandom0To1(), getRandom0To1()), // Color
             glm::vec3(10.f * getRandom0To1() - 5.f, 10.f * getRandom0To1() - 2.f,
                       10.f * getRandom0To1() - 5.f), // Position
@@ -230,7 +230,7 @@ void GLSandbox::setupScene() {
 
     // Add an observer that makes the camera follow the object
     auto cameraTrackCubeObs =
-        mWorldManager.addObserver<CameraFollowEntityObserver>(&mCamera, controlledCubePtr->getPosition());
+        mWorldManager.addObserver<CameraFollowEntityObserver>(mCameraPtr, controlledCubePtr->getPosition());
     controlledCubePtr->registerObserver(cameraTrackCubeObs);
 }
 
@@ -238,16 +238,16 @@ void GLSandbox::setupScene() {
 // Also pass the pointer to the camera
 void GLSandbox::setupApplication() {
     // Pass a pointer to the camera
-    mApplication.setCamera(&mCamera);
+    mApplication.setCamera(mCameraPtr);
 
     // // Set the camera to be orthographic
-    // mCamera.setOrthographic();
+    // mCameraPtr->setOrthographic();
 
     // Pass a pointer to the input handler
     mApplication.setInputHandler(&mInputHandler);
     // Configure the frustum of the camera
-    // mCamera.setFrustum(0.1f, 200.f);
-    mCamera.setFrustum(0.1f, 500.f);
+    // mCameraPtr->setFrustum(0.1f, 200.f);
+    mCameraPtr->setFrustum(0.1f, 500.f);
 
     // Pass pointers to the input handler of the camera
     mInputHandler.addKeyboardHandler(&mCameraKeyboardInputHandler);
@@ -258,21 +258,21 @@ void GLSandbox::setupApplication() {
     mInputHandler.addKeyboardHandler(mObjectController.getKeyboardInputHandler());
 
     // Pass the list of lights to the renderer, to configure the lighting shader
-    mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());
+    mRenderer.configureLights(mGraphicsWorldManagerPtr->getListOfLights());
 }
 
 // Method to run on each frame, to update the scene
 void GLSandbox::updateScene() {
     mWorldManager.simulationStep(mDeltaTime);
 
-    mCamera.update(mDeltaTime);
+    mCameraPtr->update(mDeltaTime);
 
     // Get the view and projection matrices
-    mProjection = mCamera.getProjectionMatrix();
-    mView = mCamera.getViewMatrix();
+    mProjection = mCameraPtr->getProjectionMatrix();
+    mView = mCameraPtr->getViewMatrix();
 
     // Update the skymap
-    mWorldManager.getGraphicsManager().getSkymap()->setViewProjection(mView, mProjection);
+    mGraphicsWorldManagerPtr->getSkymap()->setViewProjection(mView, mProjection);
 }
 
 // Render the geometry that will use deferred rendering
