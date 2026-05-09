@@ -10,6 +10,14 @@ namespace GLGeometry {
 
 class GraphicsWorldManager {
 public:
+    template <typename T, typename... Args> GLBase::Camera *setupCamera(Args &&...args) {
+        static_assert(std::is_base_of<GLBase::Camera, T>::value, "T must derive from GLBase::Camera");
+
+        mCamera = std::make_unique<T>(std::forward<Args>(args)...);
+
+        return mCamera.get();
+    }
+
     void registerObjectAndMaterial(GLGeometry::GLElemObject *object, GLBase::Material *material);
 
     void registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch, GLBase::Material *material);
@@ -39,6 +47,8 @@ public:
     void draw();
 
 private:
+    std::unique_ptr<GLBase::Camera> mCamera;
+
     std::vector<GLObjectWithMaterial> mGraphicsObjects;
 
     std::vector<std::unique_ptr<Light>> mLights;

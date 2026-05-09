@@ -5,7 +5,11 @@ namespace GLBase {
 // Keyboard input handler
 //==============================
 
+CameraKeyboardInputHandler::CameraKeyboardInputHandler() : GLBase::CameraKeyboardInputHandler(nullptr) {}
+
 CameraKeyboardInputHandler::CameraKeyboardInputHandler(Camera *camera) : mCamera(camera), mMovementSpeed(SPEED) {}
+
+void CameraKeyboardInputHandler::setCamera(Camera *camera) { mCamera = camera; }
 
 void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) {
     // The keys WASD move the camera around the scene
@@ -29,8 +33,12 @@ void CameraKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTim
 // Mouse input handler
 //==============================
 
+CameraMouseInputHandler::CameraMouseInputHandler() : GLBase::CameraMouseInputHandler(nullptr) {}
+
 CameraMouseInputHandler::CameraMouseInputHandler(Camera *camera)
     : mCamera(camera), mMouseSensitivity(MOUSE_SENSITIVITY), mFirstMouse(true), mLastX(0.f), mLastY(0.f) {}
+
+void CameraMouseInputHandler::setCamera(Camera *camera) { mCamera = camera; }
 
 void CameraMouseInputHandler::processInput(double xpos, double ypos) {
     // If it is the first time that the mouse is moved, the last position is
@@ -54,7 +62,11 @@ void CameraMouseInputHandler::processInput(double xpos, double ypos) {
 // Scroll input handler
 //==============================
 
+CameraScrollInputHandler::CameraScrollInputHandler() : GLBase::CameraScrollInputHandler(nullptr) {}
+
 CameraScrollInputHandler::CameraScrollInputHandler(Camera *camera) : mCamera(camera) {}
+
+void CameraScrollInputHandler::setCamera(Camera *camera) { mCamera = camera; }
 
 void CameraScrollInputHandler::processInput(double xoffset, double yoffset) {
     mCamera->increaseDecreaseFov(-0.5 * (float)yoffset);

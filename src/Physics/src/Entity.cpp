@@ -61,6 +61,7 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
 }
 
 glm::vec3 Entity::getPosition() const { return mTransform.position; }
+glm::quat Entity::getOrientation() const { return mTransform.orientation; }
 
 Physics::Collider *Entity::getCollider() { return mCollider.get(); }
 Physics::RigidBody *Entity::getRigidBody() { return mRigidBody.get(); }
