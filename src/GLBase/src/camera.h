@@ -4,6 +4,7 @@
 #include <vector>
 #include <numbers>
 #include <glm/glm.hpp>
+#include "utils.h"
 
 namespace GLBase {
 // Default camera values
@@ -31,6 +32,8 @@ public:
     Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw = YAW,
            float pitch = PITCH);
 
+    virtual ~Camera() = default;
+
     void setOrthographic();
     void setPerspective();
 
@@ -43,6 +46,9 @@ public:
     void setTrackingParameters(float mouseDecayRate = 0.f, float objectTargetDecayRate = 0.f,
                                float orientationStiffness = 0.f, float orientationDamping = 0.f,
                                float positionStiffness = 0.f, float positionDamping = 0.f);
+
+    // Look at a given direction in world space
+    void lookAtDirection(glm::vec3 direction);
 
     // Look at a given point in world space
     void lookAtPoint(glm::vec3 target);
@@ -63,7 +69,7 @@ public:
 
     void increaseDecreaseFov(float fovChange);
 
-    void update(float deltaTime);
+    virtual void update(float deltaTime);
 
     glm::mat4 getProjectionMatrix();
 
@@ -80,40 +86,11 @@ public:
     // total of subfrustums
     std::vector<glm::vec4> getFrustumCornersWorldSpace(const float &zNear, const float &zFar) const;
 
-private:
-    // Width and height of the viewport
-    int mWidth;
-    int mHeight;
-    // Near and far planes of the frustum
-    float mNear;
-    float mFar;
-
-    float mFov;
+protected:
     glm::vec3 mPosition;
-
-    // This is a constant
-    glm::vec3 mWorldUp;
-
     // Euler angles of the camera
     float mYaw;
     float mPitch;
-
-    // Camera attributes
-    // These are computed from the ones above
-    glm::vec3 mFront;
-    glm::vec3 mUp;
-    glm::vec3 mRight;
-
-    // Dimensions of the orthographic camera
-    float mOrthoHalfWidth;
-    float mOrthoHalfHeight;
-
-    // View and projection matrices
-    glm::mat4 mViewMatrix;
-    glm::mat4 mProjectionMatrix;
-
-    // Bool that says if the camera is orthographic or perspective
-    bool mIsOrthographic;
 
     // Mouse driven orientation
     float mMouseInfluence; // 1 when the mouse just moved
@@ -137,9 +114,41 @@ private:
     glm::vec3 mObjectTargetPosition;
     glm::vec3 mPositionVelocity;
 
+    void updateInfluences(float deltaTime);
+
     // Calculate the front vector from the camera's updated Euler angles
     void updateCameraVectors();
     void computeRightUpVectors();
+
+private:
+    // Width and height of the viewport
+    int mWidth;
+    int mHeight;
+    // Near and far planes of the frustum
+    float mNear;
+    float mFar;
+
+    float mFov;
+
+    // This is a constant
+    glm::vec3 mWorldUp;
+
+    // Camera attributes
+    // These are computed from the ones above
+    glm::vec3 mFront;
+    glm::vec3 mUp;
+    glm::vec3 mRight;
+
+    // Dimensions of the orthographic camera
+    float mOrthoHalfWidth;
+    float mOrthoHalfHeight;
+
+    // View and projection matrices
+    glm::mat4 mViewMatrix;
+    glm::mat4 mProjectionMatrix;
+
+    // Bool that says if the camera is orthographic or perspective
+    bool mIsOrthographic;
 
     // Move in a spring-like manner towards the target yaw and pitch
     void springTowardsTarget(float deltaTime);
@@ -149,6 +158,26 @@ private:
     glm::mat4 getOrthographicProjection();
 
     std::vector<glm::vec4> computeFrustumCornersWorldSpace(const glm::mat4 &projectionMatrix) const;
+};
+
+class OrbitalCamera : public Camera {
+public:
+    OrbitalCamera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
+           float yaw = YAW, float pitch = PITCH);
+
+    void setTargetDistance(float targetDistance, float verticalPositionOffset);
+
+    void setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetDirection, float objectTargetInfluence);
+
+    void update(float deltaTime) override;
+private:
+    float mDistanceToObject;
+    float mDistanceVelocity;
+    float mTargetDistance;
+    float mVerticalPositionOffset;
+
+    // Move in a spring-like manner towards the target yaw and pitch
+    void springTowardsTargetOrbital(float deltaTime);
 };
 
 } // namespace GLBase

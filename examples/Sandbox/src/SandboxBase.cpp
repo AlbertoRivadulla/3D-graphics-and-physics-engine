@@ -27,7 +27,8 @@ GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
     // Store a pointer to the graphics world manager
     mGraphicsWorldManagerPtr = &mWorldManager.getGraphicsManager();
 
-    mCameraPtr = mGraphicsWorldManagerPtr->setupCamera<GLBase::Camera>(width, height, glm::vec3(1., 0., 0.));
+    // mCameraPtr = mGraphicsWorldManagerPtr->setupCamera<GLBase::Camera>(width, height, glm::vec3(1., 0., 0.));
+    mCameraPtr = mGraphicsWorldManagerPtr->setupCamera<GLBase::OrbitalCamera>(width, height, glm::vec3(1., 0., 0.));
 
     mCameraKeyboardInputHandler.setCamera(mCameraPtr);
     mCameraMouseInputHandler.setCamera(mCameraPtr);

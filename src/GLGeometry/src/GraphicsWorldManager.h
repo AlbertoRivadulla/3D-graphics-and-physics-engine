@@ -10,7 +10,7 @@ namespace GLGeometry {
 
 class GraphicsWorldManager {
 public:
-    template <typename T, typename... Args> T *setupCamera(Args &&...args) {
+    template <typename T, typename... Args> GLBase::Camera *setupCamera(Args &&...args) {
         static_assert(std::is_base_of<GLBase::Camera, T>::value, "T must derive from GLBase::Camera");
 
         mCamera = std::make_unique<T>(std::forward<Args>(args)...);

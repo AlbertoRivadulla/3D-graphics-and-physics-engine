@@ -58,6 +58,7 @@ public:
     void setRotation(float angle, glm::vec3 axis);
 
     glm::vec3 getPosition() const;
+    glm::quat getOrientation() const;
 
     Physics::Collider *getCollider();
     Physics::RigidBody *getRigidBody();

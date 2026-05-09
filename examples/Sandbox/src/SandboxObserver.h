@@ -25,9 +25,10 @@ public:
     void onEntityUpdated(const Entity &entity, float deltaTime) override;
 
 private:
-    GLBase::Camera *mCamera;
+    GLBase::OrbitalCamera *mCamera;
 
-    glm::vec3 mCameraPositionOffset;
+    float mCameraDistance;
+    float mCameraHeight;
 
     glm::vec3 mLastObjectPos;
 };

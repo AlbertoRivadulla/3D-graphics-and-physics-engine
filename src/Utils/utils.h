@@ -33,6 +33,10 @@ inline float wrapAngle(float angle) {
     return angle;
 }
 
+inline glm::vec3 sphericalToCartesian(float yaw, float pitch, float distance) {
+    return glm::vec3(cosf(pitch) * cosf(yaw), sinf(pitch), cosf(pitch) * sinf(yaw)) * distance;
+}
+
 } // namespace Utils
 
 #endif
