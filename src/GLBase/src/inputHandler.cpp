@@ -1,4 +1,6 @@
-#include "GLBase.h"
+#include "inputHandler.h"
+#include "utils.h"
+// #include "GLBase.h"
 
 namespace GLBase {
 
@@ -60,6 +62,24 @@ void InputHandler::processGamepadInput(float deltaTime) {
     for (const auto &handler : mGamepadHandlers) {
         handler->processInput(deltaTime);
     }
+}
+
+GamepadInputHandler::GamepadInputHandler() { discoverGamepadID(); }
+
+void GamepadInputHandler::discoverGamepadID() {
+    for (int i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
+        if (glfwJoystickPresent(i)) {
+            if (glfwJoystickIsGamepad(i)) {
+                mGamepadID = i;
+                mGamepadConnected = true;
+                const char *name = glfwGetJoystickName(i);
+                LOG_DEBUG("Joystick " << i << " connected: " << name);
+
+                return;
+            }
+        }
+    }
+    mGamepadConnected = false;
 }
 
 } // namespace GLBase

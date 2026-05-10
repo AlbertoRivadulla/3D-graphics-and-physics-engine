@@ -120,6 +120,11 @@ void Application::processKeyboardInput(float deltaTime) {
     mInputHandler->processKeyboardInput(mWindow, deltaTime);
 }
 
+void Application::processGamepadInput(float deltaTime) {
+    mInputHandler->processGamepadInput(deltaTime);
+}
+
+
 // Function to clear the window every frame
 void Application::clearWindow() {
     glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -165,4 +170,5 @@ void applicationScrollCallback(GLFWwindow *window, double xoffset,
         static_cast<Application *>(glfwGetWindowUserPointer(window))};
     app->mInputHandler->processScrollInput(xoffset, yoffset);
 }
+
 } // namespace GLBase

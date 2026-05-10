@@ -46,6 +46,7 @@ void PlaneSim::run() {
         mLastFrame = currentFrame;
 
         mApplication.processKeyboardInput(mDeltaTime);
+        mApplication.processGamepadInput(mDeltaTime);
 
         float thisFrameTime{(float)glfwGetTime()};
 

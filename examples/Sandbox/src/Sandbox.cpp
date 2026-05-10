@@ -224,9 +224,9 @@ void GLSandbox::setupScene() {
     auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.4, 0.02, 0.1, 0.02);
     mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
 
-    // Add a test observer for this object
-    auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
-    controlledCubePtr->registerObserver(controlledCubeObs);
+    // // Add a test observer for this object
+    // auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
+    // controlledCubePtr->registerObserver(controlledCubeObs);
 
     // Add an observer that makes the camera follow the object
     auto cameraTrackCubeObs =
@@ -253,6 +253,7 @@ void GLSandbox::setupApplication() {
     mInputHandler.addKeyboardHandler(&mCameraKeyboardInputHandler);
     mInputHandler.addMouseHandler(&mCameraMouseInputHandler);
     mInputHandler.addScrollHandler(&mCameraScrollInputHandler);
+    mInputHandler.addGamepadHandler(&mCameraGamepadInputHandler);
 
     // Pass to the input handler the controller for the object
     mInputHandler.addKeyboardHandler(mObjectController.getKeyboardInputHandler());

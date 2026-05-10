@@ -5,7 +5,7 @@ CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr
     : mCamera(dynamic_cast<GLBase::OrbitalCamera*>(cameraPtr)), mLastObjectPos(initialObjPos) {
     // Set the parameters of camera tracking to be over cricital damping,
     //  damping = 2 * sqrt(stiffness)
-    mCamera->setTrackingParameters(5.f, 1.f, 10.f, 6.5f, 100.f, 20.f);
+    mCamera->setTrackingParameters(10.f, 1.f, 50.f, 15.f, 100.f, 20.f);
 
     mCameraDistance = 5.f;
     mCameraHeight = 1.f;

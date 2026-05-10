@@ -42,6 +42,7 @@ public:
     // Function to be called to process input that can modify the window, every
     // frame
     void processKeyboardInput(float deltaTime);
+    void processGamepadInput(float deltaTime);
 
     // Function to clear the window
     void clearWindow();

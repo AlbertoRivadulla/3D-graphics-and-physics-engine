@@ -23,7 +23,16 @@ public:
 
 class GamepadInputHandler : public IValidatable {
 public:
+    GamepadInputHandler();
+
     virtual void processInput(float deltaTime) = 0;
+
+protected:
+    bool mGamepadConnected;
+    int mGamepadID;
+
+private:
+    void discoverGamepadID();
 };
 
 class InputHandler {
@@ -31,7 +40,7 @@ public:
     void addKeyboardHandler(KeyboardInputHandler *handler);
     void addMouseHandler(MouseInputHandler *handler);
     void addScrollHandler(ScrollInputHandler *handler);
-    void addGamepadHandler(GamepadInputHandler* handler);
+    void addGamepadHandler(GamepadInputHandler *handler);
 
     void processKeyboardInput(GLFWwindow *window, float deltaTime);
     void processMouseInput(double xpos, double ypos);
@@ -42,7 +51,7 @@ private:
     std::vector<KeyboardInputHandler *> mKeyboardHandlers;
     std::vector<MouseInputHandler *> mMouseHandlers;
     std::vector<ScrollInputHandler *> mScrollHandlers;
-    std::vector<GamepadInputHandler*> mGamepadHandlers;
+    std::vector<GamepadInputHandler *> mGamepadHandlers;
 };
 } // namespace GLBase
 
