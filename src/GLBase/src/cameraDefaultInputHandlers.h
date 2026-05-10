@@ -75,7 +75,6 @@ public:
     CameraGamepadInputHandler(Camera *camera);
 
     void setCamera(Camera *camera);
-    void setSensitivity(float xSensitivity, float ySensitivity);
 
     bool isValid() const override { return mCamera != nullptr && mGamepadConnected; }
 
@@ -83,16 +82,6 @@ public:
 
 private:
     Camera *mCamera;
-
-    float mRightX;
-    float mRightY;
-
-    float mXSensitivity;
-    float mYSensitivity;
-
-    float mDeadZone;
-
-    bool applyDeadZone(float rightXValue, float rightYValue);
 };
 
 } // namespace GLBase

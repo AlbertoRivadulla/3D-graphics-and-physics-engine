@@ -211,7 +211,7 @@ void GLSandbox::setupScene() {
 
     // Add another cube that is controlled by the user
     auto controlledCube =
-        std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+        std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 2.), 0.f, glm::vec3(1., 0., 0.));
     controlledCube->addGeometry<GLCube>();
     controlledCube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(0., 0., 0.),
                                             glm::vec3(0., 0., 0.));
@@ -257,6 +257,7 @@ void GLSandbox::setupApplication() {
 
     // Pass to the input handler the controller for the object
     mInputHandler.addKeyboardHandler(mObjectController.getKeyboardInputHandler());
+    mInputHandler.addGamepadHandler(mObjectController.getGamepadInputHandler());
 
     // Pass the list of lights to the renderer, to configure the lighting shader
     mRenderer.configureLights(mGraphicsWorldManagerPtr->getListOfLights());

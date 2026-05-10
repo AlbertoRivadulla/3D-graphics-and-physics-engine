@@ -124,7 +124,6 @@ void Application::processGamepadInput(float deltaTime) {
     mInputHandler->processGamepadInput(deltaTime);
 }
 
-
 // Function to clear the window every frame
 void Application::clearWindow() {
     glClearColor(0.f, 0.f, 0.f, 1.0f);

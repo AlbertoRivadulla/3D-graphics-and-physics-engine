@@ -65,6 +65,7 @@ glm::quat Entity::getOrientation() const { return mTransform.orientation; }
 
 Physics::Collider *Entity::getCollider() { return mCollider.get(); }
 Physics::RigidBody *Entity::getRigidBody() { return mRigidBody.get(); }
+Physics::RigidBody *Entity::getRigidBody() const { return mRigidBody.get(); }
 GLGeometry::GLElemObject *Entity::getGeometry() { return mGeometryObject.get(); }
 GLBase::Material *Entity::getMaterial() { return mMaterial.get(); }
 

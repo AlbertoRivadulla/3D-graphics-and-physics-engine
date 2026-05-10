@@ -12,11 +12,11 @@ CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr
 
     // Place the camera so it looks and follows the object
     mCamera->setPosition(initialObjPos + glm::vec3(mCameraDistance, mCameraHeight, 0.f));
-    mCamera->lookAtDirection(glm::vec3(1., 0., 0.));
+    mCamera->lookAtDirection(glm::vec3(0., 0., 1.));
 
     mCamera->setTargetDistance(mCameraDistance, mCameraHeight);
 
-    glm::vec3 lookAtDirection = glm::vec3(1., 0., 0.);
+    glm::vec3 lookAtDirection = glm::vec3(0., 0., 1.);
     mCamera->setOrbitTarget(initialObjPos, lookAtDirection, 1.f);
 }
 
@@ -26,7 +26,8 @@ void CameraFollowEntityObserver::onEntityUpdated(const Entity &entity, float del
     if (glm::length(currObjectPos - mLastObjectPos) > 0.1f) {
         // The second parameter is the object's influence in the camera's orientation.
         // It would make sense if it depends on the object's velocity.
-        glm::vec3 lookAtDirection = entity.getOrientation() * glm::vec3(1., 0., 0.);
+        glm::vec3 lookAtDirection = entity.getOrientation() * glm::vec3(0., 0., 1.);
+        // glm::vec3 lookAtDirection = entity.getRigidBody()->getVelocity();
         mCamera->setOrbitTarget(currObjectPos, lookAtDirection, 1.f);
     }
 }

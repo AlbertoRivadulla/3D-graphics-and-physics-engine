@@ -77,47 +77,22 @@ void CameraScrollInputHandler::processInput(double xoffset, double yoffset) {
 
 CameraGamepadInputHandler::CameraGamepadInputHandler() : GLBase::CameraGamepadInputHandler(nullptr) {}
 
-CameraGamepadInputHandler::CameraGamepadInputHandler(Camera *camera)
-    : GamepadInputHandler(), mCamera(camera), mXSensitivity(1.f), mYSensitivity(1.f), mDeadZone(0.1f) {}
+CameraGamepadInputHandler::CameraGamepadInputHandler(Camera *camera) : GamepadInputHandler(), mCamera(camera) {}
 
 void CameraGamepadInputHandler::setCamera(Camera *camera) { mCamera = camera; }
-
-void CameraGamepadInputHandler::setSensitivity(float xSensitivity, float ySensitivity) {
-    mXSensitivity = xSensitivity;
-    mYSensitivity = ySensitivity;
-}
 
 void CameraGamepadInputHandler::processInput(float deltaTime) {
     if (mGamepadConnected) {
         GLFWgamepadstate state;
 
         if (glfwGetGamepadState(mGamepadID, &state)) {
-            if (state.buttons[GLFW_GAMEPAD_BUTTON_CROSS]) {
-                LOG_INFO("Pressed cross");
-            }
-
-            if (applyDeadZone(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]))
-            {
+            auto axesMoved = applyDeadZone(state.axes);
+            if (axesMoved.rightJoystick) {
                 mCamera->moveMouseTargetAngles(mRightX * deltaTime * mXSensitivity,
                                                -mRightY * deltaTime * mYSensitivity);
             }
-
-            // TODO: Implement other
         }
     }
-}
-
-bool CameraGamepadInputHandler::applyDeadZone(float rightXValue, float rightYValue) {
-    if (std::abs(rightXValue) < mDeadZone && std::abs(rightYValue) < mDeadZone) {
-        return false;
-    }
-
-    // Scale so it starts at zero after the dead zone
-    float normFactor = 1.f / (1.f - mDeadZone);
-    mRightX = (rightXValue - std::copysign(mDeadZone, rightXValue)) * normFactor;
-    mRightY = (rightYValue - std::copysign(mDeadZone, rightYValue)) * normFactor;
-
-    return true;
 }
 
 } // namespace GLBase

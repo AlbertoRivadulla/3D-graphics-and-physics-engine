@@ -24,10 +24,10 @@ public:
 
     void setDamping(float damping);
 
-    float getMass();
-    glm::vec3 getPosition();
-    glm::vec3 getVelocity();
-    glm::vec3 getAngularVelocity();
+    float getMass() const;
+    glm::vec3 getPosition() const;
+    glm::vec3 getVelocity() const;
+    glm::vec3 getAngularVelocity() const;
 
     bool hasInfiniteMass();
 
