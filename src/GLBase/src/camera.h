@@ -13,6 +13,7 @@ namespace GLBase {
 constexpr float YAW{glm::radians(-90.)};
 // Angle with respect to the camera's x axis.
 constexpr float PITCH{glm::radians(0.)};
+constexpr float ROLL{glm::radians(0.)};
 constexpr float SPEED{10.};
 // const float SENSITIVITY{0.1};
 constexpr float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
@@ -26,11 +27,11 @@ public:
 
     // Constructor with vector values
     Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
-           float yaw = YAW, float pitch = PITCH);
+           float yaw = YAW, float pitch = PITCH, float roll = ROLL);
 
     // Constructor with scalar values
     Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw = YAW,
-           float pitch = PITCH);
+           float pitch = PITCH, float roll = ROLL);
 
     virtual ~Camera() = default;
 
@@ -91,6 +92,7 @@ protected:
     // Euler angles of the camera
     float mYaw;
     float mPitch;
+    float mRoll;
 
     // Mouse driven orientation
     float mMouseInfluence; // 1 when the mouse just moved
@@ -103,16 +105,21 @@ protected:
     float mObjectTargetDecayRate; // 0 = no decay of target angles
     float mObjectTargetYaw;
     float mObjectTargetPitch;
+    float mObjectTargetRoll;
     float mOrientationStiffness;
     float mOrientationDamping;
     float mYawVelocity;
     float mPitchVelocity;
+    float mRollVelocity;
 
     // Target driven position
     float mPositionStiffness;
     float mPositionDamping;
     glm::vec3 mObjectTargetPosition;
     glm::vec3 mPositionVelocity;
+
+    // This is a constant
+    glm::vec3 mWorldUp;
 
     void updateInfluences(float deltaTime);
 
@@ -129,9 +136,6 @@ private:
     float mFar;
 
     float mFov;
-
-    // This is a constant
-    glm::vec3 mWorldUp;
 
     // Camera attributes
     // These are computed from the ones above
@@ -167,7 +171,7 @@ public:
 
     void setTargetDistance(float targetDistance, float verticalPositionOffset);
 
-    void setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetDirection, float objectTargetInfluence);
+    void setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetForward, glm::vec3 targetUp, float objectTargetInfluence);
 
     void update(float deltaTime) override;
 private:
@@ -177,7 +181,7 @@ private:
     float mVerticalPositionOffset;
 
     // Move in a spring-like manner towards the target yaw and pitch
-    void springTowardsTargetOrbital(float deltaTime);
+    float springTowardsTargetOrbital(float deltaTime);
 };
 
 } // namespace GLBase

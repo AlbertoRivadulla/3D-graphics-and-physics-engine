@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "glm/ext/quaternion_trigonometric.hpp"
 #include "src/logger.h"
 #include "utils.h"
 
@@ -8,10 +9,10 @@ namespace GLBase {
 //==============================
 
 // Constructor with vector values
-Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-    : mPosition{position}, mYaw{yaw}, mPitch{pitch}, mYawVelocity{0.f}, mPitchVelocity{0.f},
-      mPositionVelocity(glm::vec3(0.f, 0.f, 0.f)), mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.},
-      mFov{FOV_DEFAULT}, mWorldUp{up}, mFront{glm::vec3(0., 0., -1.)},
+Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float roll)
+    : mPosition{position}, mYaw{yaw}, mPitch{pitch}, mRoll{roll}, mYawVelocity{0.f}, mPitchVelocity{0.f},
+      mRollVelocity{0.f}, mPositionVelocity(glm::vec3(0.f, 0.f, 0.f)), mWorldUp{up}, mWidth{width}, mHeight{height},
+      mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mFront{glm::vec3(0., 0., -1.)},
       mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f}, mIsOrthographic{false} {
     mObjectTargetPosition = mPosition;
 
@@ -21,8 +22,8 @@ Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float ya
 
 // Constructor with scalar values
 Camera::Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw,
-               float pitch)
-    : Camera(width, height, glm::vec3(posX, posY, posZ), glm::vec3(upX, upY, upZ), yaw, pitch) {}
+               float pitch, float roll)
+    : Camera(width, height, glm::vec3(posX, posY, posZ), glm::vec3(upX, upY, upZ), yaw, pitch, roll) {}
 
 void Camera::setOrthographic() { mIsOrthographic = true; }
 void Camera::setPerspective() { mIsOrthographic = false; }
@@ -141,9 +142,8 @@ void Camera::update(float deltaTime) {
         // Kill spring velocity so there's no jerk when mouse releases
         mYawVelocity = 0.0f;
         mPitchVelocity = 0.0f;
+        mRollVelocity = 0.0f;
     }
-
-
 
     updateCameraVectors();
 }
@@ -206,8 +206,11 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::computeRightUpVectors() {
-    mRight = glm::normalize(glm::cross(mFront, mWorldUp));
-    mUp = glm::normalize(glm::cross(mRight, mFront));
+    mUp = glm::angleAxis(mRoll, mFront) * mWorldUp;
+    mRight = glm::normalize(glm::cross(mFront, mUp));
+
+    // mRight = glm::normalize(glm::cross(mFront, mWorldUp));
+    // mUp = glm::normalize(glm::cross(mRight, mFront));
 }
 
 // Move in a spring-like manner towards the target yaw and pitch
@@ -216,13 +219,17 @@ void Camera::springTowardsTarget(float deltaTime) {
     float yawAccel =
         Utils::wrapAngle(mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
     float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
+    float rollAccel =
+        Utils::wrapAngle(mObjectTargetRoll - mRoll) * mOrientationStiffness - mRollVelocity * mOrientationDamping;
 
     mYawVelocity += yawAccel * deltaTime;
     mPitchVelocity += pitchAccel * deltaTime;
+    mRollVelocity += rollAccel * deltaTime;
 
     mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
     mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
                         glm::radians(89.0f));
+    mRoll = Utils::wrapAngle(mRoll + mObjectTargetInfluence * mRollVelocity * deltaTime);
 
     // Update the position
     glm::vec3 posAcceleration =
@@ -277,18 +284,21 @@ void OrbitalCamera::setTargetDistance(float targetDistance, float verticalPositi
     mVerticalPositionOffset = verticalPositionOffset;
 }
 
-void OrbitalCamera::setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetDirection, float objectTargetInfluence) {
-    glm::vec3 direction = glm::normalize(targetDirection);
+void OrbitalCamera::setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetForward, glm::vec3 targetUp,
+                                   float objectTargetInfluence) {
+    glm::vec3 direction = glm::normalize(targetForward);
 
     mObjectTargetYaw = atan2f(direction.z, direction.x);
     mObjectTargetPitch = glm::clamp(asinf(direction.y), -89.f, 89.f);
-
     mObjectTargetInfluence = objectTargetInfluence;
 
+    // Compute target roll from the given up vector
+    glm::vec3 forward = glm::normalize(direction);
+    glm::vec3 right = glm::normalize(glm::cross(forward, mWorldUp));
+    mObjectTargetRoll = atan2f(glm::dot(targetUp, right), glm::dot(targetUp, mWorldUp));
+
     glm::vec3 displTargetPosition = targetPosition + glm::vec3(0., mVerticalPositionOffset, 0.);
-
     mDistanceToObject = glm::length(displTargetPosition - mPosition);
-
     setPositionTarget(displTargetPosition);
 }
 
@@ -308,7 +318,7 @@ void OrbitalCamera::update(float deltaTime) {
     }
 
     // 1. Spring toward entity target only
-    springTowardsTargetOrbital(deltaTime);
+    float resultDistance = springTowardsTargetOrbital(deltaTime);
 
     // 2. Mouse drives directly on top, no spring
     if (mMouseInfluence > 0.001f) {
@@ -320,34 +330,38 @@ void OrbitalCamera::update(float deltaTime) {
         // Kill spring velocity so there's no jerk when mouse releases
         mYawVelocity = 0.0f;
         mPitchVelocity = 0.0f;
+        mRollVelocity = 0.0f;
     }
 
-    mPosition = mObjectTargetPosition - Utils::sphericalToCartesian(mYaw, mPitch, mDistanceToObject);
+    mPosition = mObjectTargetPosition - Utils::sphericalToCartesian(mYaw, mPitch, resultDistance);
 
     updateCameraVectors();
 }
 
 // Move in a spring-like manner towards the target yaw and pitch
-void OrbitalCamera::springTowardsTargetOrbital(float deltaTime) {
+float OrbitalCamera::springTowardsTargetOrbital(float deltaTime) {
     // Angular spring
     if (mObjectTargetInfluence > 0.001f) {
         float yawAccel =
             Utils::wrapAngle(mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
         float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
+        float rollAccel =
+            Utils::wrapAngle(mObjectTargetRoll - mRoll) * mOrientationStiffness - mRollVelocity * mOrientationDamping;
 
         mYawVelocity += yawAccel * deltaTime;
         mPitchVelocity += pitchAccel * deltaTime;
+        mRollVelocity += rollAccel * deltaTime;
 
         mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
         mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
                             glm::radians(89.0f));
+        mRoll = Utils::wrapAngle(mRoll + mObjectTargetInfluence * mRollVelocity * deltaTime);
     }
 
     // Distance spring
     float distAccel = (mTargetDistance - mDistanceToObject) * mPositionStiffness - mDistanceVelocity * mPositionDamping;
     mDistanceVelocity += distAccel * deltaTime;
-    // mDistanceToObject  = glm::max(mDistanceToObject + mDistanceVelocity * deltaTime, mMinDistance);
-    mDistanceToObject = mDistanceToObject + mDistanceVelocity * deltaTime;
+    return mDistanceToObject + mDistanceVelocity * deltaTime;
 }
 
 } // namespace GLBase
