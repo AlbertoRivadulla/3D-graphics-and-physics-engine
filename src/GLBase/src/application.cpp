@@ -148,7 +148,7 @@ void applicationFramebufferSizeCallback(GLFWwindow *window, int width,
     // Change the dimensions in the camera
     Application *app{
         static_cast<Application *>(glfwGetWindowUserPointer(window))};
-    app->mCamera->setDimensions(width, height);
+    app->mCamera->setViewportDimensions(width, height);
 }
 
 // Function to be called when the mouse is moved

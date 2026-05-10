@@ -41,6 +41,10 @@ Terrain *WorldManager::addTerrain(std::unique_ptr<Terrain> terrain) {
     return raw;
 }
 
+void WorldManager::removeObserver(std::shared_ptr<IEntityObserverBase> observer) {
+    mEntityObservers.erase(std::ranges::find(mEntityObservers, observer));
+}
+
 PhysicsManager &WorldManager::getPhysicsManager() { return mPhysicsManager; }
 
 GraphicsWorldManager &WorldManager::getGraphicsManager() { return mGraphicsManager; }

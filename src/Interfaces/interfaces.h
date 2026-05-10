@@ -1,6 +1,7 @@
 #ifndef INTERFACES_H
 #define INTERFACES_H
 
-#include "src/validatable.h"
+#include "src/Validatable.h"
+#include "src/EntityObserver.h"
 
 #endif

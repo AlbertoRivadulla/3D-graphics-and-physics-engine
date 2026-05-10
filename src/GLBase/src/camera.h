@@ -1,149 +1,143 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <vector>
 #include <numbers>
 #include <glm/glm.hpp>
-
-#include "inputHandler.h"
+#include "utils.h"
 
 namespace GLBase {
 // Default camera values
 // Angle with respect to the camera's y axis.
 // Default to -90 degrees. Otherwise the camera will be looking to the right.
-const float YAW{glm::radians(-90.)};
+constexpr float YAW{glm::radians(-90.)};
 // Angle with respect to the camera's x axis.
-const float PITCH{glm::radians(0.)};
-const float SPEED{10.};
+constexpr float PITCH{glm::radians(0.)};
+constexpr float SPEED{10.};
 // const float SENSITIVITY{0.1};
-const float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
-const float FOV{glm::radians(45.)}; // Field of view
+constexpr float MOUSE_SENSITIVITY{0.1 * std::numbers::pi / 180.};
+constexpr float FOV_DEFAULT{glm::radians(45.)}; // Field of view
+constexpr float FOV_MIN{glm::radians(1.f)};
+constexpr float FOV_MAX{glm::radians(90.f)};
 
-// Forward declare the camera class
-class Camera;
-
-// Input handlers for the camera
-class CameraKeyboardInputHandler : public KeyboardInputHandler {
-public:
-    // Constructor
-    CameraKeyboardInputHandler(Camera *camera);
-
-    bool isValid() const override { return mCamera != nullptr; }
-
-    void processInput(GLFWwindow *window, float deltaTime) const override;
-
-private:
-    // Pointer to the camera
-    Camera *mCamera;
-};
-
-class CameraMouseInputHandler : public MouseInputHandler {
-public:
-    // Constructor
-    CameraMouseInputHandler(Camera *camera);
-
-    bool isValid() const override { return mCamera != nullptr; }
-
-    void processInput(double xpos, double ypos) const override;
-
-private:
-    // Pointer to the camera
-    Camera *mCamera;
-};
-
-class CameraScrollInputHandler : public ScrollInputHandler {
-public:
-    // Constructor
-    CameraScrollInputHandler(Camera *camera);
-
-    bool isValid() const override { return mCamera != nullptr; }
-
-    void processInput(double xoffset, double yoffset) const override;
-
-private:
-    // Pointer to the camera
-    Camera *mCamera;
-};
-
-// Abstract camera class
 class Camera {
-    // Declare the input handler classes as friends
-    friend class CameraKeyboardInputHandler;
-    friend class CameraMouseInputHandler;
-    friend class CameraScrollInputHandler;
-
 public:
+    Camera() = default;
+
+    // Constructor with vector values
+    Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
+           float yaw = YAW, float pitch = PITCH);
+
+    // Constructor with scalar values
+    Camera(int width, int height, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw = YAW,
+           float pitch = PITCH);
+
+    virtual ~Camera() = default;
+
+    void setOrthographic();
+    void setPerspective();
+
+    void setFrustum(float near, float far);
+    void setViewportDimensions(int width, int height);
+    // Method to set the dimension of the orthographic projection matrix
+    void setOrthographicSize(float size);
+
+    // Set parameters for the camera tracking an object
+    void setTrackingParameters(float mouseDecayRate = 0.f, float objectTargetDecayRate = 0.f,
+                               float orientationStiffness = 0.f, float orientationDamping = 0.f,
+                               float positionStiffness = 0.f, float positionDamping = 0.f);
+
+    // Look at a given direction in world space
+    void lookAtDirection(glm::vec3 direction);
+
+    // Look at a given point in world space
+    void lookAtPoint(glm::vec3 target);
+
+    // Set the target to look at
+    void setLookAtTarget(glm::vec3 target, float objectTargetInfluence = 1.f);
+
+    void setPositionTarget(glm::vec3 targetPosition);
+
+    const glm::vec3 &getPosition() const;
+    void setPosition(glm::vec3 position);
+
+    void moveFrontwards(float distance);
+    void moveRightwards(float distance);
+    void moveUpwards(float distance);
+
+    void moveMouseTargetAngles(float xDistance, float yDistance);
+
+    void increaseDecreaseFov(float fovChange);
+
+    virtual void update(float deltaTime);
+
+    glm::mat4 getProjectionMatrix();
+
+    // Compute the view matrix calculated from the Euler angles
+    glm::mat4 getViewMatrix();
+
+    void getNearFarPlanes(float &near, float &far) const;
+
+    std::vector<glm::vec4> algo() const;
+
+    // Get the position of the eight corners of the frustum
+    std::vector<glm::vec4> getFrustumCornersWorldSpace() const;
+    // Get the position of the eight corners of the subfrustum index of the
+    // total of subfrustums
+    std::vector<glm::vec4> getFrustumCornersWorldSpace(const float &zNear, const float &zFar) const;
+
+protected:
+    glm::vec3 mPosition;
+    // Euler angles of the camera
+    float mYaw;
+    float mPitch;
+
+    // Mouse driven orientation
+    float mMouseInfluence; // 1 when the mouse just moved
+    float mMouseDecayRate; // 0 = no decay of mouse angles
+    float mMouseTargetYaw;
+    float mMouseTargetPitch;
+
+    // Target driven orientation
+    float mObjectTargetInfluence; // 1 when the target just moved
+    float mObjectTargetDecayRate; // 0 = no decay of target angles
+    float mObjectTargetYaw;
+    float mObjectTargetPitch;
+    float mOrientationStiffness;
+    float mOrientationDamping;
+    float mYawVelocity;
+    float mPitchVelocity;
+
+    // Target driven position
+    float mPositionStiffness;
+    float mPositionDamping;
+    glm::vec3 mObjectTargetPosition;
+    glm::vec3 mPositionVelocity;
+
+    void updateInfluences(float deltaTime);
+
+    // Calculate the front vector from the camera's updated Euler angles
+    void updateCameraVectors();
+    void computeRightUpVectors();
+
+private:
     // Width and height of the viewport
     int mWidth;
     int mHeight;
     // Near and far planes of the frustum
     float mNear;
     float mFar;
+
+    float mFov;
+
+    // This is a constant
+    glm::vec3 mWorldUp;
+
     // Camera attributes
-    glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
-    // Euler angles of the camera
-    float Yaw;
-    float Pitch;
-    // Field of view
-    float Fov;
-
-    // Input handlers
-    CameraKeyboardInputHandler mKeyboardHandler;
-    CameraMouseInputHandler mMouseHandler;
-    CameraScrollInputHandler mScrollHandler;
-
-    // Constructor with vector values
-    Camera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.),
-           glm::vec3 up = glm::vec3(0., 1., 0.), float yaw = YAW,
-           float pitch = PITCH);
-
-    // Constructor with scalar values
-    Camera(int width, int height, float posX, float posY, float posZ, float upX,
-           float upY, float upZ, float yaw = YAW, float pitch = PITCH);
-
-    // Method to make the camera orthographic
-    void setOrthographic();
-    // Method to make the camera perspective
-    void setPerspective();
-
-    // Methods to configure the camera
-    // Method to set the frustum of the camera
-    void setFrustum(float near, float far);
-    // Method to change the width and height of the viewport
-    void setDimensions(int width, int height);
-    // Method to set the dimension of the orthographic projection matrix
-    void setOrthographicSize(float size);
-
-    // Method to get the projection matrix
-    glm::mat4 getProjectionMatrix();
-
-    // Compute the view matrix calculated from the Euler angles
-    glm::mat4 getViewMatrix();
-
-    // Method to get the near and far planes of the frustum
-    void getNearFarPlanes(float &near, float &far) const;
-
-    // Get the position of the eight corners of the frustum
-    std::vector<glm::vec4> getFrustumCornersWorldSpace() const;
-    // Get the position of the eight corners of the subfrustum index of the
-    // total of subfrustums
-    std::vector<glm::vec4> getFrustumCornersWorldSpace(const float &zNear,
-                                                       const float &zFar) const;
-
-private:
-    // Camera options
-    float MovementSpeed;
-    float MouseSensitivity;
-
-    // Last position of the mouse
-    float mLastX;
-    float mLastY;
-    // Boolean variable that determines whether it is the first mouse mouvement
-    // in the execution
-    bool mFirstMouse;
+    // These are computed from the ones above
+    glm::vec3 mFront;
+    glm::vec3 mUp;
+    glm::vec3 mRight;
 
     // Dimensions of the orthographic camera
     float mOrthoHalfWidth;
@@ -156,25 +150,36 @@ private:
     // Bool that says if the camera is orthographic or perspective
     bool mIsOrthographic;
 
-    // Calculate the front vector from the camera's updated Euler angles
-    void updateCameraVectors();
+    // Move in a spring-like manner towards the target yaw and pitch
+    void springTowardsTarget(float deltaTime);
 
     // Method to obtain the two possible projections
     glm::mat4 getPerspectiveProjection();
     glm::mat4 getOrthographicProjection();
+
+    std::vector<glm::vec4> computeFrustumCornersWorldSpace(const glm::mat4 &projectionMatrix) const;
 };
 
-// class OrthographicCamera : public Camera
-// {
-//     public:
-//         glm::mat4 getProjectionMatrix();
-// };
-//
-// class PerspectiveCamera : public Camera
-// {
-//     public:
-//         glm::mat4 getProjectionMatrix();
-// };
+class OrbitalCamera : public Camera {
+public:
+    OrbitalCamera(int width, int height, glm::vec3 position = glm::vec3(0., 0., 0.), glm::vec3 up = glm::vec3(0., 1., 0.),
+           float yaw = YAW, float pitch = PITCH);
+
+    void setTargetDistance(float targetDistance, float verticalPositionOffset);
+
+    void setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetDirection, float objectTargetInfluence);
+
+    void update(float deltaTime) override;
+private:
+    float mDistanceToObject;
+    float mDistanceVelocity;
+    float mTargetDistance;
+    float mVerticalPositionOffset;
+
+    // Move in a spring-like manner towards the target yaw and pitch
+    void springTowardsTargetOrbital(float deltaTime);
+};
+
 } // namespace GLBase
 
 #endif
