@@ -23,7 +23,39 @@ public:
 
 class GamepadInputHandler : public IValidatable {
 public:
+    GamepadInputHandler();
+
+    void setSensitivity(float xSensitivity, float ySensitivity);
+
     virtual void processInput(float deltaTime) = 0;
+
+protected:
+    struct AxesMoved {
+        bool leftJoystick = true;
+        bool rightJoystick = true;
+        bool leftTrigger = true;
+        bool rightTrigger = true;
+    };
+
+    bool mGamepadConnected;
+    int mGamepadID;
+
+    float mLeftX;
+    float mLeftY;
+    float mRightX;
+    float mRightY;
+    float mLeftTrigger;
+    float mRightTrigger;
+
+    float mXSensitivity;
+    float mYSensitivity;
+
+    float mDeadZone;
+
+    AxesMoved applyDeadZone(float *axes);
+
+private:
+    void discoverGamepadID();
 };
 
 class InputHandler {
@@ -31,7 +63,7 @@ public:
     void addKeyboardHandler(KeyboardInputHandler *handler);
     void addMouseHandler(MouseInputHandler *handler);
     void addScrollHandler(ScrollInputHandler *handler);
-    void addGamepadHandler(GamepadInputHandler* handler);
+    void addGamepadHandler(GamepadInputHandler *handler);
 
     void processKeyboardInput(GLFWwindow *window, float deltaTime);
     void processMouseInput(double xpos, double ypos);
@@ -42,7 +74,7 @@ private:
     std::vector<KeyboardInputHandler *> mKeyboardHandlers;
     std::vector<MouseInputHandler *> mMouseHandlers;
     std::vector<ScrollInputHandler *> mScrollHandlers;
-    std::vector<GamepadInputHandler*> mGamepadHandlers;
+    std::vector<GamepadInputHandler *> mGamepadHandlers;
 };
 } // namespace GLBase
 

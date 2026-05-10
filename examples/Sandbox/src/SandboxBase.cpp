@@ -10,9 +10,10 @@ GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
     : mApplication(width, height, title), mRenderer(),
       mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass shader of the renderer
       mCameraKeyboardInputHandler(), mCameraMouseInputHandler(), mCameraScrollInputHandler(),
-      mAuxElements(width, height), mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
-      mGUIRenderer(width, height), mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mWorldManager(), mLastFrame{0.},
-      mFrameCounter{0}, mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
+      mCameraGamepadInputHandler(), mAuxElements(width, height),
+      mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"), mGUIRenderer(width, height),
+      mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mWorldManager(), mLastFrame{0.}, mFrameCounter{0},
+      mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
     // Get the actual resolution for the window.
     // This is needed in case we are using a "retina" display, where the
     // resolution is scaled.
@@ -33,6 +34,8 @@ GLSandbox::GLSandbox(int width, int height, const char *title, float scaling)
     mCameraKeyboardInputHandler.setCamera(mCameraPtr);
     mCameraMouseInputHandler.setCamera(mCameraPtr);
     mCameraScrollInputHandler.setCamera(mCameraPtr);
+    mCameraGamepadInputHandler.setCamera(mCameraPtr);
+    mCameraGamepadInputHandler.setSensitivity(4.f, 2.f);
 
     // Seed a random number generator, with the function defined in utils.h
     Utils::seedRandomGeneratorClock();
@@ -58,6 +61,7 @@ void GLSandbox::run() {
 
         // Process input for all the objects in the scene
         mApplication.processKeyboardInput(mDeltaTime);
+        mApplication.processGamepadInput(mDeltaTime);
 
         // Store in memory the time at the beginning of the drawing
         float thisFrameTime{(float)glfwGetTime()};

@@ -62,6 +62,7 @@ public:
 
     Physics::Collider *getCollider();
     Physics::RigidBody *getRigidBody();
+    Physics::RigidBody *getRigidBody() const;
     GLGeometry::GLElemObject *getGeometry();
     GLBase::Material *getMaterial();
 

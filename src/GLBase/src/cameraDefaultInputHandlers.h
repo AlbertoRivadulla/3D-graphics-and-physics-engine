@@ -68,6 +68,22 @@ private:
     Camera *mCamera;
 };
 
+class CameraGamepadInputHandler : public GamepadInputHandler {
+public:
+    CameraGamepadInputHandler();
+
+    CameraGamepadInputHandler(Camera *camera);
+
+    void setCamera(Camera *camera);
+
+    bool isValid() const override { return mCamera != nullptr && mGamepadConnected; }
+
+    void processInput(float deltaTime) override;
+
+private:
+    Camera *mCamera;
+};
+
 } // namespace GLBase
 
 #endif

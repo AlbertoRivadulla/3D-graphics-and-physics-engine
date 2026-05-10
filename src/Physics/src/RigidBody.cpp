@@ -46,10 +46,10 @@ void RigidBody::setInvMass(float invMass) {
         mMass = 1.f / invMass;
 }
 
-float RigidBody::getMass() { return mMass; }
-glm::vec3 RigidBody::getPosition() { return mTransform->position; }
-glm::vec3 RigidBody::getVelocity() { return mVelocity; }
-glm::vec3 RigidBody::getAngularVelocity() { return mAngularVelocity; }
+float RigidBody::getMass() const { return mMass; }
+glm::vec3 RigidBody::getPosition() const { return mTransform->position; }
+glm::vec3 RigidBody::getVelocity() const { return mVelocity; }
+glm::vec3 RigidBody::getAngularVelocity() const { return mAngularVelocity; }
 
 bool RigidBody::hasInfiniteMass() { return mInvMass < 0.f; }
 

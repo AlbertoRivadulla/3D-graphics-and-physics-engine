@@ -21,6 +21,20 @@ private:
     Physics::RigidBody *mBody;
 };
 
+class ObjectGamepadInputHandler : public GamepadInputHandler {
+public:
+    ObjectGamepadInputHandler() : mBody(nullptr) {}
+
+    ObjectGamepadInputHandler(Physics::RigidBody *body);
+
+    bool isValid() const override { return mBody != nullptr && mGamepadConnected; }
+
+    void processInput(float deltaTime) override;
+
+private:
+    Physics::RigidBody *mBody;
+};
+
 class SandboxObjectController {
 public:
     SandboxObjectController() = default;
@@ -28,9 +42,11 @@ public:
     SandboxObjectController(Entity *body);
 
     ObjectKeyboardInputHandler *getKeyboardInputHandler() { return &mKeyboardHandler; }
+    ObjectGamepadInputHandler *getGamepadInputHandler() { return &mGamepadHandler; }
 
 private:
     ObjectKeyboardInputHandler mKeyboardHandler;
+    ObjectGamepadInputHandler mGamepadHandler;
 };
 
 #endif

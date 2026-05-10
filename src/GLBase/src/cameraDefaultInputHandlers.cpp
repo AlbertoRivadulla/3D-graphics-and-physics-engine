@@ -72,4 +72,27 @@ void CameraScrollInputHandler::processInput(double xoffset, double yoffset) {
     mCamera->increaseDecreaseFov(-0.5 * (float)yoffset);
 }
 
+// Gamepad input handler
+//==============================
+
+CameraGamepadInputHandler::CameraGamepadInputHandler() : GLBase::CameraGamepadInputHandler(nullptr) {}
+
+CameraGamepadInputHandler::CameraGamepadInputHandler(Camera *camera) : GamepadInputHandler(), mCamera(camera) {}
+
+void CameraGamepadInputHandler::setCamera(Camera *camera) { mCamera = camera; }
+
+void CameraGamepadInputHandler::processInput(float deltaTime) {
+    if (mGamepadConnected) {
+        GLFWgamepadstate state;
+
+        if (glfwGetGamepadState(mGamepadID, &state)) {
+            auto axesMoved = applyDeadZone(state.axes);
+            if (axesMoved.rightJoystick) {
+                mCamera->moveMouseTargetAngles(mRightX * deltaTime * mXSensitivity,
+                                               -mRightY * deltaTime * mYSensitivity);
+            }
+        }
+    }
+}
+
 } // namespace GLBase
