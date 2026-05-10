@@ -131,9 +131,19 @@ void Camera::update(float deltaTime) {
 
     springTowardsTarget(deltaTime);
 
-    float mouseWeight = mMouseInfluence / totalInfluence;
-    mYaw = Utils::wrapAngle(mYaw + Utils::wrapAngle(mMouseTargetYaw - mYaw) * mouseWeight);
-    mPitch = glm::mix(mPitch, mMouseTargetPitch, mouseWeight);
+    // Mouse drives directly on top, no spring
+    if (mMouseInfluence > 0.001f) {
+        float mouseWeight = mMouseInfluence / totalInfluence;
+        mYaw = Utils::wrapAngle(mYaw + Utils::wrapAngle(mMouseTargetYaw - mYaw) * mouseWeight);
+        mPitch =
+            glm::clamp(glm::mix(mPitch, mMouseTargetPitch, mouseWeight), glm::radians(-89.0f), glm::radians(89.0f));
+
+        // Kill spring velocity so there's no jerk when mouse releases
+        mYawVelocity = 0.0f;
+        mPitchVelocity = 0.0f;
+    }
+
+
 
     updateCameraVectors();
 }
@@ -286,51 +296,58 @@ void OrbitalCamera::update(float deltaTime) {
     updateInfluences(deltaTime);
 
     float totalInfluence = mMouseInfluence + mObjectTargetInfluence;
-    if (totalInfluence < 0.001f) {
-        // Nothing is moving
+    if (totalInfluence < 0.001f)
         return;
-    }
 
+    // Sync mouse target toward entity target as mouse influence decays
     if (mObjectTargetInfluence > 0.5f && mMouseInfluence / mObjectTargetInfluence < 0.5f) {
-        // As mouse influence decays, pull mouse target toward entity target
-        // so when mouse fully releases there is no gap between the two
-        float syncRate = 1.0f - mMouseInfluence; // 0 when mouse active, 1 when idle
-        mMouseTargetYaw = Utils::wrapAngle(
-            mMouseTargetYaw + syncRate * Utils::wrapAngle(mObjectTargetYaw - mMouseTargetYaw) * deltaTime);
+        float syncRate = 1.0f - mMouseInfluence;
+        mMouseTargetYaw = Utils::wrapAngle(mMouseTargetYaw +
+                                           syncRate * Utils::wrapAngle(mObjectTargetYaw - mMouseTargetYaw) * deltaTime);
         mMouseTargetPitch += syncRate * (mObjectTargetPitch - mMouseTargetPitch) * deltaTime;
     }
 
+    // 1. Spring toward entity target only
     springTowardsTargetOrbital(deltaTime);
 
-    float mouseWeight = mMouseInfluence / totalInfluence;
-    mYaw = Utils::wrapAngle(mYaw + Utils::wrapAngle(mMouseTargetYaw - mYaw) * mouseWeight);
-    mPitch = glm::mix(mPitch, mMouseTargetPitch, mouseWeight);
+    // 2. Mouse drives directly on top, no spring
+    if (mMouseInfluence > 0.001f) {
+        float mouseWeight = mMouseInfluence / totalInfluence;
+        mYaw = Utils::wrapAngle(mYaw + Utils::wrapAngle(mMouseTargetYaw - mYaw) * mouseWeight);
+        mPitch =
+            glm::clamp(glm::mix(mPitch, mMouseTargetPitch, mouseWeight), glm::radians(-89.0f), glm::radians(89.0f));
+
+        // Kill spring velocity so there's no jerk when mouse releases
+        mYawVelocity = 0.0f;
+        mPitchVelocity = 0.0f;
+    }
+
+    mPosition = mObjectTargetPosition - Utils::sphericalToCartesian(mYaw, mPitch, mDistanceToObject);
 
     updateCameraVectors();
 }
 
 // Move in a spring-like manner towards the target yaw and pitch
 void OrbitalCamera::springTowardsTargetOrbital(float deltaTime) {
-    // Update orientations
-    float yawAccel =
-        Utils::wrapAngle(mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
-    float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
+    // Angular spring
+    if (mObjectTargetInfluence > 0.001f) {
+        float yawAccel =
+            Utils::wrapAngle(mObjectTargetYaw - mYaw) * mOrientationStiffness - mYawVelocity * mOrientationDamping;
+        float pitchAccel = (mObjectTargetPitch - mPitch) * mOrientationStiffness - mPitchVelocity * mOrientationDamping;
 
-    mYawVelocity += yawAccel * deltaTime;
-    mPitchVelocity += pitchAccel * deltaTime;
+        mYawVelocity += yawAccel * deltaTime;
+        mPitchVelocity += pitchAccel * deltaTime;
 
-    mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
-    mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
-                        glm::radians(89.0f));
+        mYaw = Utils::wrapAngle(mYaw + mObjectTargetInfluence * mYawVelocity * deltaTime);
+        mPitch = glm::clamp(mPitch + mObjectTargetInfluence * mPitchVelocity * deltaTime, glm::radians(-89.0f),
+                            glm::radians(89.0f));
+    }
 
-    // Spring-like behavior of the distance
-    float distanceAccel =
-        (mTargetDistance - mDistanceToObject) * mPositionStiffness - mDistanceVelocity * mPositionDamping;
-    mDistanceVelocity += distanceAccel * deltaTime;
-    mDistanceToObject += mDistanceVelocity * deltaTime;
-
-    // mPosition = mObjectTargetPosition + Utils::sphericalToCartesian(-mYaw, -mPitch, mDistanceToObject);
-    mPosition = mObjectTargetPosition - Utils::sphericalToCartesian(mYaw, mPitch, mDistanceToObject);
+    // Distance spring
+    float distAccel = (mTargetDistance - mDistanceToObject) * mPositionStiffness - mDistanceVelocity * mPositionDamping;
+    mDistanceVelocity += distAccel * deltaTime;
+    // mDistanceToObject  = glm::max(mDistanceToObject + mDistanceVelocity * deltaTime, mMinDistance);
+    mDistanceToObject = mDistanceToObject + mDistanceVelocity * deltaTime;
 }
 
 } // namespace GLBase
