@@ -39,7 +39,7 @@ void PlaneSim::setupScene() {
     mWorldManager.getGraphicsManager().getSkymap()->setSunPosition(sunPhi, sunTheta);
 
     // Set the position of the camera
-    mCamera.Position = glm::vec3(20.f, -20.f, 30.f);
+    mCameraPtr->setPosition(glm::vec3(20.f, -20.f, 30.f));
 
     // Load shaders for the geometry pass
     mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) +
@@ -123,18 +123,18 @@ void PlaneSim::setupScene() {
 }
 
 void PlaneSim::setupApplication() {
-    mApplication.setCamera(&mCamera);
+    mApplication.setCamera(mCameraPtr);
 
-    // mCamera.setOrthographic();
+    // mCameraPtr->setOrthographic();
 
     mApplication.setInputHandler(&mInputHandler);
 
-    // mCamera.setFrustum(0.1f, 200.f);
-    mCamera.setFrustum(0.1f, 500.f);
+    // mCameraPtr->setFrustum(0.1f, 200.f);
+    mCameraPtr->setFrustum(0.1f, 500.f);
 
-    mInputHandler.addKeyboardHandler(&mCamera.mKeyboardHandler);
-    mInputHandler.addMouseHandler(&mCamera.mMouseHandler);
-    mInputHandler.addScrollHandler(&mCamera.mScrollHandler);
+    mInputHandler.addKeyboardHandler(&mCameraKeyboardInputHandler);
+    mInputHandler.addMouseHandler(&mCameraMouseInputHandler);
+    mInputHandler.addScrollHandler(&mCameraScrollInputHandler);
 
     // Pass the list of lights to the renderer, to configure the lighting shader
     mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());
@@ -143,13 +143,15 @@ void PlaneSim::setupApplication() {
 void PlaneSim::updateScene() {
     mWorldManager.simulationStep(mDeltaTime);
 
+    mCameraPtr->update(mDeltaTime);
+
     // Get the view and projection matrices
-    mProjection = mCamera.getProjectionMatrix();
-    mView = mCamera.getViewMatrix();
+    mProjection = mCameraPtr->getProjectionMatrix();
+    mView = mCameraPtr->getViewMatrix();
 
     // Update the skymap
     mWorldManager.getGraphicsManager().getSkymap()->setViewProjection(mView, mProjection);
-    mWorldManager.getGraphicsManager().getSkymap()->setCameraPosition(mCamera.Position);
+    mWorldManager.getGraphicsManager().getSkymap()->setCameraPosition(mCameraPtr->getPosition());
 }
 
 void PlaneSim::renderDeferred() {

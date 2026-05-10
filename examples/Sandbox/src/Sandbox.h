@@ -3,9 +3,11 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include "GraphicsWorldManager.h"
 #include "Physics.h"
-#include "SandboxObjectController.h"
 #include "WorldManager.h"
+#include "SandboxObjectController.h"
+#include "cameraDefaultInputHandlers.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -35,7 +37,10 @@ private:
     std::vector<Shader> mGPassShaders;
 
     // Main camera
-    Camera mCamera;
+    Camera *mCameraPtr;
+    CameraKeyboardInputHandler mCameraKeyboardInputHandler;
+    CameraMouseInputHandler mCameraMouseInputHandler;
+    CameraScrollInputHandler mCameraScrollInputHandler;
 
     // Main input handler
     InputHandler mInputHandler;
@@ -62,6 +67,8 @@ private:
 
     // Class containing all the objects with collisions and/or dynamics
     Physics::WorldManager mWorldManager;
+    // Pointer to the graphics manager within the world manager
+    GraphicsWorldManager *mGraphicsWorldManagerPtr;
 
     // Value of the time elapsed since the last frame. This needs to be updated
     // every frame

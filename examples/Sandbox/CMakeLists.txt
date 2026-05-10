@@ -51,6 +51,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/SandboxBase.cpp
     ${PROJECT_SOURCE_DIR}/src/Sandbox.cpp
     ${PROJECT_SOURCE_DIR}/src/SandboxObjectController.cpp
+    ${PROJECT_SOURCE_DIR}/src/SandboxObserver.cpp
 )
 
 add_executable(main ${SOURCES})

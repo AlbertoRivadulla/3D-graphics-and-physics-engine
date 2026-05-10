@@ -15,7 +15,7 @@ public:
 
     bool isValid() const override { return mBody != nullptr; }
 
-    void processInput(GLFWwindow *window, float deltaTime) const override;
+    void processInput(GLFWwindow *window, float deltaTime) override;
 
 private:
     Physics::RigidBody *mBody;

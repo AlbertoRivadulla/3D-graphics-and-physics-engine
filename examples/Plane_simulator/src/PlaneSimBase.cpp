@@ -1,16 +1,17 @@
 #include "PlaneSim.h"
+#include "camera.h"
+#include "cameraDefaultInputHandlers.h"
 
 using namespace GLBase;
 // using namespace GLGeometry;
 
 PlaneSim::PlaneSim(int width, int height, const char *title, float scaling)
     : mApplication(width, height, title), mRenderer(),
-      mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass
-                                                      // shader of the renderer
-      mCamera(width, height, glm::vec3(1., 0., 0.)), mAuxElements(width, height),
-      mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"), mGUIRenderer(width, height),
-      mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mLastFrame{0.}, mFrameCounter{0}, mTotalTime{0.},
-      mScrWidth{width}, mScrHeight{height} {
+      mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass shader of the renderer
+      mCameraKeyboardInputHandler(), mCameraMouseInputHandler(), mCameraScrollInputHandler(),
+      mAuxElements(width, height), mTextRenderer(width, height, std::string(BASE_DIR_RESOURCES) + "/fonts/Arial.ttf"),
+      mGUIRenderer(width, height), mProjection{glm::mat4(1.)}, mView{glm::mat4(1.)}, mLastFrame{0.}, mFrameCounter{0},
+      mTotalTime{0.}, mScrWidth{width}, mScrHeight{height} {
     // Get the actual resolution for the window.
     // This is needed in case we are using a "retina" display, where the
     // resolution is scaled.
@@ -18,9 +19,18 @@ PlaneSim::PlaneSim(int width, int height, const char *title, float scaling)
     int winHeight;
     mApplication.getWindowDims(winWidth, winHeight);
 
-    mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling),
+    mRenderer.setupDimensions(winWidth, winHeight, width, height, scaling);
 
-        Utils::seedRandomGeneratorClock();
+    // Store a pointer to the graphics world manager
+    mGraphicsWorldManagerPtr = &mWorldManager.getGraphicsManager();
+
+    mCameraPtr = mGraphicsWorldManagerPtr->setupCamera<GLBase::Camera>(width, height, glm::vec3(1., 0., 0.));
+
+    mCameraKeyboardInputHandler.setCamera(mCameraPtr);
+    mCameraMouseInputHandler.setCamera(mCameraPtr);
+    mCameraScrollInputHandler.setCamera(mCameraPtr);
+
+    Utils::seedRandomGeneratorClock();
 
     setupScene();
 
@@ -41,16 +51,16 @@ void PlaneSim::run() {
 
         updateScene();
 
-        mRenderer.computeShadowMaps(mCamera, mWorldManager.getGraphicsManager().getListOfLights(),
-                                    mWorldManager.getGraphicsManager().getListOfObjects());
+        mRenderer.computeShadowMaps(*mCameraPtr, mGraphicsWorldManagerPtr->getListOfLights(),
+                                    mGraphicsWorldManagerPtr->getListOfObjects());
 
         mRenderer.startGeometryPass();
 
         renderDeferred();
 
-        mRenderer.processGBuffer(mCamera.Position, mWorldManager.getGraphicsManager().getListOfLights());
+        mRenderer.processGBuffer(mCameraPtr->getPosition(), mGraphicsWorldManagerPtr->getListOfLights());
 
-        mRenderer.endFrame(mWorldManager.getGraphicsManager().getSkymap());
+        mRenderer.endFrame(mGraphicsWorldManagerPtr->getSkymap());
 
         renderForward();
 

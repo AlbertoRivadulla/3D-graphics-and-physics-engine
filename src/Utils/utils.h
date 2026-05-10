@@ -17,15 +17,26 @@
 #include "src/logger.h"
 
 namespace Utils {
-template <typename T> inline T lerp(const T &a, const T &b, float t) {
-    return (1.f - t) * a + t * b;
-}
+
+template <typename T> inline T lerp(const T &a, const T &b, float t) { return (1.f - t) * a + t * b; }
 
 inline float getRandom0To1() { return (float)(std::rand() / (float)RAND_MAX); }
 
-inline void seedRandomGeneratorClock() {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+inline void seedRandomGeneratorClock() { std::srand(static_cast<unsigned int>(std::time(nullptr))); }
+
+inline float wrapAngle(float angle) {
+    // Wraps angle to [-π, π]
+    while (angle > glm::pi<float>())
+        angle -= glm::two_pi<float>();
+    while (angle < -glm::pi<float>())
+        angle += glm::two_pi<float>();
+    return angle;
 }
+
+inline glm::vec3 sphericalToCartesian(float yaw, float pitch, float distance) {
+    return glm::vec3(cosf(pitch) * cosf(yaw), sinf(pitch), cosf(pitch) * sinf(yaw)) * distance;
+}
+
 } // namespace Utils
 
 #endif

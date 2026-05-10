@@ -8,22 +8,22 @@
 namespace GLBase {
 class KeyboardInputHandler : public IValidatable {
 public:
-    virtual void processInput(GLFWwindow *window, float deltaTime) const = 0;
+    virtual void processInput(GLFWwindow *window, float deltaTime) = 0;
 };
 
 class MouseInputHandler : public IValidatable {
 public:
-    virtual void processInput(double xpos, double ypos) const = 0;
+    virtual void processInput(double xpos, double ypos) = 0;
 };
 
 class ScrollInputHandler : public IValidatable {
 public:
-    virtual void processInput(double xoffset, double yoffset) const = 0;
+    virtual void processInput(double xoffset, double yoffset) = 0;
 };
 
 class GamepadInputHandler : public IValidatable {
 public:
-    virtual void processInput(float deltaTime) const = 0;
+    virtual void processInput(float deltaTime) = 0;
 };
 
 class InputHandler {
