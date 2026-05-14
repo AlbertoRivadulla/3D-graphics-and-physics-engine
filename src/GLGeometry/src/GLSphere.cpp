@@ -159,8 +159,11 @@ GLSphere::GLSphere(int nrVertices) : mNrVertices{nrVertices + 1} {
     glBindVertexArray(0);
 }
 
-// Function to render
-void GLSphere::draw() {
+void GLSphere::draw(GLBase::Shader *shader) {
+    if (shader) {
+        shader->setMat4("model", mModelMatrix);
+    }
+
     // Draw the quad
     glBindVertexArray(mVAO); // This also binds the corresponding EBO
     glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, 0);

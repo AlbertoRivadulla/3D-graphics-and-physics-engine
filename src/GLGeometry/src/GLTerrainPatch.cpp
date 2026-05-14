@@ -98,8 +98,11 @@ GLTerrainPatch::GLTerrainPatch(unsigned char *data, int width, int height,
     glBindVertexArray(0);
 }
 
-// Function to render
-void GLTerrainPatch::draw() {
+void GLTerrainPatch::draw(GLBase::Shader *shader) {
+    if (shader) {
+        shader->setMat4("model", mModelMatrix);
+    }
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mHeightmapTex);
     glActiveTexture(GL_TEXTURE1);
@@ -186,7 +189,9 @@ GLTerrainTessellated::GLTerrainTessellated(int width, int height)
 }
 
 // Function to render
-void GLTerrainTessellated::draw() {
+void GLTerrainTessellated::draw(GLBase::Shader *shader) {
+    shader->setMat4("model", mModelMatrix);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mHeightmapTex);
     glActiveTexture(GL_TEXTURE1);

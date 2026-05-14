@@ -13,19 +13,16 @@ public:
 
     // The default path for the textures is
     //      ../resources/textures/skybox
-    void setupWithTextures(
-        const std::string &texturesPath,
-        const std::string &vertexShaderPath = std::string(BASE_DIR_SHADERS) +
-                                              "/GLGeometry/skyboxVertex.glsl",
-        const std::string &fragmentShaderPath =
-            std::string(BASE_DIR_SHADERS) + "/GLGeometry/skyboxFragment.glsl");
+    void setupWithTextures(const std::string &texturesPath,
+                           const std::string &vertexShaderPath = std::string(BASE_DIR_SHADERS) +
+                                                                 "/GLGeometry/skyboxVertex.glsl",
+                           const std::string &fragmentShaderPath = std::string(BASE_DIR_SHADERS) +
+                                                                   "/GLGeometry/skyboxFragment.glsl");
 
-    void setupNoTextures(
-        const std::string &vertexShaderPath = std::string(BASE_DIR_SHADERS) +
-                                              "/GLGeometry/skyboxVertex.glsl",
-        const std::string &fragmentShaderPath =
-            std::string(BASE_DIR_SHADERS) +
-            "/GLGeometry/skyboxFragmentFlat.glsl");
+    void setupNoTextures(const std::string &vertexShaderPath = std::string(BASE_DIR_SHADERS) +
+                                                               "/GLGeometry/skyboxVertex.glsl",
+                         const std::string &fragmentShaderPath = std::string(BASE_DIR_SHADERS) +
+                                                                 "/GLGeometry/skyboxFragmentFlat.glsl");
 
     // Setup the screen quad
     void setupScreenQuad();
@@ -34,8 +31,7 @@ public:
     void setCameraPosition(const glm::vec3 &cameraPosition);
     void setSunPosition(float phi, float theta);
 
-    // Function to render
-    void draw();
+    void draw(GLBase::Shader *shader = nullptr) override;
 
 private:
     // VAO and VBO for the screen quad
@@ -57,10 +53,8 @@ private:
     // as they are declared as virtual in its parent class GLObject
 public:
     // Function to set the model matrix
-    void setModelMatrix(const glm::vec3 &translation,
-                        const float &rotationAngle,
-                        const glm::vec3 &rotationAxis, const glm::vec3 &scale) {
-    }
+    void setModelMatrix(const glm::vec3 &translation, const float &rotationAngle, const glm::vec3 &rotationAxis,
+                        const glm::vec3 &scale) {}
 
     // Function to read the model matrix
     glm::mat4 getModelMatrix() { return glm::mat4(0.f); }

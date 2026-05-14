@@ -26,15 +26,15 @@ void GraphicsWorldManager::draw() {
     // TODO: Delegate this in a terrain drawer class, that will handle drawing different terrain patches depending on
     // the camera frustum
     if (mTerrain.object != nullptr) {
-        mTerrain.material->configShader(mTerrain.object->getModelMatrix());
+        mTerrain.material->configShader();
 
-        mTerrain.object->draw();
+        mTerrain.object->draw(mTerrain.material->shader);
     }
 
     for (auto object : mGraphicsObjects) {
-        object.material->configShader(object.object->getModelMatrix());
+        object.material->configShader();
 
-        object.object->draw();
+        object.object->draw(object.material->shader);
     }
 }
 

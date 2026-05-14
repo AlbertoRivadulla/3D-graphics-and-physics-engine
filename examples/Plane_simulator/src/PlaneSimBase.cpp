@@ -6,7 +6,7 @@ using namespace GLBase;
 // using namespace GLGeometry;
 
 PlaneSim::PlaneSim(int width, int height, const char *title, float scaling)
-    : mApplication(width, height, title), mRenderer(),
+    : mPlanePlayer(), mApplication(width, height, title), mRenderer(),
       mLightingShader(mRenderer.getLightingShader()), // Reference to the G-pass shader of the renderer
       mCameraKeyboardInputHandler(), mCameraMouseInputHandler(), mCameraScrollInputHandler(),
       mCameraGamepadInputHandler(), mAuxElements(width, height),
@@ -39,6 +39,8 @@ PlaneSim::PlaneSim(int width, int height, const char *title, float scaling)
     setupScene();
 
     setupApplication();
+
+    mLastFrame = glfwGetTime();
 }
 
 void PlaneSim::run() {
@@ -46,7 +48,8 @@ void PlaneSim::run() {
         mRenderer.startFrame();
 
         float currentFrame = glfwGetTime();
-        mDeltaTime = currentFrame - mLastFrame;
+        // Clamp delta time to avoid spikes, to a maximum of 50ms (20 fms)
+        mDeltaTime = glm::clamp(currentFrame - mLastFrame, 0.0f, 0.05f);
         mLastFrame = currentFrame;
 
         mApplication.processKeyboardInput(mDeltaTime);

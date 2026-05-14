@@ -93,7 +93,11 @@ GLCube::GLCube() {
 }
 
 // Function to render
-void GLCube::draw() {
+void GLCube::draw(GLBase::Shader *shader) {
+    if (shader) {
+        shader->setMat4("model", mModelMatrix);
+    }
+
     // Draw the quad
     glBindVertexArray(mVAO); // This also binds the corresponding EBO
     // glDrawArrays(GL_TRIANGLES, 0, 36);

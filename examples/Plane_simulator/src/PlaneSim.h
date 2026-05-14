@@ -6,17 +6,18 @@
 #include "Physics.h"
 #include "WorldManager.h"
 #include "cameraDefaultInputHandlers.h"
+#include "PlanePlayer.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
 
 class PlaneSim {
+private:
     //==============================
     // User defined variables and logic
     //==============================
-    // Plane mPlane;
+    PlanePlayer mPlanePlayer;
 
-private:
     //==============================
     // Basic implementation of the class
     //==============================

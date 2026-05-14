@@ -124,7 +124,11 @@ GLCylinder::GLCylinder(int nrVerticesCircle)
 }
 
 // Function to render
-void GLCylinder::draw() {
+void GLCylinder::draw(GLBase::Shader *shader) {
+    if (shader) {
+        shader->setMat4("model", mModelMatrix);
+    }
+
     // Disable face culling for drawing the plane
     // glDisable(GL_CULL_FACE);
 

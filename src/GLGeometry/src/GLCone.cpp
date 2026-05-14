@@ -115,7 +115,11 @@ GLCone::GLCone(int nrVerticesCircle) : mNrVertices{nrVerticesCircle + 1} {
 }
 
 // Function to render
-void GLCone::draw() {
+void GLCone::draw(GLBase::Shader *shader) {
+    if (shader) {
+        shader->setMat4("model", mModelMatrix);
+    }
+
     // Disable face culling for drawing the plane
     // glDisable(GL_CULL_FACE);
 

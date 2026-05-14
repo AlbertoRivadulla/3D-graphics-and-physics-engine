@@ -231,10 +231,7 @@ void DirectionalLight::computeShadowMap(
 
     // Draw each object in the scene
     for (auto object : objectsWithShadow) {
-        // Set the model matrix of the object in the shader
-        mShadowShader->setMat4("model", object.object->getModelMatrix());
-        // Draw the object
-        object.object->draw();
+        object.object->draw(mShadowShader);
     }
 }
 

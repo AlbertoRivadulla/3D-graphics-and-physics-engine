@@ -18,6 +18,8 @@ public:
         return mCamera.get();
     }
 
+    GLBase::Camera *getCamera() { return mCamera.get(); }
+
     void registerObjectAndMaterial(GLGeometry::GLElemObject *object, GLBase::Material *material);
 
     void registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch, GLBase::Material *material);

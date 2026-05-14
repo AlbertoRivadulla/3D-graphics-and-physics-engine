@@ -74,13 +74,16 @@ struct Material {
 
     // Method to pass the material information to a shader.
     // void configShader(const Shader& shader)
-    virtual void configShader(const glm::mat4 &modelMatrix) {
+    virtual void configShader() {
         shader->use();
-        shader->setMat4("model", modelMatrix);
 
         shader->setVec3("material.albedo", albedo);
         shader->setFloat("material.spec", spec);
         shader->setFloat("material.emissive", emissive);
+    }
+
+    virtual void setShaderModelMatrix(glm::mat4 &modelMatrix) {
+        shader->setMat4("model", modelMatrix);
     }
 };
 
@@ -200,9 +203,8 @@ struct MaterialWithTextures : Material {
 
     // Method to pass the material information to a shader.
     // This overrides the one in the base class
-    void configShader(const glm::mat4 &modelMatrix) override {
+    void configShader() override {
         shader->use();
-        shader->setMat4("model", modelMatrix);
 
         // Bind the textures, if they exist
         if (hasTexAlbedo) {

@@ -49,7 +49,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/src/PlaneSimBase.cpp
     ${PROJECT_SOURCE_DIR}/src/PlaneSim.cpp
-    ${PROJECT_SOURCE_DIR}/src/Plane.cpp
+    ${PROJECT_SOURCE_DIR}/src/PlanePlayer.cpp
     ${PROJECT_SOURCE_DIR}/src/PlaneObserver.cpp
 )
 

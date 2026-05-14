@@ -72,7 +72,7 @@ void GLCubemap::setSunPosition(float phi, float theta) {
     mShader.setFloat("sunTheta", theta);
 }
 
-void GLCubemap::draw() {
+void GLCubemap::draw(GLBase::Shader *) {
     // Change face culling, since we are drawing the cube from inside
     // glCullFace(GL_FRONT);
 

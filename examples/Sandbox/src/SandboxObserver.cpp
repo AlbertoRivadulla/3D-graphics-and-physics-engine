@@ -6,21 +6,18 @@ CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr
     // Set the parameters of camera tracking to be over cricital damping,
     //  damping = 2 * sqrt(stiffness)
     mCamera->setTrackingParameters(10.f, 1.f, 50.f, 15.f, 100.f, 20.f);
-    // mCamera->setTrackingParameters(10.f, 1.f, 50.f, 15.f, 20.f, 10.f);
 
     mCameraDistance = 5.f;
     mCameraHeight = 1.f;
 
-    // glm::vec3 lookAtDirection = glm::vec3(0., -1., 0.);
     glm::vec3 lookAtDirection = glm::vec3(0., 0., 1.);
     glm::vec3 upDirection = glm::vec3(0., 1., 0.);
 
     mCamera->setTargetDistance(mCameraDistance, mCameraHeight);
-
     mCamera->setOrbitTarget(initialObjPos, lookAtDirection, upDirection, 1.f);
 
     // Place the camera so it looks and follows the object
-    mCamera->setPosition(initialObjPos + glm::vec3(0., mCameraHeight, 0.f) - lookAtDirection * mCameraDistance);
+    mCamera->setPosition(initialObjPos + mCameraHeight * upDirection - lookAtDirection * mCameraDistance);
     mCamera->lookAtDirection(lookAtDirection);
 }
 

@@ -28,12 +28,10 @@ protected:
     unsigned int mNormalmapTex;
 
 public:
-    // Constructor
     GLTerrainPatch();
     GLTerrainPatch(unsigned char *data, int width, int height, int nChannels);
 
-    // Function to render
-    virtual void draw();
+    void draw(GLBase::Shader *shader);
 };
 
 class GLTerrainTessellated : public GLTerrainPatch {
@@ -48,7 +46,7 @@ public:
     GLTerrainTessellated(int width, int height);
 
     // Function to render
-    void draw() override;
+    void draw(GLBase::Shader *shader) override;
 };
 
 } // namespace GLGeometry

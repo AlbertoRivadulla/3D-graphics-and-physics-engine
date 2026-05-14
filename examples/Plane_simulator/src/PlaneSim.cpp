@@ -40,9 +40,6 @@ void PlaneSim::setupScene() {
                                  "/GLGeometry/skyboxFragmentAtmosphere.glsl");
     mGraphicsWorldManagerPtr->getSkymap()->setSunPosition(sunPhi, sunTheta);
 
-    // Set the position of the camera
-    mCameraPtr->setPosition(glm::vec3(20.f, -20.f, 30.f));
-
     // Load shaders for the geometry pass
     mGPassShaders.push_back(Shader(std::string(BASE_DIR_SHADERS) +
                                        "/GLBase/defGeometryPassVertex.glsl",
@@ -87,46 +84,44 @@ void PlaneSim::setupScene() {
     // Objects with physics
     // -------------------------------------------------------------------------
 
-    // Add a sphere
-    // The arguments of the constructor are position, scale, rotation angle,
-    // rotation axis, mass, initial velocity
-    auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
-    sphere->addGeometry<GLSphere>(16);
-    sphere->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
-    sphere->addCollider<SphereCollider>();
-    auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
-    materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
-    sphere->addMaterial(std::move(materialSphTextures));
+    // TODO: Clean this
+    // // Add a sphere
+    // // The arguments of the constructor are position, scale, rotation angle,
+    // // rotation axis, mass, initial velocity
+    // auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
+    // sphere->addGeometry<GLSphere>(16);
+    // sphere->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
+    // sphere->addCollider<SphereCollider>();
+    // auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
+    // materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
+    // sphere->addMaterial(std::move(materialSphTextures));
+    //
+    // Entity *spherePtr = mWorldManager.addEntity(std::move(sphere));
+    //
+    // // Add gravity and a drag force to this object
+    // mWorldManager.getPhysicsManager().registerBodyGravity(spherePtr);
+    // auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9, 0., 0.);
+    // mWorldManager.getPhysicsManager().registerBodyForce(spherePtr, dragForcePtr);
+    //
+    // // Add a sphere
+    // // The arguments of the constructor are position, scale, rotation angle,
+    // // rotation axis, mass, initial velocity
+    // auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::radians(45.f), glm::vec3(1., 0., 0.));
+    // sphere2->addGeometry<GLSphere>(16);
+    // sphere2->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
+    // sphere2->addCollider<SphereCollider>();
+    // sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
+    //
+    // Entity *sphere2Ptr = mWorldManager.addEntity(std::move(sphere2));
+    //
+    // mWorldManager.getPhysicsManager().registerBodyGravity(sphere2Ptr);
+    //
+    // // Add a spring force between the two objects
+    // auto springForcePtr =
+    //     mWorldManager.getPhysicsManager().addForce<SpringForceGenerator>(spherePtr->getRigidBody(), 5., 0.5, 0.5);
+    // mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, springForcePtr);
 
-    Entity *spherePtr = mWorldManager.addEntity(std::move(sphere));
-
-    // Add gravity and a drag force to this object
-    mWorldManager.getPhysicsManager().registerBodyGravity(spherePtr);
-    auto dragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.9, 0.9, 0., 0.);
-    mWorldManager.getPhysicsManager().registerBodyForce(spherePtr, dragForcePtr);
-
-    // Add a sphere
-    // The arguments of the constructor are position, scale, rotation angle,
-    // rotation axis, mass, initial velocity
-    auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::radians(45.f), glm::vec3(1., 0., 0.));
-    sphere2->addGeometry<GLSphere>(16);
-    sphere2->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
-    sphere2->addCollider<SphereCollider>();
-    sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
-
-    Entity *sphere2Ptr = mWorldManager.addEntity(std::move(sphere2));
-
-    mWorldManager.getPhysicsManager().registerBodyGravity(sphere2Ptr);
-
-    // Add a spring force between the two objects
-    auto springForcePtr =
-        mWorldManager.getPhysicsManager().addForce<SpringForceGenerator>(spherePtr->getRigidBody(), 5., 0.5, 0.5);
-    mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, springForcePtr);
-
-    // Add an observer that makes the camera follow the object
-    auto cameraTrackPlaneObs =
-        mWorldManager.addObserver<CameraFollowPlaneObserver>(mCameraPtr, sphere2Ptr->getPosition());
-    sphere2Ptr->registerObserver(cameraTrackPlaneObs);
+    mPlanePlayer.buildAndRegisterInManager(mWorldManager, mGPassShaders[0]);
 }
 
 void PlaneSim::setupApplication() {

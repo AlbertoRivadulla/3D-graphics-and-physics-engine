@@ -18,14 +18,16 @@ void GLParticleSystem::addParticle(glm::vec3 position, glm::vec3 velocity,
                                                       maxAge, std::move(material)));
 }
 
-void GLParticleSystem::draw() {
+void GLParticleSystem::draw(GLBase::Shader *) {
     // Draw all the particles, with their corresponding model matrices
     for (auto &particle : mParticles) {
         mGPassShader->setMat4("model", particle->modelMatrix);
+
         // Configure the material in the shader
-        particle->material->configShader(particle->modelMatrix);
+        particle->material->configShader();
 
         // Draw the object
+        particle->material->setShaderModelMatrix(particle->modelMatrix);
         mGeometryObject->draw();
     }
 }

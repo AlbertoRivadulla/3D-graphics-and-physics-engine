@@ -1,17 +1,15 @@
 #ifndef GLOBJECT_H
 #define GLOBJECT_H
 
+#include "shader.h"
+
 namespace GLGeometry {
 class GLObject {
 public:
-    // Constructor
-    GLObject() {};
-
-    // Destructor
     virtual ~GLObject() = default;
 
     // Function to render
-    virtual void draw() = 0;
+    virtual void draw(GLBase::Shader *shader = nullptr) = 0;
 
     // Function to set the model matrix
     // virtual void setModelMatrix(const glm::vec3& translation, const float&

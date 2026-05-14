@@ -97,7 +97,7 @@ public:
     GLObjectPlaceholder() {}
 
     // Function to render
-    void draw() {}
+    void draw(GLBase::Shader *) {}
 };
 
 struct GLObjectWithMaterial {
