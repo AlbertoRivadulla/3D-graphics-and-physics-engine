@@ -56,7 +56,8 @@ void GLSandbox::run() {
 
         // Compute the time since the last frame
         float currentFrame = glfwGetTime();
-        mDeltaTime = currentFrame - mLastFrame;
+        // Clamp delta time to avoid spikes
+        mDeltaTime = glm::clamp(currentFrame - mLastFrame, 0.0f, 0.05f);  // max 50ms = min 20fps
         mLastFrame = currentFrame;
 
         // Process input for all the objects in the scene

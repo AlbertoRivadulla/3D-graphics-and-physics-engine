@@ -221,7 +221,9 @@ void GLSandbox::setupScene() {
 
     mObjectController = SandboxObjectController(controlledCubePtr);
 
-    auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.4, 0.02, 0.1, 0.02);
+    mWorldManager.getPhysicsManager().registerBodyGravity(controlledCubePtr);
+
+    auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.1, 0.005, 0.1, 0.02);
     mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
 
     // // Add a test observer for this object

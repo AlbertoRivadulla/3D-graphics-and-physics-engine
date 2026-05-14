@@ -293,15 +293,14 @@ void OrbitalCamera::setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetFor
     mObjectTargetInfluence = objectTargetInfluence;
 
     // Compute target roll from the given up vector
-    if (glm::dot(forward, mWorldUpNormalized) > 0.999f) {
+    if (abs(glm::dot(forward, mWorldUpNormalized)) > 0.999f) {
         mObjectTargetRoll = 0.f;
     } else {
         glm::vec3 right = glm::normalize(glm::cross(forward, mWorldUpNormalized));
         mObjectTargetRoll = atan2f(glm::dot(targetUp, right), glm::dot(targetUp, mWorldUpNormalized));
     }
 
-
-    glm::vec3 displTargetPosition = targetPosition + glm::vec3(0., mVerticalPositionOffset, 0.);
+    glm::vec3 displTargetPosition = targetPosition + mVerticalPositionOffset * mWorldUpNormalized;
     mDistanceToObject = glm::length(displTargetPosition - mPosition);
 
     setPositionTarget(displTargetPosition);
@@ -367,7 +366,7 @@ float OrbitalCamera::springTowardsTargetOrbital(float deltaTime) {
     float distAccel = (mTargetDistance - mDistanceToObject) * mPositionStiffness - mDistanceVelocity * mPositionDamping;
     mDistanceVelocity += distAccel * deltaTime;
 
-    return mDistanceToObject + mDistanceVelocity * deltaTime;
+    return glm::clamp(mDistanceToObject + mDistanceVelocity * deltaTime, mTargetDistance, 2 * mTargetDistance);
 }
 
 } // namespace GLBase

@@ -22,21 +22,21 @@ void ObjectGamepadInputHandler::processInput(float deltaTime) {
 
         if (glfwGetGamepadState(mGamepadID, &state)) {
             if (state.buttons[GLFW_GAMEPAD_BUTTON_CROSS]) {
-                mBody->addForceLocal(glm::vec3(0., 0., 10.));
+                mBody->addForceLocal(glm::vec3(0., 0., 20.));
             }
             if (state.buttons[GLFW_GAMEPAD_BUTTON_CIRCLE]) {
                 mBody->addForceAtPointLocal(glm::vec3(0., 0., 3.), glm::vec3(0., 0.5, 0.));
             }
             if (state.buttons[GLFW_GAMEPAD_BUTTON_SQUARE]) {
-                mBody->addForce(glm::vec3(0., 0., 10.));
+                mBody->addForce(glm::vec3(0., 0., 20.));
             }
 
             auto axesMoved = applyDeadZone(state.axes);
             if (axesMoved.rightTrigger) {
-                mBody->addForceLocal(mRightTrigger * glm::vec3(0., 0., 10.));
+                mBody->addForceLocal(mRightTrigger * glm::vec3(0., 0., 20.));
             }
             if (axesMoved.leftTrigger) {
-                mBody->addForceLocal(mLeftTrigger * glm::vec3(0., 0., -10.));
+                mBody->addForceLocal(mLeftTrigger * glm::vec3(0., 0., -20.));
             }
 
             if (axesMoved.leftJoystick) {

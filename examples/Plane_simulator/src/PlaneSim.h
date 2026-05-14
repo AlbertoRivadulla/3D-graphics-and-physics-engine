@@ -14,6 +14,7 @@ class PlaneSim {
     //==============================
     // User defined variables and logic
     //==============================
+    // Plane mPlane;
 
 private:
     //==============================
