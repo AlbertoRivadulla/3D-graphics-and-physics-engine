@@ -3,7 +3,17 @@
 void PlanePlayer::buildAndRegisterInManager(Physics::WorldManager &worldManager, Shader &shaderRef) {
 
     auto entity = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 2.), 0.f, glm::vec3(1., 0., 0.));
-    entity->addGeometry<GLCube>();
+
+    // Build the composed geometry object
+    // The components that will be moved later have to be stored in member variables of the class
+    auto geometryObject = std::make_unique<GLComposedObject>();
+    auto cube1 =
+        geometryObject->addComponent<GLCube>(glm::vec3(-1., 0., 0.), glm::vec3(1., 2., 1.), 0.f, glm::vec3(0., 0., 1.));
+    auto cube2 =
+        geometryObject->addComponent<GLCube>(glm::vec3(+1., 0., 0.), glm::vec3(1., 1., 2.), 45.f, glm::vec3(0., 0., 1.));
+
+    entity->addGeometry(std::move(geometryObject));
+
     entity->addRigidBody<Physics::RigidBody>(1., Physics::InertiaTensors::box(1., 1., 1., 1.), glm::vec3(0., 0., 0.),
                                              glm::vec3(0., 0., 0.));
     entity->addMaterial<Material>(shaderRef, glm::vec3(1., 1., 0.), 0.1);
@@ -13,7 +23,8 @@ void PlanePlayer::buildAndRegisterInManager(Physics::WorldManager &worldManager,
 
     worldManager.getPhysicsManager().registerBodyGravity(mEntityPtr);
 
-    auto cubeDragForcePtr = worldManager.getPhysicsManager().addForce<Physics::DragForceGenerator>(0.1, 0.005, 0.1, 0.02);
+    auto cubeDragForcePtr =
+        worldManager.getPhysicsManager().addForce<Physics::DragForceGenerator>(0.1, 0.005, 0.1, 0.02);
     worldManager.getPhysicsManager().registerBodyForce(mEntityPtr, cubeDragForcePtr);
 
     // Add an observer that makes the camera follow the object

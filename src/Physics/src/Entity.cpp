@@ -14,21 +14,27 @@ Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::ve
 
 Entity::~Entity() {}
 
-void Entity::addGeometry(std::unique_ptr<GLGeometry::GLElemObject> geometry) {
+GLGeometry::GLElemObject *Entity::addGeometry(std::unique_ptr<GLGeometry::GLElemObject> geometry) {
     mGeometryObject = std::move(geometry);
 
     updateModelMatrix();
+
+    return mGeometryObject.get();
 }
 
-void Entity::addCollider(std::unique_ptr<Physics::Collider> collider) {
+Physics::Collider *Entity::addCollider(std::unique_ptr<Physics::Collider> collider) {
     mCollider = std::move(collider);
 
     updateModelMatrix();
+
+    return mCollider.get();
 }
 
-void Entity::addRigidBody(std::unique_ptr<Physics::RigidBody> rigidBody) {
+Physics::RigidBody *Entity::addRigidBody(std::unique_ptr<Physics::RigidBody> rigidBody) {
     mRigidBody = std::move(rigidBody);
     mRigidBody->setTransformPtr(&mTransform);
+
+    return mRigidBody.get();
 }
 
 void Entity::addMaterial(std::unique_ptr<GLBase::Material> material) { mMaterial = std::move(material); }

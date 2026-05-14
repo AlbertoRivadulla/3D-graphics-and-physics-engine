@@ -16,31 +16,37 @@ public:
 
     // Add geometrical object, and copy it to the list of elementary objects of
     // the GLSandbox class
-    template <typename T, typename... Args> void addGeometry(Args &&...args) {
+    template <typename T, typename... Args> GLGeometry::GLElemObject* addGeometry(Args &&...args) {
         static_assert(std::is_base_of<GLGeometry::GLElemObject, T>::value, "T must derive from GLGeometry::GLElemObject");
 
         mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
 
         updateModelMatrix();
-    }
-    void addGeometry(std::unique_ptr<GLGeometry::GLElemObject>);
 
-    template <typename T, typename... Args> void addCollider(Args &&...args) {
+        return mGeometryObject.get();
+    }
+    GLGeometry::GLElemObject* addGeometry(std::unique_ptr<GLGeometry::GLElemObject>);
+
+    template <typename T, typename... Args> Physics::Collider *addCollider(Args &&...args) {
         static_assert(std::is_base_of<Physics::Collider, T>::value, "T must derive from Physics::Collider");
 
         mCollider = std::make_unique<T>(std::forward<Args>(args)...);
 
         updateModelMatrix();
-    }
-    void addCollider(std::unique_ptr<Physics::Collider>);
 
-    template <typename T, typename... Args> void addRigidBody(Args &&...args) {
+        return mCollider.get();
+    }
+    Physics::Collider *addCollider(std::unique_ptr<Physics::Collider>);
+
+    template <typename T, typename... Args> Physics::RigidBody* addRigidBody(Args &&...args) {
         static_assert(std::is_base_of<Physics::RigidBody, T>::value, "T must derive from Physics::RigidBody");
 
         mRigidBody = std::make_unique<T>(std::forward<Args>(args)...);
         mRigidBody->setTransformPtr(&mTransform);
+
+        return mRigidBody.get();
     }
-    void addRigidBody(std::unique_ptr<Physics::RigidBody>);
+    Physics::RigidBody* addRigidBody(std::unique_ptr<Physics::RigidBody>);
 
     template <typename T, typename... Args> void addMaterial(Args &&...args) {
         static_assert(std::is_base_of<GLBase::Material, T>::value, "T must derive from GLBase::Material");

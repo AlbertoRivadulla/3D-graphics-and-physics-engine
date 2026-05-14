@@ -33,6 +33,7 @@
 #include "GLCone.h"
 #include "GLPolyhedron.h"
 #include "GLParticleSystem.h"
+#include "GLComposedObject.h"
 
 #include "GLTextRenderer.h"
 #include "GLGUIRenderer.h"
