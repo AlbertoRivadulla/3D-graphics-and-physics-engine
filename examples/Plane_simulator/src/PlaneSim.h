@@ -36,6 +36,7 @@ private:
     CameraKeyboardInputHandler mCameraKeyboardInputHandler;
     CameraMouseInputHandler mCameraMouseInputHandler;
     CameraScrollInputHandler mCameraScrollInputHandler;
+    CameraGamepadInputHandler mCameraGamepadInputHandler;
 
     // Main input handler
     InputHandler mInputHandler;

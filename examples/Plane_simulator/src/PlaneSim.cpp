@@ -4,8 +4,10 @@
 #include "Entity.h"
 #include "RigidBody.h"
 #include "glm/trigonometric.hpp"
+#include "src/logger.h"
 #include "utils.h"
 #include <memory>
+#include "PlaneObserver.h"
 
 using namespace GLBase;
 using namespace GLGeometry;
@@ -31,12 +33,12 @@ void PlaneSim::setupScene() {
     // Create the cubemap for the sky
     float sunTheta = -0.2f; // Theta = 0 corresponds to the ecuador
     float sunPhi = -1.5f;
-    mWorldManager.getGraphicsManager().addSkymap<GLCubemap>();
-    mWorldManager.getGraphicsManager().getSkymap()->setupNoTextures(std::string(BASE_DIR_SHADERS) +
+    mGraphicsWorldManagerPtr->addSkymap<GLCubemap>();
+    mGraphicsWorldManagerPtr->getSkymap()->setupNoTextures(std::string(BASE_DIR_SHADERS) +
                                  "/GLGeometry/skyboxVertex.glsl",
                              std::string(BASE_DIR_SHADERS) +
                                  "/GLGeometry/skyboxFragmentAtmosphere.glsl");
-    mWorldManager.getGraphicsManager().getSkymap()->setSunPosition(sunPhi, sunTheta);
+    mGraphicsWorldManagerPtr->getSkymap()->setSunPosition(sunPhi, sunTheta);
 
     // Set the position of the camera
     mCameraPtr->setPosition(glm::vec3(20.f, -20.f, 30.f));
@@ -53,7 +55,7 @@ void PlaneSim::setupScene() {
                    "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
 
     // Add a directional light
-    mWorldManager.getGraphicsManager().addLight<DirectionalLight>(
+    mGraphicsWorldManagerPtr->addLight<DirectionalLight>(
         glm::vec3(1., 1., 1.),    // Color
         glm::vec3(10., 10., 10.), // Position
         glm::vec3(-1., -1., -1.), // Direction
@@ -120,6 +122,11 @@ void PlaneSim::setupScene() {
     auto springForcePtr =
         mWorldManager.getPhysicsManager().addForce<SpringForceGenerator>(spherePtr->getRigidBody(), 5., 0.5, 0.5);
     mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, springForcePtr);
+
+    // Add an observer that makes the camera follow the object
+    auto cameraTrackPlaneObs =
+        mWorldManager.addObserver<CameraFollowPlaneObserver>(mCameraPtr, sphere2Ptr->getPosition());
+    sphere2Ptr->registerObserver(cameraTrackPlaneObs);
 }
 
 void PlaneSim::setupApplication() {
@@ -135,9 +142,10 @@ void PlaneSim::setupApplication() {
     mInputHandler.addKeyboardHandler(&mCameraKeyboardInputHandler);
     mInputHandler.addMouseHandler(&mCameraMouseInputHandler);
     mInputHandler.addScrollHandler(&mCameraScrollInputHandler);
+    mInputHandler.addGamepadHandler(&mCameraGamepadInputHandler);
 
     // Pass the list of lights to the renderer, to configure the lighting shader
-    mRenderer.configureLights(mWorldManager.getGraphicsManager().getListOfLights());
+    mRenderer.configureLights(mGraphicsWorldManagerPtr->getListOfLights());
 }
 
 void PlaneSim::updateScene() {
@@ -150,8 +158,8 @@ void PlaneSim::updateScene() {
     mView = mCameraPtr->getViewMatrix();
 
     // Update the skymap
-    mWorldManager.getGraphicsManager().getSkymap()->setViewProjection(mView, mProjection);
-    mWorldManager.getGraphicsManager().getSkymap()->setCameraPosition(mCameraPtr->getPosition());
+    mGraphicsWorldManagerPtr->getSkymap()->setViewProjection(mView, mProjection);
+    mGraphicsWorldManagerPtr->getSkymap()->setCameraPosition(mCameraPtr->getPosition());
 }
 
 void PlaneSim::renderDeferred() {

@@ -119,7 +119,7 @@ protected:
     glm::vec3 mPositionVelocity;
 
     // This is a constant
-    glm::vec3 mWorldUp;
+    glm::vec3 mWorldUpNormalized;
 
     void updateInfluences(float deltaTime);
 
