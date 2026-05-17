@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "glm/gtx/quaternion.hpp"
+#include "src/geometry.h"
 
 Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::vec3 rotationAxis) {
     mTransform.position = position;
@@ -33,6 +34,17 @@ void Entity::registerObserver(std::shared_ptr<IEntityObserver> observer) {
     // This implicitly converts the shared_ptr to weak_ptr
     mObservers.push_back(observer);
 }
+
+void Entity::setObject(GLGeometry::GLElemObject *geometry, GLBase::Material *material) {
+    mGraphicsObject.setObject(geometry, material);
+}
+void Entity::addObject(GLGeometry::GLElemObject *geometry, GLBase::Material *material) {
+    mGraphicsObject.addObject(geometry, material);
+}
+
+void Entity::setGeometry(GLGeometry::GLElemObject *geometry) { mGraphicsObject.setGeometry(geometry); }
+
+void Entity::setMaterial(GLBase::Material *material) { mGraphicsObject.setMaterial(material); }
 
 void Entity::setPosition(glm::vec3 position) {
     mTransform.position = position;
@@ -79,10 +91,8 @@ void Entity::integrate(float deltaTime) {
 }
 
 void Entity::updateModelMatrix() {
-    mTransform.modelMatrix = glm::mat4(1.f);
-    mTransform.modelMatrix = glm::translate(mTransform.modelMatrix, mTransform.position);
-    mTransform.modelMatrix = mTransform.modelMatrix * glm::toMat4(mTransform.orientation);
-    mTransform.modelMatrix = glm::scale(mTransform.modelMatrix, mTransform.scale);
+    mTransform.modelMatrix =
+        Utils::computeModelMatrix(mTransform.position, glm::toMat4(mTransform.orientation), mTransform.scale);
 
     if (mCollider) {
         mCollider->moveCollider(mTransform.modelMatrix);

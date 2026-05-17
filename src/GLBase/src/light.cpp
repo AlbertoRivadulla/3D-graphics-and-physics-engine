@@ -184,7 +184,7 @@ void DirectionalLight::computeLightSpaceMatrix(const Camera &camera,
 
 // Method to compute the shadow map
 void DirectionalLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLGeometry::GraphicsObject> &objectsWithShadow) {
+    const Camera &camera, const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
     // Check if the frustums have not been computed yet
     if (mShadowCascadeDistances[0] < -100.) {
         // Get the near and far plane from the camera
@@ -229,8 +229,8 @@ void DirectionalLight::computeShadowMap(
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Draw each object in the scene
-    for (auto object : objectsWithShadow) {
-        object.drawWithoutMaterial(mShadowShader);
+    for (auto *object : objectsWithShadow) {
+        object->drawWithoutMaterial(mShadowShader);
     }
 }
 
@@ -409,7 +409,7 @@ void SpotLight::computeLightSpaceMatrix() {
 
 // Method to compute the shadow map
 void SpotLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLGeometry::GraphicsObject> &objectsWithShadow) {
+    const Camera &camera, const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
     // Compute the light space matrix
     computeLightSpaceMatrix();
 
@@ -432,8 +432,8 @@ void SpotLight::computeShadowMap(
     // // Set face culling to the front faces
     // glCullFace(GL_FRONT);
     // Draw each object in the scene
-    for (auto object : objectsWithShadow) {
-        object.drawWithoutMaterial(mShadowShader);
+    for (auto *object : objectsWithShadow) {
+        object->drawWithoutMaterial(mShadowShader);
     }
     // // Restore face culling
     // glCullFace(GL_BACK);
@@ -540,7 +540,7 @@ void PointLight::setupShadowMap() {}
 
 // Method to compute the shadow map
 void PointLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLGeometry::GraphicsObject> &objectsWithShadow) {
+    const Camera &camera, const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
 
     // TODO: Implement
 

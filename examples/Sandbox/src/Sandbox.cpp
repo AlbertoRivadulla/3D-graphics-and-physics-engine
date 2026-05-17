@@ -38,8 +38,7 @@ void GLSandbox::setupScene() {
 
     // Skymap with textures
     mGraphicsWorldManagerPtr->addSkymap<GLCubemap>();
-    mGraphicsWorldManagerPtr->getSkymap()->setupWithTextures(std::string(BASE_DIR_RESOURCES) +
-                                                                      "/textures/skybox");
+    mGraphicsWorldManagerPtr->getSkymap()->setupWithTextures(std::string(BASE_DIR_RESOURCES) + "/textures/skybox");
 
     // Set the position of the camera
     // mCameraPtr->setPosition(glm::vec3(0.f, 0.f, 5.f));
@@ -58,20 +57,20 @@ void GLSandbox::setupScene() {
                                    std::string(BASE_DIR_SHADERS) + "/GLBase/defGeometryPassFragmentWithTextures.glsl"));
 
     // Add a directional light
-    mGraphicsWorldManagerPtr->addLight<DirectionalLight>(
-        glm::vec3(1., 1., 1.),    // Color
-        glm::vec3(10., 10., 10.), // Position
-        glm::vec3(-1., -1., -1.), // Direction
-        1.f, 0.f, 0.f             // Intensity, attenuation linear, attenuation quadratic
+    mGraphicsWorldManagerPtr->addLight<DirectionalLight>(glm::vec3(1., 1., 1.),    // Color
+                                                         glm::vec3(10., 10., 10.), // Position
+                                                         glm::vec3(-1., -1., -1.), // Direction
+                                                         1.f, 0.f,
+                                                         0.f // Intensity, attenuation linear, attenuation quadratic
     );
 
     // Add a spotlight
     mGraphicsWorldManagerPtr->addLight<SpotLight>(glm::vec3(1., 0., 1.),                // Color
-                                                           glm::vec3(3., 6., 10.),               // Position
-                                                           glm::vec3(-1., -1., 0.),              // Direction
-                                                           glm::radians(60.), glm::radians(90.), // Angles
-                                                           7.,                                   // Intensity
-                                                           0.05, 0.1 // Attenuation linear, attenuation quadratioc
+                                                  glm::vec3(3., 6., 10.),               // Position
+                                                  glm::vec3(-1., -1., 0.),              // Direction
+                                                  glm::radians(60.), glm::radians(90.), // Angles
+                                                  7.,                                   // Intensity
+                                                  0.05, 0.1 // Attenuation linear, attenuation quadratioc
     );
 
     // Add some point lights
@@ -140,17 +139,21 @@ void GLSandbox::setupScene() {
     // Objects with physics
     // -------------------------------------------------------------------------
 
+    auto *sphereGeometryPtr = mGraphicsWorldManagerPtr->addGeometryObject<GLSphere>(16);
+    auto *cylinderGeometryPtr = mGraphicsWorldManagerPtr->addGeometryObject<GLCylinder>(16);
+    auto *cubeGeometryPtr = mGraphicsWorldManagerPtr->addGeometryObject<GLCube>();
+
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
+    auto *materialSphTexturesPtr =
+        mGraphicsWorldManagerPtr->addMaterial<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
+    materialSphTexturesPtr->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
     auto sphere = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
-    sphere->addGeometry<GLSphere>(16);
+    sphere->setGeometry(sphereGeometryPtr);
+    sphere->setMaterial(materialSphTexturesPtr);
     sphere->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
     sphere->addCollider<SphereCollider>();
-    auto materialSphTextures = std::make_unique<MaterialWithTextures>(mGPassShaders[1], glm::vec3(1., 0., 0.), 0.1);
-    materialSphTextures->loadAlbedoTexture(std::string(BASE_DIR_RESOURCES) + "/textures/world_8k.jpg");
-    sphere->addMaterial(std::move(materialSphTextures));
-
     Entity *spherePtr = mWorldManager.addEntity(std::move(sphere));
 
     // Add gravity and a drag force to this object
@@ -161,13 +164,14 @@ void GLSandbox::setupScene() {
     // Add a sphere
     // The arguments of the constructor are position, scale, rotation angle,
     // rotation axis, mass, initial velocity
+    auto *materialSph2Ptr =
+        mGraphicsWorldManagerPtr->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
     auto sphere2 = std::make_unique<Entity>(glm::vec3(0., 2., 0.), glm::vec3(1., 1., 1.), glm::degrees(45.f),
                                             glm::vec3(1., 0., 0.));
-    sphere2->addGeometry<GLSphere>(16);
+    sphere2->setGeometry(sphereGeometryPtr);
+    sphere2->setMaterial(materialSph2Ptr);
     sphere2->addRigidBody<RigidBody>(1.f, InertiaTensors::sphere(1., 1.), glm::vec3(0., 0., 0.));
     sphere2->addCollider<SphereCollider>();
-    sphere2->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 1., 0.), 0.1);
-
     Entity *sphere2Ptr = mWorldManager.addEntity(std::move(sphere2));
 
     mWorldManager.getPhysicsManager().registerBodyGravity(sphere2Ptr);
@@ -183,22 +187,25 @@ void GLSandbox::setupScene() {
     // mWorldManager.getPhysicsManager().registerBodyForce(sphere2Ptr, bungeeForcePtr);
 
     // Add a cylinder
+    auto *materialCylinderPtr =
+        mGraphicsWorldManagerPtr->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 0., 1.), 0.1);
     auto cylinder = std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 1.), glm::degrees(45.f),
                                              glm::vec3(1., 0., 0.));
-    cylinder->addGeometry<GLCylinder>(16);
+    cylinder->setGeometry(cylinderGeometryPtr);
+    cylinder->setMaterial(materialCylinderPtr);
     cylinder->addRigidBody<RigidBody>(1., InertiaTensors::cylinder(1., 1., 1.), glm::vec3(0., 1., 0.));
     cylinder->addCollider<SphereCollider>();
-    cylinder->addMaterial<Material>(mGPassShaders[0], glm::vec3(0., 0., 1.), 0.1);
-    // Entity *cylinderPtr = mWorldManager.addEntity(std::move(cylinder));
     mWorldManager.addEntity(std::move(cylinder));
 
     // Add a cube
+    auto *materialCubePtr =
+        mGraphicsWorldManagerPtr->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
     auto cube = std::make_unique<Entity>(glm::vec3(0., 5., -1.), glm::vec3(1., 1., 1.), 0.f, glm::vec3(1., 0., 0.));
-    cube->addGeometry<GLCube>();
+    cube->setGeometry(cubeGeometryPtr);
     cube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(5., 0., 0.),
                                   glm::vec3(1.5, 1.5, 0.));
-    cube->addCollider<ConvexCollider>(cube->getGeometry());
-    cube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 0., 0.), 0.1);
+    cube->addCollider<ConvexCollider>(cubeGeometryPtr);
+    cube->setMaterial(materialCubePtr);
     mWorldManager.addEntity(std::move(cube));
 
     // Add a particle system
@@ -210,13 +217,15 @@ void GLSandbox::setupScene() {
     mWorldManager.addParticleSystem(std::move(particleSystem));
 
     // Add another cube that is controlled by the user
+    auto *materialControlledCubePtr =
+        mGraphicsWorldManagerPtr->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 1., 0.), 0.1);
     auto controlledCube =
         std::make_unique<Entity>(glm::vec3(0., 5., 0.), glm::vec3(1., 1., 2.), 0.f, glm::vec3(1., 0., 0.));
-    controlledCube->addGeometry<GLCube>();
+    controlledCube->setGeometry(cubeGeometryPtr);
     controlledCube->addRigidBody<RigidBody>(1., InertiaTensors::box(1., 1., 1., 1.), glm::vec3(0., 0., 0.),
                                             glm::vec3(0., 0., 0.));
-    controlledCube->addCollider<ConvexCollider>(controlledCube->getGeometry());
-    controlledCube->addMaterial<Material>(mGPassShaders[0], glm::vec3(1., 1., 0.), 0.1);
+    controlledCube->addCollider<ConvexCollider>(cubeGeometryPtr);
+    controlledCube->setMaterial(materialControlledCubePtr);
     auto controlledCubePtr = mWorldManager.addEntity(std::move(controlledCube));
 
     mObjectController = SandboxObjectController(controlledCubePtr);
@@ -226,9 +235,9 @@ void GLSandbox::setupScene() {
     auto cubeDragForcePtr = mWorldManager.getPhysicsManager().addForce<DragForceGenerator>(0.1, 0.005, 0.1, 0.02);
     mWorldManager.getPhysicsManager().registerBodyForce(controlledCubePtr, cubeDragForcePtr);
 
-    // // Add a test observer for this object
-    // auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
-    // controlledCubePtr->registerObserver(controlledCubeObs);
+    // Add a test observer for this object
+    auto controlledCubeObs = mWorldManager.addObserver<PrintPositionEntityObserver>("Controlled cube");
+    controlledCubePtr->registerObserver(controlledCubeObs);
 
     // Add an observer that makes the camera follow the object
     auto cameraTrackCubeObs =

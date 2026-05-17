@@ -38,6 +38,13 @@ public:
 
     void registerObserver(std::shared_ptr<IEntityObserver> observer);
 
+    void setObject(GLGeometry::GLElemObject *geometry, GLBase::Material *material);
+    void addObject(GLGeometry::GLElemObject *geometry, GLBase::Material *material);
+
+    void setGeometry(GLGeometry::GLElemObject *geometry);
+
+    void setMaterial(GLBase::Material *material);
+
     void setPosition(glm::vec3 position);
 
     void setScale(glm::vec3 scale);

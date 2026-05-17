@@ -78,12 +78,9 @@ struct Material {
     }
 
     virtual void configShaderWithModelMatrix(const glm::mat4 &modelMatrix) {
-        shader->use();
-        shader->setMat4("model", modelMatrix);
+        configShader();
 
-        shader->setVec3("material.albedo", albedo);
-        shader->setFloat("material.spec", spec);
-        shader->setFloat("material.emissive", emissive);
+        shader->setMat4("model", modelMatrix);
     }
 
     virtual void setShaderModelMatrix(const glm::mat4 &modelMatrix) { shader->setMat4("model", modelMatrix); }
@@ -214,6 +211,12 @@ struct MaterialWithTextures : Material {
         }
         shader->setBool("material.hasTexAlbedo", hasTexAlbedo);
         shader->setBool("hasTexNormal", hasTexNormal);
+    }
+
+    void configShaderWithModelMatrix(const glm::mat4 &modelMatrix) override {
+        configShader();
+
+        shader->setMat4("model", modelMatrix);
     }
 };
 } // namespace GLBase

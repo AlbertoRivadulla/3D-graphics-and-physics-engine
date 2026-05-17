@@ -235,7 +235,7 @@ void DeferredRenderer::startFrame() {
 
 // Method to compute the shadow maps
 void DeferredRenderer::computeShadowMaps(const Camera &camera, std::vector<std::unique_ptr<Light>> &lightsWithShadow,
-                                         const std::vector<GLGeometry::GraphicsObject> &objectsWithShadow) {
+                                         const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
     // Set face culling to the front faces
     // glCullFace(GL_FRONT);
 

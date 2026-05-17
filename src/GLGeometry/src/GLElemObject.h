@@ -3,6 +3,7 @@
 
 #include "GLObject.h"
 #include "mesh.h"
+#include "utils.h"
 
 namespace GLGeometry {
 class GLElemObject : public GLObject {
@@ -73,17 +74,10 @@ struct GLObjectWithTransform {
 
     void setModelMatrix(const glm::vec3 &translation, const float &rotationAngle, const glm::vec3 &rotationAxis,
                         const glm::vec3 &scale) {
-        modelMatrix = glm::mat4(1.f);
-        modelMatrix = glm::translate(modelMatrix, translation);
-        if (rotationAngle != 0.)
-            modelMatrix = glm::rotate(modelMatrix, rotationAngle, glm::normalize(rotationAxis));
-        modelMatrix = glm::scale(modelMatrix, scale);
+        modelMatrix = Utils::computeModelMatrix(translation, rotationAngle, rotationAxis, scale);
     }
     void setModelMatrix(const glm::vec3 &translation, const glm::mat4 &rotationMatrix, const glm::vec3 &scale) {
-        modelMatrix = glm::mat4(1.f);
-        modelMatrix = glm::translate(modelMatrix, translation);
-        modelMatrix = modelMatrix * rotationMatrix;
-        modelMatrix = glm::scale(modelMatrix, scale);
+        modelMatrix = Utils::computeModelMatrix(translation, rotationMatrix, scale);
     }
 
     void setModelMatrix(const glm::mat4 &modelMatrixVal) { modelMatrix = modelMatrixVal; }

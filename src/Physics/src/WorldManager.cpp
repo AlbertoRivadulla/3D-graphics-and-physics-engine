@@ -68,14 +68,14 @@ void WorldManager::registerParticleSystemInManagers(ParticleSystem *particleSyst
     mPhysicsManager.registerParticleSystem(particleSystem);
 
     if (particleSystem->hasGeometry()) {
-        mGraphicsManager.registerObjectAndMaterial(particleSystem->getGeometry(), particleSystem->getMaterial());
+        mGraphicsManager.registerRawObject(particleSystem->getGeometry());
     }
 }
 
 void WorldManager::registerTerrainInManagers(Terrain *terrain) {
     mPhysicsManager.registerTerrain(terrain);
 
-    mGraphicsManager.registerTerrainAndMaterial(mTerrain->getTerrainPatch(), mTerrain->getMaterial());
+    mGraphicsManager.registerTerrain(mTerrain->getGraphicsObjectPtr());
 }
 
 } // namespace Physics

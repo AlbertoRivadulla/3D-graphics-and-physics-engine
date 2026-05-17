@@ -20,8 +20,6 @@ ParticleSystem::ParticleSystem(Shader &shader, glm::vec3 position, glm::vec3 sca
     if (std::fabs(rotationAngle) > 1e-6f) {
         mTransform.orientation = glm::angleAxis(rotationAngle, rotationAxis);
     }
-
-    mMaterial = std::make_unique<GLBase::Material>(shader, glm::vec3(0.f, 0.f, 0.f), 0.f);
 }
 
 // Set the geometry of a single particle
@@ -63,9 +61,7 @@ void ParticleSystem::addParticle(glm::vec3 velocity, glm::vec3 scale, float maxA
 
 GLGeometry::GLElemObject *ParticleSystem::getGeometry() { return mParticleSystemGL.get(); }
 
-GLBase::Material *ParticleSystem::getMaterial() { return mMaterial.get(); }
-
-bool ParticleSystem::hasGeometry() { return mParticleSystemGL && mMaterial; }
+bool ParticleSystem::hasGeometry() { return mParticleSystemGL != nullptr; }
 
 void ParticleSystem::integrate(float deltaTime) {
     if (mParticleCount < 100)

@@ -11,7 +11,7 @@ public:
     void buildAndRegisterInManager(Physics::WorldManager &worldManager, Shader &shaderRef);
 
 private:
-    Entity *mEntityPtr;
+    // Entity *mEntityPtr;
 
 
 

@@ -1,5 +1,4 @@
 #include "GraphicsWorldManager.h"
-#include "GLCubemap.h"
 
 namespace GLGeometry {
 
@@ -19,13 +18,16 @@ void GraphicsWorldManager::registerGraphicsObject(GraphicsObject *graphicsObject
     mGraphicsObjects.push_back(graphicsObject);
 }
 
-void GraphicsWorldManager::registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch,
-                                                      GLBase::Material *material) {
-    mTerrain.setObject(terrainPatch, material);
+void GraphicsWorldManager::registerRawObject(GLGeometry::GLElemObject *elemObject) {
+    mRawObjects.push_back(elemObject);
 }
 
-Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
-    Light *raw = light.get();
+void GraphicsWorldManager::registerTerrain(GraphicsObject *terrain) {
+    mTerrain = terrain;
+}
+
+GLBase::Light *GraphicsWorldManager::addLight(std::unique_ptr<GLBase::Light> light) {
+    GLBase::Light *raw = light.get();
     mLights.push_back(std::move(light));
 
     return raw;
@@ -37,11 +39,16 @@ void GraphicsWorldManager::draw() const {
     // TODO: Delegate this in a terrain drawer class, that will handle drawing different terrain patches depending on
     // the camera frustum
 
-    if (mTerrain.hasGeometry()) {
-        mTerrain.draw();
+    if (mTerrain->hasGeometry()) {
+        mTerrain->draw();
     }
 
-    for (auto object : mGraphicsObjects) {
+    // This draws in particular the particle systems
+    for (auto *object : mRawObjects) {
+        object->draw();
+    }
+
+    for (auto *object : mGraphicsObjects) {
         object->draw();
     }
 }

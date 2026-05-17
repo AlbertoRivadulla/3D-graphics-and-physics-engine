@@ -1,7 +1,8 @@
 #ifndef GLCUBEMAP_H
 #define GLCUBEMAP_H
 
-#include "GLGeometry.h"
+#include "GLElemObject.h"
+
 
 using namespace GLBase;
 
