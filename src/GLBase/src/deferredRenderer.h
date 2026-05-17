@@ -3,6 +3,7 @@
 
 #include "GLBase.h"
 #include "GLGeometry.h"
+#include "GraphicsObject.h"
 #include <memory>
 
 namespace GLBase {
@@ -38,7 +39,7 @@ public:
 
     // Method to compute the shadow maps
     void computeShadowMaps(const Camera &camera, std::vector<std::unique_ptr<Light>> &lightsWithShadow,
-                           const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
+                           const std::vector<GLGeometry::GraphicsObject> &objectsWithShadow);
 
     // Method to call to start the geometry pass
     void startGeometryPass();

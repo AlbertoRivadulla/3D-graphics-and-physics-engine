@@ -31,7 +31,7 @@ public:
     void setCameraPosition(const glm::vec3 &cameraPosition);
     void setSunPosition(float phi, float theta);
 
-    void draw(GLBase::Shader *shader = nullptr) override;
+    void draw() override;
 
 private:
     // VAO and VBO for the screen quad

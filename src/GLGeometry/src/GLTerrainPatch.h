@@ -1,8 +1,8 @@
 #ifndef GLTERRAINPATCH_H
 #define GLTERRAINPATCH_H
 
-#include "GLGeometry.h"
 #include "GLElemObject.h"
+#include "mesh.h"
 
 namespace Physics {
 class Terrain;
@@ -31,7 +31,7 @@ public:
     GLTerrainPatch();
     GLTerrainPatch(unsigned char *data, int width, int height, int nChannels);
 
-    void draw(GLBase::Shader *shader);
+    void draw() override;
 };
 
 class GLTerrainTessellated : public GLTerrainPatch {
@@ -46,7 +46,7 @@ public:
     GLTerrainTessellated(int width, int height);
 
     // Function to render
-    void draw(GLBase::Shader *shader) override;
+    void draw() override;
 };
 
 } // namespace GLGeometry

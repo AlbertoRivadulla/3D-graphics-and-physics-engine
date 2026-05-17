@@ -14,14 +14,6 @@ Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::ve
 
 Entity::~Entity() {}
 
-GLGeometry::GLElemObject *Entity::addGeometry(std::unique_ptr<GLGeometry::GLElemObject> geometry) {
-    mGeometryObject = std::move(geometry);
-
-    updateModelMatrix();
-
-    return mGeometryObject.get();
-}
-
 Physics::Collider *Entity::addCollider(std::unique_ptr<Physics::Collider> collider) {
     mCollider = std::move(collider);
 
@@ -36,8 +28,6 @@ Physics::RigidBody *Entity::addRigidBody(std::unique_ptr<Physics::RigidBody> rig
 
     return mRigidBody.get();
 }
-
-void Entity::addMaterial(std::unique_ptr<GLBase::Material> material) { mMaterial = std::move(material); }
 
 void Entity::registerObserver(std::shared_ptr<IEntityObserver> observer) {
     // This implicitly converts the shared_ptr to weak_ptr
@@ -69,15 +59,14 @@ void Entity::setRotation(float angle, glm::vec3 axis) {
 glm::vec3 Entity::getPosition() const { return mTransform.position; }
 glm::quat Entity::getOrientation() const { return mTransform.orientation; }
 
+GLGeometry::GraphicsObject *Entity::getGraphicsObject() { return &mGraphicsObject; }
 Physics::Collider *Entity::getCollider() { return mCollider.get(); }
 Physics::RigidBody *Entity::getRigidBody() { return mRigidBody.get(); }
 Physics::RigidBody *Entity::getRigidBody() const { return mRigidBody.get(); }
-GLGeometry::GLElemObject *Entity::getGeometry() { return mGeometryObject.get(); }
-GLBase::Material *Entity::getMaterial() { return mMaterial.get(); }
 
-bool Entity::hasPhysics() { return mCollider || mRigidBody; }
+bool Entity::hasPhysics() const { return mCollider || mRigidBody; }
 
-bool Entity::hasGeometry() { return mGeometryObject && mMaterial; }
+bool Entity::hasGeometry() const { return mGraphicsObject.hasGeometry(); }
 
 void Entity::integrate(float deltaTime) {
     if (mRigidBody) {
@@ -99,8 +88,8 @@ void Entity::updateModelMatrix() {
         mCollider->moveCollider(mTransform.modelMatrix);
     }
 
-    if (mGeometryObject) {
-        mGeometryObject->setModelMatrix(mTransform.modelMatrix);
+    if (mGraphicsObject.hasGeometry()) {
+        mGraphicsObject.setModelMatrix(mTransform.modelMatrix);
     }
 }
 

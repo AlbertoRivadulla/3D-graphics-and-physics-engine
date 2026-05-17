@@ -42,7 +42,7 @@ public:
     void addParticle(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale,
                      float maxAge, std::unique_ptr<GLBase::Material> material);
 
-    void draw(GLBase::Shader *shader);
+    void draw();
 
 private:
     std::list<std::unique_ptr<GLParticle>> mParticles;

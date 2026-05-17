@@ -60,7 +60,7 @@ void WorldManager::registerEntityInManagers(Entity *entity) {
     }
 
     if (entity->hasGeometry()) {
-        mGraphicsManager.registerObjectAndMaterial(entity->getGeometry(), entity->getMaterial());
+        mGraphicsManager.registerGraphicsObject(entity->getGraphicsObject());
     }
 }
 

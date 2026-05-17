@@ -15,7 +15,7 @@ private:
 public:
     GLCube();
 
-    void draw(GLBase::Shader *shader);
+    void draw();
 };
 } // namespace GLGeometry
 

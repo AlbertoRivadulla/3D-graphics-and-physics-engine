@@ -1,6 +1,8 @@
 #include "GLTerrainPatch.h"
 #include "utils.h"
 
+using namespace GLBase;
+
 namespace GLGeometry {
 //==============================
 // Methods of GLTerrainPatch
@@ -98,11 +100,7 @@ GLTerrainPatch::GLTerrainPatch(unsigned char *data, int width, int height,
     glBindVertexArray(0);
 }
 
-void GLTerrainPatch::draw(GLBase::Shader *shader) {
-    if (shader) {
-        shader->setMat4("model", mModelMatrix);
-    }
-
+void GLTerrainPatch::draw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mHeightmapTex);
     glActiveTexture(GL_TEXTURE1);
@@ -189,9 +187,7 @@ GLTerrainTessellated::GLTerrainTessellated(int width, int height)
 }
 
 // Function to render
-void GLTerrainTessellated::draw(GLBase::Shader *shader) {
-    shader->setMat4("model", mModelMatrix);
-
+void GLTerrainTessellated::draw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mHeightmapTex);
     glActiveTexture(GL_TEXTURE1);

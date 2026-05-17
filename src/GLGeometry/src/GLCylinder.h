@@ -22,7 +22,7 @@ private:
 public:
     GLCylinder(int nrVerticesCircle);
 
-    void draw(GLBase::Shader *shader);
+    void draw();
 };
 } // namespace GLGeometry
 

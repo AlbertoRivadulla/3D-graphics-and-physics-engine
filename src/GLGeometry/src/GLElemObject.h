@@ -2,7 +2,6 @@
 #define GLOBJECTELEMENTARY_H
 
 #include "GLObject.h"
-#include "shader.h"
 #include "mesh.h"
 
 namespace GLGeometry {
@@ -17,9 +16,6 @@ protected:
     // Data of the mesh
     std::vector<GLBase::Vertex> mVertices;
 
-    // Model matrix
-    glm::mat4 mModelMatrix;
-
 public:
     // Constructor
     GLElemObject()
@@ -33,36 +29,7 @@ public:
         // glGenBuffers(1, &mEBO);
     }
 
-    // Destructor
     virtual ~GLElemObject() = default;
-
-    // Function to set the model matrix
-    void setModelMatrix(const glm::vec3 &translation,
-                        const float &rotationAngle,
-                        const glm::vec3 &rotationAxis, const glm::vec3 &scale) {
-        mModelMatrix = glm::mat4(1.f);
-        mModelMatrix = glm::translate(mModelMatrix, translation);
-        if (rotationAngle != 0.)
-            mModelMatrix =
-                glm::rotate(mModelMatrix, rotationAngle,
-                            glm::normalize(rotationAxis));
-        mModelMatrix = glm::scale(mModelMatrix, scale);
-    }
-    void setModelMatrix(const glm::vec3 &translation,
-                        const glm::mat4 &rotationMatrix,
-                        const glm::vec3 &scale) {
-        mModelMatrix = glm::mat4(1.f);
-        mModelMatrix = glm::translate(mModelMatrix, translation);
-        mModelMatrix = mModelMatrix * rotationMatrix;
-        mModelMatrix = glm::scale(mModelMatrix, scale);
-    }
-
-    void setModelMatrix(const glm::mat4 &modelMatrix) {
-        mModelMatrix = modelMatrix;
-    }
-
-    // Function to read the model matrix
-    glm::mat4 getModelMatrix() { return mModelMatrix; }
 
     // Function to get the positions of the vertices
     std::vector<glm::vec3> getVertices() {
@@ -97,12 +64,32 @@ public:
     GLObjectPlaceholder() {}
 
     // Function to render
-    void draw(GLBase::Shader *) {}
+    void draw() {}
 };
 
-struct GLObjectWithMaterial {
-    GLGeometry::GLElemObject *object = nullptr;
-    GLBase::Material *material = nullptr;
+struct GLObjectWithTransform {
+    GLElemObject *object = nullptr;
+    glm::mat4 modelMatrix = glm::mat4(1.f);
+
+    void setModelMatrix(const glm::vec3 &translation, const float &rotationAngle, const glm::vec3 &rotationAxis,
+                        const glm::vec3 &scale) {
+        modelMatrix = glm::mat4(1.f);
+        modelMatrix = glm::translate(modelMatrix, translation);
+        if (rotationAngle != 0.)
+            modelMatrix = glm::rotate(modelMatrix, rotationAngle, glm::normalize(rotationAxis));
+        modelMatrix = glm::scale(modelMatrix, scale);
+    }
+    void setModelMatrix(const glm::vec3 &translation, const glm::mat4 &rotationMatrix, const glm::vec3 &scale) {
+        modelMatrix = glm::mat4(1.f);
+        modelMatrix = glm::translate(modelMatrix, translation);
+        modelMatrix = modelMatrix * rotationMatrix;
+        modelMatrix = glm::scale(modelMatrix, scale);
+    }
+
+    void setModelMatrix(const glm::mat4 &modelMatrixVal) { modelMatrix = modelMatrixVal; }
+
+    // Function to read the model matrix
+    const glm::mat4 &getModelMatrix() const { return modelMatrix; }
 };
 
 } // namespace GLGeometry

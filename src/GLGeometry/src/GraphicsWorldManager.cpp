@@ -3,14 +3,25 @@
 
 namespace GLGeometry {
 
-void GraphicsWorldManager::registerObjectAndMaterial(GLGeometry::GLElemObject *object, GLBase::Material *material) {
-    mGraphicsObjects.push_back({object, material});
+GLGeometry::GLElemObject *GraphicsWorldManager::addGeometryObject(std::unique_ptr<GLGeometry::GLElemObject> geometry) {
+    mElemenObjects.push_back(std::move(geometry));
+
+    return mElemenObjects.back().get();
+}
+
+GLBase::Material *GraphicsWorldManager::addMaterial(std::unique_ptr<GLBase::Material> material) {
+    mMaterials.push_back(std::move(material));
+
+    return mMaterials.back().get();
+}
+
+void GraphicsWorldManager::registerGraphicsObject(GraphicsObject *graphicsObject) {
+    mGraphicsObjects.push_back(graphicsObject);
 }
 
 void GraphicsWorldManager::registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch,
                                                       GLBase::Material *material) {
-    mTerrain.object = terrainPatch;
-    mTerrain.material = material;
+    mTerrain.setObject(terrainPatch, material);
 }
 
 Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
@@ -22,19 +33,16 @@ Light *GraphicsWorldManager::addLight(std::unique_ptr<Light> light) {
 
 void GraphicsWorldManager::addSkymap(std::unique_ptr<GLCubemap> skymap) { mSkymap = std::move(skymap); }
 
-void GraphicsWorldManager::draw() {
+void GraphicsWorldManager::draw() const {
     // TODO: Delegate this in a terrain drawer class, that will handle drawing different terrain patches depending on
     // the camera frustum
-    if (mTerrain.object != nullptr) {
-        mTerrain.material->configShader();
 
-        mTerrain.object->draw(mTerrain.material->shader);
+    if (mTerrain.hasGeometry()) {
+        mTerrain.draw();
     }
 
     for (auto object : mGraphicsObjects) {
-        object.material->configShader();
-
-        object.object->draw(object.material->shader);
+        object->draw();
     }
 }
 

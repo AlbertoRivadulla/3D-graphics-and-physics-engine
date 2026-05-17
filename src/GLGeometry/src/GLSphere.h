@@ -20,7 +20,7 @@ private:
 public:
     GLSphere(int nrVertices);
 
-    void draw(GLBase::Shader *shader);
+    void draw();
 };
 } // namespace GLGeometry
 

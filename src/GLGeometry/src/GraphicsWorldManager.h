@@ -4,12 +4,33 @@
 #include <memory>
 #include <vector>
 #include "GLBase.h"
+#include "GLElemObject.h"
 #include "GLTerrainPatch.h"
+#include "GraphicsObject.h"
 
 namespace GLGeometry {
 
 class GraphicsWorldManager {
 public:
+    template <typename T, typename... Args> GLGeometry::GLElemObject *addGeometryObject(Args &&...args) {
+        static_assert(std::is_base_of<GLGeometry::GLElemObject, T>::value,
+                      "T must derive from GLGeometry::GLElemObject");
+
+        mElemenObjects.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+
+        return mElemenObjects.back().get();
+    }
+    GLGeometry::GLElemObject *addGeometryObject(std::unique_ptr<GLGeometry::GLElemObject>);
+
+    template <typename T, typename... Args> GLBase::Material *addMaterial(Args &&...args) {
+        static_assert(std::is_base_of<GLBase::Material, T>::value, "T must derive from GLBase::Material");
+
+        mMaterials.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+
+        return mMaterials.back().get();
+    }
+    GLBase::Material *addMaterial(std::unique_ptr<GLBase::Material>);
+
     template <typename T, typename... Args> GLBase::Camera *setupCamera(Args &&...args) {
         static_assert(std::is_base_of<GLBase::Camera, T>::value, "T must derive from GLBase::Camera");
 
@@ -20,7 +41,7 @@ public:
 
     GLBase::Camera *getCamera() { return mCamera.get(); }
 
-    void registerObjectAndMaterial(GLGeometry::GLElemObject *object, GLBase::Material *material);
+    void registerGraphicsObject(GraphicsObject *graphicsObject);
 
     void registerTerrainAndMaterial(GLGeometry::GLTerrainPatch *terrainPatch, GLBase::Material *material);
 
@@ -40,24 +61,28 @@ public:
     }
     void addSkymap(std::unique_ptr<GLCubemap> skymap);
 
-    std::vector<GLObjectWithMaterial> &getListOfObjects() { return mGraphicsObjects; }
+    std::vector<GraphicsObject *> &getListOfObjects() { return mGraphicsObjects; }
 
     std::vector<std::unique_ptr<Light>> &getListOfLights() { return mLights; }
 
     GLCubemap *getSkymap() { return mSkymap.get(); }
 
-    void draw();
+    void draw() const;
 
 private:
     std::unique_ptr<GLBase::Camera> mCamera;
 
-    std::vector<GLObjectWithMaterial> mGraphicsObjects;
+    std::vector<std::unique_ptr<GLGeometry::GLElemObject>> mElemenObjects;
+
+    std::vector<std::unique_ptr<GLBase::Material>> mMaterials;
+
+    std::vector<GraphicsObject *> mGraphicsObjects;
 
     std::vector<std::unique_ptr<Light>> mLights;
 
     std::unique_ptr<GLCubemap> mSkymap;
 
-    GLObjectWithMaterial mTerrain;
+    GraphicsObject mTerrain;
 };
 
 } // namespace GLGeometry

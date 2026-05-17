@@ -16,7 +16,7 @@ private:
 public:
     GLQuad();
 
-    void draw(GLBase::Shader *shader);
+    void draw();
 };
 } // namespace GLGeometry
 

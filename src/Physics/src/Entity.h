@@ -6,6 +6,7 @@
 #include "RigidBody.h"
 #include "Transform.h"
 #include "interfaces.h"
+#include "GraphicsObject.h"
 
 // Class for objects with collisions
 class Entity {
@@ -13,19 +14,6 @@ public:
     Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::vec3 rotationAxis);
 
     ~Entity();
-
-    // Add geometrical object, and copy it to the list of elementary objects of
-    // the GLSandbox class
-    template <typename T, typename... Args> GLGeometry::GLElemObject* addGeometry(Args &&...args) {
-        static_assert(std::is_base_of<GLGeometry::GLElemObject, T>::value, "T must derive from GLGeometry::GLElemObject");
-
-        mGeometryObject = std::make_unique<T>(std::forward<Args>(args)...);
-
-        updateModelMatrix();
-
-        return mGeometryObject.get();
-    }
-    GLGeometry::GLElemObject* addGeometry(std::unique_ptr<GLGeometry::GLElemObject>);
 
     template <typename T, typename... Args> Physics::Collider *addCollider(Args &&...args) {
         static_assert(std::is_base_of<Physics::Collider, T>::value, "T must derive from Physics::Collider");
@@ -38,7 +26,7 @@ public:
     }
     Physics::Collider *addCollider(std::unique_ptr<Physics::Collider>);
 
-    template <typename T, typename... Args> Physics::RigidBody* addRigidBody(Args &&...args) {
+    template <typename T, typename... Args> Physics::RigidBody *addRigidBody(Args &&...args) {
         static_assert(std::is_base_of<Physics::RigidBody, T>::value, "T must derive from Physics::RigidBody");
 
         mRigidBody = std::make_unique<T>(std::forward<Args>(args)...);
@@ -46,14 +34,7 @@ public:
 
         return mRigidBody.get();
     }
-    Physics::RigidBody* addRigidBody(std::unique_ptr<Physics::RigidBody>);
-
-    template <typename T, typename... Args> void addMaterial(Args &&...args) {
-        static_assert(std::is_base_of<GLBase::Material, T>::value, "T must derive from GLBase::Material");
-
-        mMaterial = std::make_unique<T>(std::forward<Args>(args)...);
-    }
-    void addMaterial(std::unique_ptr<GLBase::Material>);
+    Physics::RigidBody *addRigidBody(std::unique_ptr<Physics::RigidBody>);
 
     void registerObserver(std::shared_ptr<IEntityObserver> observer);
 
@@ -66,27 +47,24 @@ public:
     glm::vec3 getPosition() const;
     glm::quat getOrientation() const;
 
+    GLGeometry::GraphicsObject *getGraphicsObject();
     Physics::Collider *getCollider();
     Physics::RigidBody *getRigidBody();
     Physics::RigidBody *getRigidBody() const;
-    GLGeometry::GLElemObject *getGeometry();
-    GLBase::Material *getMaterial();
 
-    bool hasPhysics();
-    bool hasGeometry();
+    bool hasPhysics() const;
+    bool hasGeometry() const;
 
     void integrate(float deltaTime);
 
 protected:
     Physics::Transform mTransform;
 
+    GLGeometry::GraphicsObject mGraphicsObject;
+
     std::unique_ptr<Physics::Collider> mCollider;
 
     std::unique_ptr<Physics::RigidBody> mRigidBody;
-
-    std::unique_ptr<GLGeometry::GLElemObject> mGeometryObject;
-
-    std::unique_ptr<GLBase::Material> mMaterial;
 
     std::vector<std::weak_ptr<IEntityObserver>> mObservers;
 

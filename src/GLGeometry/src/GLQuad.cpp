@@ -68,9 +68,7 @@ GLQuad::GLQuad() : mEBO{0}, mIndices(6) {
     glBindVertexArray(0);
 }
 
-void GLQuad::draw(GLBase::Shader *shader) {
-    shader->setMat4("model", mModelMatrix);
-
+void GLQuad::draw() {
     // Disable face culling for drawing the plane
     glDisable(GL_CULL_FACE);
     // Draw the quad
