@@ -5,7 +5,7 @@
 
 namespace GLGeometry {
 
-GraphicsObject::GraphicsObject() : mData{ObjectWithMaterial()}, mGlobalModelMatrixComposed(glm::mat4(1.f)) {}
+GraphicsObject::GraphicsObject() : mData{ObjectWithMaterial()}, mGlobalModelMatrix(glm::mat4(1.f)) {}
 
 bool GraphicsObject::hasGeometry() const {
     if (auto *item = std::get_if<ObjectWithMaterial>(&mData)) {
@@ -38,7 +38,7 @@ ObjectWithMaterial *GraphicsObject::addObject(GLElemObject *object, GLBase::Mate
         mData = std::move(vec);
 
     } else {
-        mData = std::vector<ObjectWithMaterial>{ObjectWithMaterial{object, material}};
+        std::get<std::vector<ObjectWithMaterial>>(mData).push_back(ObjectWithMaterial{object, material});
     }
 
     return &std::get<std::vector<ObjectWithMaterial>>(mData).back();
@@ -57,16 +57,16 @@ void GraphicsObject::setGeometry(size_t index, GLGeometry::GLElemObject *geometr
 }
 
 void GraphicsObject::setGlobalModelMatrix(const glm::mat4 &transformMatrix) {
-    mGlobalModelMatrixComposed = transformMatrix;
+    mGlobalModelMatrix = transformMatrix;
 }
 
 void GraphicsObject::setGlobalModelMatrix(const glm::vec3 &translation, const float &rotationAngle,
                                           const glm::vec3 &rotationAxis, const glm::vec3 &scale) {
-    mGlobalModelMatrixComposed = Utils::computeModelMatrix(translation, rotationAngle, rotationAxis, scale);
+    mGlobalModelMatrix = Utils::computeModelMatrix(translation, rotationAngle, rotationAxis, scale);
 }
 void GraphicsObject::setGlobalModelMatrix(const glm::vec3 &translation, const glm::mat4 &rotationMatrix,
                                           const glm::vec3 &scale) {
-    mGlobalModelMatrixComposed = Utils::computeModelMatrix(translation, rotationMatrix, scale);
+    mGlobalModelMatrix = Utils::computeModelMatrix(translation, rotationMatrix, scale);
 }
 
 void GraphicsObject::setMaterial(GLBase::Material *material) {
@@ -91,21 +91,21 @@ void GraphicsObject::drawWithoutMaterial(GLBase::Shader *shader) const {
 }
 
 void GraphicsObject::drawImpl(const ObjectWithMaterial &object) const {
-    object.configureShader(object.objectWithTransform.getModelMatrix());
+    object.configureShader(mGlobalModelMatrix);
 
     object.objectWithTransform.object->draw();
 }
 
 void GraphicsObject::drawImpl(const std::vector<ObjectWithMaterial> &objects) const {
     for (auto &component : objects) {
-        component.configureShader(component.objectWithTransform.getModelMatrix() * mGlobalModelMatrixComposed);
+        component.configureShader(mGlobalModelMatrix * component.objectWithTransform.getModelMatrix());
 
         component.objectWithTransform.object->draw();
     }
 }
 
 void GraphicsObject::drawWithoutMaterialImpl(const ObjectWithMaterial &object, GLBase::Shader *shader) const {
-    shader->setMat4("model", object.objectWithTransform.getModelMatrix());
+    shader->setMat4("model", mGlobalModelMatrix);
 
     object.objectWithTransform.object->draw();
 }
@@ -113,7 +113,8 @@ void GraphicsObject::drawWithoutMaterialImpl(const ObjectWithMaterial &object, G
 void GraphicsObject::drawWithoutMaterialImpl(const std::vector<ObjectWithMaterial> &objects,
                                              GLBase::Shader *shader) const {
     for (auto &component : objects) {
-        shader->setMat4("model", component.objectWithTransform.getModelMatrix() * mGlobalModelMatrixComposed);
+        // shader->setMat4("model", component.objectWithTransform.getModelMatrix() * mGlobalModelMatrix);
+        shader->setMat4("model", mGlobalModelMatrix * component.objectWithTransform.getModelMatrix());
 
         component.objectWithTransform.object->draw();
     }

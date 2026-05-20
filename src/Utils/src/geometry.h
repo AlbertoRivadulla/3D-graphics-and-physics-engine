@@ -7,6 +7,8 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "logger.h"
+
 namespace Utils {
 
 inline float wrapAngle(float angle) {
@@ -24,6 +26,7 @@ inline glm::vec3 sphericalToCartesian(float yaw, float pitch, float distance) {
 
 inline glm::mat4 computeModelMatrix(const glm::vec3 &translation, const float &rotationAngle,
                                     const glm::vec3 &rotationAxis, const glm::vec3 &scale) {
+    LOG_INFO("Scale " << printVector(scale))
     auto modelMatrix = glm::mat4(1.f);
     modelMatrix = glm::translate(modelMatrix, translation);
     if (rotationAngle != 0.)

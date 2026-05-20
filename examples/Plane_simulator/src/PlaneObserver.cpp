@@ -7,7 +7,7 @@ CameraFollowPlaneObserver::CameraFollowPlaneObserver(GLBase::Camera *cameraPtr, 
     //  damping = 2 * sqrt(stiffness)
     mCamera->setTrackingParameters(10.f, 1.f, 50.f, 15.f, 100.f, 20.f);
 
-    mCameraDistance = 5.f;
+    mCameraDistance = 7.f;
     mCameraHeight = 1.f;
 
     glm::vec3 lookAtDirection = glm::vec3(0., 0., 1.);
@@ -42,5 +42,12 @@ void CameraFollowPlaneObserver::onEntityUpdated(const Entity &entity, float delt
         glm::vec3 upDirection = entity.getOrientation() * glm::vec3(0., 1., 0.);
         mCamera->setOrbitTarget(currObjectPos, lookAtDirection, upDirection, 1.f);
 
+    } else {
+        glm::vec3 lookAtDirection = entity.getPosition() - mCamera->getPosition();
+        glm::vec3 upDirection = entity.getOrientation() * glm::vec3(0., 1., 0.);
+
+        // mCamera->setTargetDistance(mCameraDistance, 0.);
+
+        mCamera->setOrbitTarget(currObjectPos, lookAtDirection, upDirection, 0.f);
     }
 }

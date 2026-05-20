@@ -5,6 +5,8 @@
 #include <vector>
 #include "shader.h"
 #include "GLElemObject.h"
+#include "src/geometry.h"
+#include "src/logger.h"
 
 namespace GLGeometry {
 
@@ -45,16 +47,27 @@ public:
     void setMaterial(GLBase::Material *material);
     void setMaterial(size_t index, GLBase::Material *material);
 
-    template <typename... Args> void setModelMatrix(Args &&...args) {
-        assert(std::holds_alternative<ObjectWithMaterial>(mData));
+    void setModelMatrix(glm::mat4 &modelMatrix) { mGlobalModelMatrix = modelMatrix; }
 
-        std::get<ObjectWithMaterial>(mData).objectWithTransform.setModelMatrix(std::forward<Args>(args)...);
+    void setModelMatrix(const glm::mat4 &modelMatrix) { mGlobalModelMatrix = modelMatrix; }
+
+    void setModelMatrix(size_t index, const glm::mat4 &modelMatrix) {
+        assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
+
+        std::get<std::vector<ObjectWithMaterial>>(mData)[index].objectWithTransform.setModelMatrix(modelMatrix);
     }
+
     template <typename... Args> void setModelMatrix(size_t index, Args &&...args) {
         assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
 
         std::get<std::vector<ObjectWithMaterial>>(mData)[index].objectWithTransform.setModelMatrix(
             std::forward<Args>(args)...);
+    }
+
+    template <typename... Args> void setModelMatrix(Args &&...args) {
+        assert(std::holds_alternative<ObjectWithMaterial>(mData));
+
+        mGlobalModelMatrix = Utils::computeModelMatrix(std::forward<Args>(args)...);
     }
 
     void draw() const;
@@ -64,7 +77,7 @@ public:
 private:
     std::variant<ObjectWithMaterial, std::vector<ObjectWithMaterial>> mData;
 
-    glm::mat4 mGlobalModelMatrixComposed;
+    glm::mat4 mGlobalModelMatrix;
 
     void drawImpl(const ObjectWithMaterial &object) const;
     void drawImpl(const std::vector<ObjectWithMaterial> &objects) const;

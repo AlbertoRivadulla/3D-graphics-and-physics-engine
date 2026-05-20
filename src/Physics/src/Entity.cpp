@@ -11,6 +11,8 @@ Entity::Entity(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::ve
     if (std::fabs(rotationAngle) > 1e-6f) {
         mTransform.orientation = glm::angleAxis(rotationAngle, rotationAxis);
     }
+
+    updateModelMatrix();
 }
 
 Entity::~Entity() {}
