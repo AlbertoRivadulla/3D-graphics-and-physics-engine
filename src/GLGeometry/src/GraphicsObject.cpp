@@ -49,7 +49,7 @@ void GraphicsObject::setGeometry(GLGeometry::GLElemObject *geometry) {
 
     std::get<ObjectWithMaterial>(mData).objectWithTransform.object = geometry;
 }
-void GraphicsObject::setGeometry(size_t index, GLGeometry::GLElemObject *geometry) {
+void GraphicsObject::setGeometryAt(size_t index, GLGeometry::GLElemObject *geometry) {
     assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
 
     auto &vec = std::get<std::vector<ObjectWithMaterial>>(mData);
@@ -75,7 +75,7 @@ void GraphicsObject::setMaterial(GLBase::Material *material) {
     std::get<ObjectWithMaterial>(mData).material = material;
 }
 
-void GraphicsObject::setMaterial(size_t index, GLBase::Material *material) {
+void GraphicsObject::setMaterialAt(size_t index, GLBase::Material *material) {
     assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
 
     auto &vec = std::get<std::vector<ObjectWithMaterial>>(mData);

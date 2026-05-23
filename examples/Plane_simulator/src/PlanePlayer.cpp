@@ -12,29 +12,14 @@ void PlanePlayer::buildAndRegisterInManager(Physics::WorldManager &worldManager,
     testEntity->addObject(cubeGeometryPtr, material1Ptr);
     testEntity->addObject(cubeGeometryPtr, material2Ptr);
     auto *graphicsObject = testEntity->getGraphicsObject();
-    // FIX: The template should be resolved for any integer in the first position, not only size_t
-    // FIX: Unify the order of arguments with e.g. the constructor of Entity
-    graphicsObject->setModelMatrix((size_t)0, glm::vec3(1., 0., 0.), 0.f, glm::vec3(0., 0., 1.), glm::vec3(1., 2., 1.));
-    graphicsObject->setModelMatrix((size_t)1, glm::vec3(-1., 0., 0.), 45.f, glm::vec3(0., 1., 1.), glm::vec3(1., 1., 2.));
+    graphicsObject->setModelMatrixAt(0, glm::vec3(1., 0., 0.), 0.f, glm::vec3(0., 0., 1.), glm::vec3(1., 2., 1.));
+    graphicsObject->setModelMatrixAt(1, glm::vec3(-1., 0., 0.), 45.f, glm::vec3(0., 1., 1.), glm::vec3(1., 1., 2.));
 
     testEntity->addRigidBody<Physics::RigidBody>(1., Physics::InertiaTensors::box(1., 1., 1., 1.), glm::vec3(0., 0., 0.),
                                              glm::vec3(0., 0., 0.));
 
     mEntityPtr = worldManager.addEntity(std::move(testEntity));
 
-    //
-    // auto geometryObject = std::make_unique<GLComposedObject>();
-    // auto cube1 =
-    //     geometryObject->addComponent<GLCube>(glm::vec3(-1., 0., 0.), glm::vec3(1., 2., 1.), 0.f, glm::vec3(0., 0., 1.));
-    // auto cube2 =
-    //     geometryObject->addComponent<GLCube>(glm::vec3(+1., 0., 0.), glm::vec3(1., 1., 2.), 45.f, glm::vec3(0., 0., 1.));
-    //
-    // entity->addGeometry(std::move(geometryObject));
-    //
-    // entity->addRigidBody<Physics::RigidBody>(1., Physics::InertiaTensors::box(1., 1., 1., 1.), glm::vec3(0., 0., 0.),
-    //                                          glm::vec3(0., 0., 0.));
-    // entity->addMaterial<Material>(shaderRef, glm::vec3(1., 1., 0.), 0.1);
-    // mEntityPtr = worldManager.addEntity(std::move(entity));
 
     // mObjectController = SandboxObjectController(mEntity);
 

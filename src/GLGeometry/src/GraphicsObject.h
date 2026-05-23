@@ -37,7 +37,7 @@ public:
     ObjectWithMaterial *addObject(GLGeometry::GLElemObject *object, GLBase::Material *material = nullptr);
 
     void setGeometry(GLGeometry::GLElemObject *geometry);
-    void setGeometry(size_t index, GLGeometry::GLElemObject *geometry);
+    void setGeometryAt(size_t index, GLGeometry::GLElemObject *geometry);
 
     void setGlobalModelMatrix(const glm::mat4 &transformMatrix);
     void setGlobalModelMatrix(const glm::vec3 &translation, const float &rotationAngle, const glm::vec3 &rotationAxis,
@@ -45,19 +45,19 @@ public:
     void setGlobalModelMatrix(const glm::vec3 &translation, const glm::mat4 &rotationMatrix, const glm::vec3 &scale);
 
     void setMaterial(GLBase::Material *material);
-    void setMaterial(size_t index, GLBase::Material *material);
+    void setMaterialAt(size_t index, GLBase::Material *material);
 
     void setModelMatrix(glm::mat4 &modelMatrix) { mGlobalModelMatrix = modelMatrix; }
 
     void setModelMatrix(const glm::mat4 &modelMatrix) { mGlobalModelMatrix = modelMatrix; }
 
-    void setModelMatrix(size_t index, const glm::mat4 &modelMatrix) {
+    void setModelMatrixAt(size_t index, const glm::mat4 &modelMatrix) {
         assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
 
         std::get<std::vector<ObjectWithMaterial>>(mData)[index].objectWithTransform.setModelMatrix(modelMatrix);
     }
 
-    template <typename... Args> void setModelMatrix(size_t index, Args &&...args) {
+    template <typename... Args> void setModelMatrixAt(size_t index, Args &&...args) {
         assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
 
         std::get<std::vector<ObjectWithMaterial>>(mData)[index].objectWithTransform.setModelMatrix(
