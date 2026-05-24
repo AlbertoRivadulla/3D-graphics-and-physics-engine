@@ -45,6 +45,25 @@ inline glm::mat4 computeModelMatrix(const glm::vec3 &translation, const glm::mat
     return modelMatrix;
 }
 
+inline glm::mat3 computeRotationMatrix(float angle, glm::vec3 &axis) {
+    return glm::mat3(glm::rotate(glm::mat4(1.f), angle, axis));
+}
+
+inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, float angle, glm::vec3 &axis) {
+    glm::mat3 R = glm::mat3(glm::rotate(glm::mat4(1.f), angle, axis));
+    return R * matrix * glm::transpose(R);
+}
+
+inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, const glm::quat &rotation) {
+    glm::mat3 R = glm::toMat3(rotation);
+
+    return R * matrix * glm::transpose(R);
+}
+
+inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, const glm::mat3 &rotation) {
+    return rotation * matrix * glm::transpose(rotation);
+}
+
 } // namespace Utils
 
 #endif

@@ -36,6 +36,10 @@ public:
     }
     Physics::RigidBody *addRigidBody(std::unique_ptr<Physics::RigidBody>);
 
+    template <typename... Args> void addRigidBodyComponent(Args &&...args) {
+        mRigidBody->addComponent(std::forward<Args>(args)...);
+    }
+
     void registerObserver(std::shared_ptr<IEntityObserver> observer);
 
     void setObject(GLGeometry::GLElemObject *geometry, GLBase::Material *material);
