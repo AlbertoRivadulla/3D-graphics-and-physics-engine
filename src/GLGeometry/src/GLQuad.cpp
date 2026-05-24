@@ -68,7 +68,6 @@ GLQuad::GLQuad() : mEBO{0}, mIndices(6) {
     glBindVertexArray(0);
 }
 
-// Function to render
 void GLQuad::draw() {
     // Disable face culling for drawing the plane
     glDisable(GL_CULL_FACE);

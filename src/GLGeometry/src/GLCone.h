@@ -20,10 +20,8 @@ private:
     int mNrVertices;
 
 public:
-    // Constructor
     GLCone(int nrVerticesCircle);
 
-    // Function to render
     void draw();
 };
 } // namespace GLGeometry

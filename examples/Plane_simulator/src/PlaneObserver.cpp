@@ -1,13 +1,13 @@
-#include "SandboxObserver.h"
+#include "PlaneObserver.h"
 #include <memory>
 
-CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr, const glm::vec3 &initialObjPos)
+CameraFollowPlaneObserver::CameraFollowPlaneObserver(GLBase::Camera *cameraPtr, const glm::vec3 &initialObjPos)
     : mCamera(dynamic_cast<GLBase::OrbitalCamera*>(cameraPtr)), mLastObjectPos(initialObjPos) {
     // Set the parameters of camera tracking to be over cricital damping,
     //  damping = 2 * sqrt(stiffness)
     mCamera->setTrackingParameters(10.f, 1.f, 50.f, 15.f, 100.f, 20.f);
 
-    mCameraDistance = 5.f;
+    mCameraDistance = 7.f;
     mCameraHeight = 1.f;
 
     glm::vec3 lookAtDirection = glm::vec3(0., 0., 1.);
@@ -21,15 +21,33 @@ CameraFollowEntityObserver::CameraFollowEntityObserver(GLBase::Camera *cameraPtr
     mCamera->lookAtDirection(lookAtDirection);
 }
 
-void CameraFollowEntityObserver::onEntityUpdated(const Entity &entity, float deltaTime) {
+void CameraFollowPlaneObserver::onEntityUpdated(const Entity &entity, float deltaTime) {
     const glm::vec3 &currObjectPos = entity.getPosition();
 
     if (glm::length(currObjectPos - mLastObjectPos) > 0.1f) {
+        // The second parameter is the object's influence in the camera's orientation.
+        // It would make sense if it depends on the object's velocity.
+        // glm::vec3 lookAtDirection = entity.getOrientation() * glm::vec3(0., 0., 1.);
+        // glm::vec3 lookAtDirection = entity.getRigidBody()->getVelocity();
+        // glm::vec3 upDirection = entity.getOrientation() * glm::vec3(0., 1., 0.);
+        // glm::vec3 lookAtDirection = glm::vec3(0., 0., 1.);
+        // glm::vec3 upDirection = glm::vec3(0., 1., 0.);
+        // mCamera->setOrbitTarget(currObjectPos, lookAtDirection, upDirection, 1.f);
+
+
         // The second parameter is the object's influence in the camera's orientation.
         // It would make sense if it depends on the object's velocity.
         glm::vec3 lookAtDirection = entity.getOrientation() * glm::vec3(0., 0., 1.);
         // glm::vec3 lookAtDirection = entity.getRigidBody()->getVelocity();
         glm::vec3 upDirection = entity.getOrientation() * glm::vec3(0., 1., 0.);
         mCamera->setOrbitTarget(currObjectPos, lookAtDirection, upDirection, 1.f);
+
+    } else {
+        glm::vec3 lookAtDirection = entity.getPosition() - mCamera->getPosition();
+        glm::vec3 upDirection = entity.getOrientation() * glm::vec3(0., 1., 0.);
+
+        // mCamera->setTargetDistance(mCameraDistance, 0.);
+
+        mCamera->setOrbitTarget(currObjectPos, lookAtDirection, upDirection, 0.f);
     }
 }

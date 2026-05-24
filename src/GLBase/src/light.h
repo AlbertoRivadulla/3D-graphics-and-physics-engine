@@ -5,6 +5,7 @@
 // #include "GLGeometry.h"
 #include "GLElemObject.h"
 #include "camera.h"
+#include "GraphicsObject.h"
 
 namespace GLBase {
 // Enum for the different types of lights
@@ -69,7 +70,7 @@ public:
     // This needs a list of objects, which should include their model matrix
     virtual void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow) = 0;
+        const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) = 0;
 
     // Method to pass the light to a shader
     virtual void
@@ -117,7 +118,7 @@ public:
     // Method to compute the shadow map
     void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
+        const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow);
 
     // Method to pass the light to a shader
     void configureShader(const Shader &lightingShader, Shader *shadowShader,
@@ -166,7 +167,7 @@ public:
     // Method to compute the shadow map
     void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
+        const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow);
 
     // Method to pass the light to a shader
     void configureShader(const Shader &lightingShader, Shader *shadowShader,
@@ -201,7 +202,7 @@ public:
     // Method to compute the shadow map
     void computeShadowMap(
         const Camera &camera,
-        const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
+        const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow);
 
     // Method to pass the light to a shader
     void configureShader(const Shader &lightingShader, Shader *shadowShader,

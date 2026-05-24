@@ -4,14 +4,27 @@
 // #include "GLBase.h"
 #include "Transform.h"
 #include "InertiaTensors.h"
+#include <vector>
 
 namespace Physics {
 
 // Class for objects with both collisions and dynamics
 class RigidBody {
+    struct RigidBodyComponent {
+
+        RigidBodyComponent(float mass, const glm::mat3 &inertiaTensor, const glm::vec3 &centerOfMass,
+                           const glm::mat3 &rotation)
+            : localInertiaTensor{inertiaTensor}, rotation{rotation}, centerOfMass{centerOfMass}, mass{mass} {}
+
+        glm::mat3 localInertiaTensor;
+        glm::mat3 rotation;
+        glm::vec3 centerOfMass;
+        float mass;
+    };
+
 public:
-    RigidBody(float mass, glm::mat3 inertiaTensor, glm::vec3 velocity = {0.f, 0.f, 0.f},
-              glm::vec3 angularVelocity = {0.f, 0.f, 0.f});
+    RigidBody(float mass, glm::mat3 inertiaTensor, glm::vec3 centerOfMass = {0.f, 0.f, 0.f},
+              glm::vec3 velocity = {0.f, 0.f, 0.f}, glm::vec3 angularVelocity = {0.f, 0.f, 0.f});
 
     void setTransformPtr(Transform *transform);
 
@@ -23,6 +36,16 @@ public:
     void setInvMass(float invMass);
 
     void setDamping(float damping);
+
+    // Add a new component to the rigid body. Takes care of composing intertia tensors and computing center of mass
+    //  - mass: mass of the new component
+    //  - inertiaTensor: the inertia tensor of the new component with respect to its center of mass, in the component's
+    //                   system of coordinates
+    //  - centerOfMass: the center of masss of the new component, in the system of coordinates of the entity
+    //  - rotationAngle, rotationAxis: the rotation to apply to the component's system of coordinates with respect to
+    //                                 the entity's
+    void addComponent(float mass, glm::mat3 inertiaTensor, glm::vec3 centerOfMass, float rotationAngle,
+                      glm::vec3 rotationAxis);
 
     float getMass() const;
     glm::vec3 getPosition() const;
@@ -48,6 +71,10 @@ protected:
     float mMass;
     float mInvMass;
 
+    glm::vec3 mCenterOfMass;
+
+    std::vector<RigidBodyComponent> mComponents;
+    glm::mat3 mInertiaTensorLocal;
     glm::mat3 mInvInertiaTensorLocal;
     glm::mat3 mInvInertiaTensorWorld;
 
@@ -60,6 +87,8 @@ protected:
 
     glm::vec3 mForceAccum;
     glm::vec3 mTorqueAccum;
+
+    void computeComposedProperties();
 
     void clearAccumulators();
 

@@ -1,8 +1,9 @@
 #ifndef DEFERREDRENDERER_H
 #define DEFERREDRENDERER_H
 
-#include "GLBase.h"
-#include "GLGeometry.h"
+#include "GraphicsObject.h"
+#include "GLCubemap.h"
+#include "camera.h"
 #include <memory>
 
 namespace GLBase {
@@ -38,7 +39,7 @@ public:
 
     // Method to compute the shadow maps
     void computeShadowMaps(const Camera &camera, std::vector<std::unique_ptr<Light>> &lightsWithShadow,
-                           const std::vector<GLGeometry::GLObjectWithMaterial> &objectsWithShadow);
+                           const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow);
 
     // Method to call to start the geometry pass
     void startGeometryPass();
@@ -50,7 +51,7 @@ public:
     void processGBuffer(glm::vec3 viewPos, std::vector<std::unique_ptr<Light>> &lights);
 
     // Method to call at the end of the frame
-    void endFrame(GLGeometry::GLCubemap *skyMap);
+    void endFrame(::GLGeometry::GLCubemap *skyMap);
     // void endFrame(GLGeometry::GLCubemap* skyMap, GLGeometry::GLAuxElements
     // auxElements);
 

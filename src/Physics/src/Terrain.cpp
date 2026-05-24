@@ -17,11 +17,12 @@ void Terrain::addPatchFromTexture(const std::string &heightmapTexPath, float hSc
     int width, height, nChannels;
     unsigned char *data = stbi_load(heightmapTexPath.c_str(), &width, &height, &nChannels, 0);
     // Generate the mesh
-    mTerrainPatch = std::make_unique<GLTerrainPatch>(data, width, height, nChannels);
+    mElemTerrainPatch = std::make_unique<GLTerrainPatch>(data, width, height, nChannels);
     stbi_image_free(data);
 
-    // Add a model matrix to the GLTerrainPatch
-    mTerrainPatch->setModelMatrix({0., yShift, 0.}, 0., {0., 0., 1.}, {hScale, vScale, hScale});
+    // Initialize the terrain patch
+    mTerrainPatch.setObject(mElemTerrainPatch.get());
+    mTerrainPatch.setModelMatrix(glm::vec3(0., yShift, 0.), 0., glm::vec3(0., 0., 1.), glm::vec3(hScale, vScale, hScale));
 
     // // Add this to the list of elementary objects
     // // This is needed for it to be considered when computing the shadow maps
@@ -29,10 +30,10 @@ void Terrain::addPatchFromTexture(const std::string &heightmapTexPath, float hSc
 }
 
 void Terrain::addPatchPlaneTessellated(float hScale, float vScale, float yShift) {
-    glGenTextures(1, &mTerrainPatch->mHeightmapTex);
+    glGenTextures(1, &mElemTerrainPatch->mHeightmapTex);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,
-                  mTerrainPatch->mHeightmapTex); // all upcoming GL_TEXTURE_2D operations now
+                  mElemTerrainPatch->mHeightmapTex); // all upcoming GL_TEXTURE_2D operations now
                                                  // have effect on this texture object
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -64,10 +65,11 @@ void Terrain::addPatchPlaneTessellated(float hScale, float vScale, float yShift)
 
     // Generate the base mesh.
     // This does not have the information of the height map
-    mTerrainPatch = std::make_unique<GLTerrainTessellated>(width, height);
+    mElemTerrainPatch = std::make_unique<GLTerrainTessellated>(width, height);
 
-    // Add a model matrix to the GLTerrainPatch
-    mTerrainPatch->setModelMatrix({0., yShift, 0.}, 0., {0., 0., 1.}, {hScale, vScale, hScale});
+    // Initialize the terrain patch
+    mTerrainPatch.setObject(mElemTerrainPatch.get());
+    mTerrainPatch.setModelMatrix(glm::vec3(0., yShift, 0.), 0., glm::vec3(0., 0., 1.), glm::vec3(hScale, vScale, hScale));
 
     // // Add this to the list of elementary objects
     // // This is needed for it to be considered when computing the shadow maps
@@ -103,12 +105,12 @@ void Terrain::addPatchFromTextureTessellated(const std::string &heightmapTexPath
 
         // Generate the base mesh.
         // This does not have the information of the height map
-        mTerrainPatch = std::make_unique<GLTerrainTessellated>(width, height);
+        mElemTerrainPatch = std::make_unique<GLTerrainTessellated>(width, height);
 
-        glGenTextures(1, &mTerrainPatch->mHeightmapTex);
+        glGenTextures(1, &mElemTerrainPatch->mHeightmapTex);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,
-                      mTerrainPatch->mHeightmapTex); // all upcoming GL_TEXTURE_2D operations now
+                      mElemTerrainPatch->mHeightmapTex); // all upcoming GL_TEXTURE_2D operations now
                                                      // have effect on this texture object
         // set the texture wrapping parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -136,20 +138,21 @@ void Terrain::addPatchFromTextureTessellated(const std::string &heightmapTexPath
     }
     stbi_image_free(data);
 
-    // Add a model matrix to the GLTerrainPatch
-    mTerrainPatch->setModelMatrix({0., yShift, 0.}, 0., {0., 0., 1.}, {hScale, vScale, hScale});
+    // Initialize the terrain patch
+    mTerrainPatch.setObject(mElemTerrainPatch.get());
+    mTerrainPatch.setModelMatrix(glm::vec3(0., yShift, 0.), 0., glm::vec3(0., 0., 1.), glm::vec3(hScale, vScale, hScale));
 }
 
 void Terrain::addPatchFromHeightDataTessellated(float *heightMapData, int width, int height, float hScale, float vScale,
                                                 float yShift) {
     // Generate the base mesh.
     // This does not have the information of the height map
-    mTerrainPatch = std::make_unique<GLTerrainTessellated>(width, height);
+    mElemTerrainPatch = std::make_unique<GLTerrainTessellated>(width, height);
 
-    glGenTextures(1, &mTerrainPatch->mHeightmapTex);
+    glGenTextures(1, &mElemTerrainPatch->mHeightmapTex);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,
-                  mTerrainPatch->mHeightmapTex); // all upcoming GL_TEXTURE_2D operations now
+                  mElemTerrainPatch->mHeightmapTex); // all upcoming GL_TEXTURE_2D operations now
                                                  // have effect on this texture object
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -184,8 +187,9 @@ void Terrain::addPatchFromHeightDataTessellated(float *heightMapData, int width,
     mTessellationShader.setInt("heightMap", 0);
     mTessellationShader.setInt("normalMap", 1);
 
-    // Add a model matrix to the GLTerrainPatch
-    mTerrainPatch->setModelMatrix({0., yShift, 0.}, 0., {0., 0., 1.}, {hScale, vScale, hScale});
+    // Initialize the terrain patch
+    mTerrainPatch.setObject(mElemTerrainPatch.get());
+    mTerrainPatch.setModelMatrix(glm::vec3(0., yShift, 0.), 0., glm::vec3(0., 0., 1.), glm::vec3(hScale, vScale, hScale));
 
     // // Add this to the list of elementary objects
     // // This is needed for it to be considered when computing the shadow maps
@@ -196,6 +200,8 @@ void Terrain::addMaterial(std::unique_ptr<GLBase::Material> material) {
     LOG_WARNING("Terrain::addMaterial should add the material to only one of "
                 "the terrain patches");
     mMaterial = std::move(material);
+
+    mTerrainPatch.setMaterial(mMaterial.get());
 }
 
 // Get the tessellation shader
@@ -247,9 +253,9 @@ void Terrain::computeNormalmapData(int width, int height, float hScale, float vS
     }
 
     // Setup the texture for the normal map
-    glGenTextures(1, &mTerrainPatch->mNormalmapTex);
+    glGenTextures(1, &mElemTerrainPatch->mNormalmapTex);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mTerrainPatch->mNormalmapTex);
+    glBindTexture(GL_TEXTURE_2D, mElemTerrainPatch->mNormalmapTex);
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

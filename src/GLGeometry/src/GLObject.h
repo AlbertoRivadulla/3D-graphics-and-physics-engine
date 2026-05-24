@@ -4,10 +4,6 @@
 namespace GLGeometry {
 class GLObject {
 public:
-    // Constructor
-    GLObject() {};
-
-    // Destructor
     virtual ~GLObject() = default;
 
     // Function to render

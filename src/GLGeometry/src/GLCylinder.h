@@ -20,10 +20,8 @@ private:
     int mNrVertices;
 
 public:
-    // Constructor
     GLCylinder(int nrVerticesCircle);
 
-    // Function to render
     void draw();
 };
 } // namespace GLGeometry

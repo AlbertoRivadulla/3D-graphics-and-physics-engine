@@ -36,15 +36,12 @@ public:
                      std::unique_ptr<Material> material);
 
     GLGeometry::GLElemObject *getGeometry();
-    GLBase::Material *getMaterial();
 
     bool hasGeometry();
 
     void integrate(float deltaTime);
 
 private:
-    std::unique_ptr<GLBase::Material> mMaterial;
-
     // Particle system object for the graphics
     std::unique_ptr<GLParticleSystem> mParticleSystemGL;
 

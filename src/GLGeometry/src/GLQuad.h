@@ -14,10 +14,8 @@ private:
     std::vector<unsigned int> mIndices;
 
 public:
-    // Constructor
     GLQuad();
 
-    // Function to render
     void draw();
 };
 } // namespace GLGeometry

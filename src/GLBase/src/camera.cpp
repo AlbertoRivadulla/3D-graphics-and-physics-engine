@@ -11,8 +11,8 @@ namespace GLBase {
 // Constructor with vector values
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float roll)
     : mPosition{position}, mYaw{yaw}, mPitch{pitch}, mRoll{roll}, mYawVelocity{0.f}, mPitchVelocity{0.f},
-      mRollVelocity{0.f}, mPositionVelocity(glm::vec3(0.f, 0.f, 0.f)), mWorldUp{up}, mWidth{width}, mHeight{height},
-      mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mFront{glm::vec3(0., 0., -1.)},
+      mRollVelocity{0.f}, mPositionVelocity(glm::vec3(0.f, 0.f, 0.f)), mWorldUpNormalized{glm::normalize(up)},
+      mWidth{width}, mHeight{height}, mNear{0.1}, mFar{100.}, mFov{FOV_DEFAULT}, mFront{glm::vec3(0., 0., -1.)},
       mOrthoHalfWidth{3.f * (float)width / (float)height}, mOrthoHalfHeight{3.f}, mIsOrthographic{false} {
     mObjectTargetPosition = mPosition;
 
@@ -206,10 +206,10 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::computeRightUpVectors() {
-    mUp = glm::angleAxis(mRoll, mFront) * mWorldUp;
+    mUp = glm::angleAxis(mRoll, mFront) * mWorldUpNormalized;
     mRight = glm::normalize(glm::cross(mFront, mUp));
 
-    // mRight = glm::normalize(glm::cross(mFront, mWorldUp));
+    // mRight = glm::normalize(glm::cross(mFront, mWorldUpNormalized));
     // mUp = glm::normalize(glm::cross(mRight, mFront));
 }
 
@@ -286,19 +286,23 @@ void OrbitalCamera::setTargetDistance(float targetDistance, float verticalPositi
 
 void OrbitalCamera::setOrbitTarget(glm::vec3 targetPosition, glm::vec3 targetForward, glm::vec3 targetUp,
                                    float objectTargetInfluence) {
-    glm::vec3 direction = glm::normalize(targetForward);
+    glm::vec3 forward = glm::normalize(targetForward);
 
-    mObjectTargetYaw = atan2f(direction.z, direction.x);
-    mObjectTargetPitch = glm::clamp(asinf(direction.y), -89.f, 89.f);
+    mObjectTargetYaw = atan2f(forward.z, forward.x);
+    mObjectTargetPitch = glm::clamp(asinf(forward.y), -89.f, 89.f);
     mObjectTargetInfluence = objectTargetInfluence;
 
     // Compute target roll from the given up vector
-    glm::vec3 forward = glm::normalize(direction);
-    glm::vec3 right = glm::normalize(glm::cross(forward, mWorldUp));
-    mObjectTargetRoll = atan2f(glm::dot(targetUp, right), glm::dot(targetUp, mWorldUp));
+    if (abs(glm::dot(forward, mWorldUpNormalized)) > 0.999f) {
+        mObjectTargetRoll = 0.f;
+    } else {
+        glm::vec3 right = glm::normalize(glm::cross(forward, mWorldUpNormalized));
+        mObjectTargetRoll = atan2f(glm::dot(targetUp, right), glm::dot(targetUp, mWorldUpNormalized));
+    }
 
-    glm::vec3 displTargetPosition = targetPosition + glm::vec3(0., mVerticalPositionOffset, 0.);
+    glm::vec3 displTargetPosition = targetPosition + mVerticalPositionOffset * mWorldUpNormalized;
     mDistanceToObject = glm::length(displTargetPosition - mPosition);
+
     setPositionTarget(displTargetPosition);
 }
 
@@ -361,7 +365,8 @@ float OrbitalCamera::springTowardsTargetOrbital(float deltaTime) {
     // Distance spring
     float distAccel = (mTargetDistance - mDistanceToObject) * mPositionStiffness - mDistanceVelocity * mPositionDamping;
     mDistanceVelocity += distAccel * deltaTime;
-    return mDistanceToObject + mDistanceVelocity * deltaTime;
+
+    return glm::clamp(mDistanceToObject + mDistanceVelocity * deltaTime, mTargetDistance, 2 * mTargetDistance);
 }
 
 } // namespace GLBase

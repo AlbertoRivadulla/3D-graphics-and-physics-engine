@@ -18,10 +18,8 @@ private:
     int mNrVertices;
 
 public:
-    // Constructor
     GLSphere(int nrVertices);
 
-    // Function to render
     void draw();
 };
 } // namespace GLGeometry

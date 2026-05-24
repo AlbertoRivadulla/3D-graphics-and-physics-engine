@@ -1,9 +1,9 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include "GLBase.h"
 #include "GLGeometry.h"
 #include "GLTerrainPatch.h"
+#include "GraphicsObject.h"
 
 using namespace GLGeometry;
 using namespace GLBase;
@@ -29,7 +29,8 @@ public:
     }
     void addMaterial(std::unique_ptr<GLBase::Material>);
 
-    GLTerrainPatch *getTerrainPatch() { return mTerrainPatch.get(); }
+    GraphicsObject *getGraphicsObjectPtr() { return &mTerrainPatch; }
+    GLTerrainPatch *getTerrainPatch() { return mElemTerrainPatch.get(); }
     Material *getMaterial() { return mMaterial.get(); }
 
     // Get the tessellation shader
@@ -43,11 +44,11 @@ private:
     std::vector<float> mDataHeight;
     std::vector<float> mDataNormal;
 
-    // Material
     std::unique_ptr<Material> mMaterial;
 
-    // Terrain patch
-    std::unique_ptr<GLTerrainPatch> mTerrainPatch;
+    std::unique_ptr<GLTerrainPatch> mElemTerrainPatch;
+
+    GraphicsObject mTerrainPatch;
 
     // Shader for tessellation
     Shader mTessellationShader;

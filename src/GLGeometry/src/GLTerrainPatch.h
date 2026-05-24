@@ -1,8 +1,8 @@
 #ifndef GLTERRAINPATCH_H
 #define GLTERRAINPATCH_H
 
-#include "GLGeometry.h"
 #include "GLElemObject.h"
+#include "mesh.h"
 
 namespace Physics {
 class Terrain;
@@ -28,12 +28,10 @@ protected:
     unsigned int mNormalmapTex;
 
 public:
-    // Constructor
     GLTerrainPatch();
     GLTerrainPatch(unsigned char *data, int width, int height, int nChannels);
 
-    // Function to render
-    virtual void draw();
+    void draw() override;
 };
 
 class GLTerrainTessellated : public GLTerrainPatch {

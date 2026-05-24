@@ -1,7 +1,6 @@
 #ifndef GLCUBE_H
 #define GLCUBE_H
 
-#include "GLGeometry.h"
 #include "GLElemObject.h"
 
 using namespace GLBase;
@@ -14,10 +13,8 @@ private:
     std::vector<unsigned int> mIndices;
 
 public:
-    // Constructor
     GLCube();
 
-    // Function to render
     void draw();
 };
 } // namespace GLGeometry

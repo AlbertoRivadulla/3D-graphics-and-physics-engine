@@ -1,6 +1,8 @@
 #include "GLTerrainPatch.h"
 #include "utils.h"
 
+using namespace GLBase;
+
 namespace GLGeometry {
 //==============================
 // Methods of GLTerrainPatch
@@ -98,7 +100,6 @@ GLTerrainPatch::GLTerrainPatch(unsigned char *data, int width, int height,
     glBindVertexArray(0);
 }
 
-// Function to render
 void GLTerrainPatch::draw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mHeightmapTex);

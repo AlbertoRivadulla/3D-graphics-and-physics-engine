@@ -4,12 +4,11 @@ ObjectKeyboardInputHandler::ObjectKeyboardInputHandler(Physics::RigidBody *body)
 
 void ObjectKeyboardInputHandler::processInput(GLFWwindow *window, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-        mBody->addForceLocal(glm::vec3(10., 0., 0.));
+        mBody->addForceLocal(glm::vec3(0., 0., 10.));
     if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-        // mBody->addForceAtPointLocal(glm::vec3(5., 0., 0.), glm::vec3(0., 1., 0.));
-        mBody->addForceAtPointLocal(glm::vec3(3., 0., 0.), glm::vec3(0., 0.5, 0.));
+        mBody->addForceAtPointLocal(glm::vec3(0., 0., 3.), glm::vec3(0., 0.5, 0.));
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-        mBody->addForce(glm::vec3(10., 0., 0.));
+        mBody->addForce(glm::vec3(0., 0., 10.));
 }
 
 SandboxObjectController::SandboxObjectController(Entity *entity)
@@ -23,21 +22,21 @@ void ObjectGamepadInputHandler::processInput(float deltaTime) {
 
         if (glfwGetGamepadState(mGamepadID, &state)) {
             if (state.buttons[GLFW_GAMEPAD_BUTTON_CROSS]) {
-                mBody->addForceLocal(glm::vec3(0., 0., 10.));
+                mBody->addForceLocal(glm::vec3(0., 0., 20.));
             }
             if (state.buttons[GLFW_GAMEPAD_BUTTON_CIRCLE]) {
                 mBody->addForceAtPointLocal(glm::vec3(0., 0., 3.), glm::vec3(0., 0.5, 0.));
             }
             if (state.buttons[GLFW_GAMEPAD_BUTTON_SQUARE]) {
-                mBody->addForce(glm::vec3(0., 0., 10.));
+                mBody->addForce(glm::vec3(0., 0., 20.));
             }
 
             auto axesMoved = applyDeadZone(state.axes);
             if (axesMoved.rightTrigger) {
-                mBody->addForceLocal(mRightTrigger * glm::vec3(0., 0., 10.));
+                mBody->addForceLocal(mRightTrigger * glm::vec3(0., 0., 20.));
             }
             if (axesMoved.leftTrigger) {
-                mBody->addForceLocal(mLeftTrigger * glm::vec3(0., 0., -10.));
+                mBody->addForceLocal(mLeftTrigger * glm::vec3(0., 0., -20.));
             }
 
             if (axesMoved.leftJoystick) {
