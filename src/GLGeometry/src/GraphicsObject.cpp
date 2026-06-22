@@ -18,6 +18,14 @@ bool GraphicsObject::hasGeometry() const {
     return false;
 }
 
+int GraphicsObject::getCountObjects() const {
+    if (std::holds_alternative<ObjectWithMaterial>(mData)) {
+        return 1;
+    } else {
+        return std::get<std::vector<ObjectWithMaterial>>(mData).size();
+    }
+}
+
 ObjectWithMaterial *GraphicsObject::setObject(GLGeometry::GLElemObject *object, GLBase::Material *material) {
     // In both cases, mData should contain the single object given
     mData = ObjectWithMaterial{object, material};

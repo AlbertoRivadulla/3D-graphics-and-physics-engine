@@ -78,6 +78,8 @@ Physics::Collider *Entity::getCollider() { return mCollider.get(); }
 Physics::RigidBody *Entity::getRigidBody() { return mRigidBody.get(); }
 Physics::RigidBody *Entity::getRigidBody() const { return mRigidBody.get(); }
 
+int Entity::getCountGraphicsObjects() const { return mGraphicsObject.getCountObjects(); }
+
 bool Entity::hasPhysics() const { return mCollider || mRigidBody; }
 
 bool Entity::hasGeometry() const { return mGraphicsObject.hasGeometry(); }

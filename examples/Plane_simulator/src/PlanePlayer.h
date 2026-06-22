@@ -5,6 +5,14 @@
 #include "PlaneObserver.h"
 #include "AeroSurface.h"
 #include "PlaneConfig.h"
+#include <map>
+
+struct ControlSurfaceState {
+    glm::vec3 originalCenter;
+    glm::mat4 originalModelMatrix;
+    float rotationAngle;
+    size_t graphicsObjIdx;
+};
 
 class PlanePlayer {
 public:
@@ -13,13 +21,14 @@ public:
     void buildAndRegisterInManager(Physics::WorldManager &worldManager, Shader &shaderRef);
 
 private:
-    Entity *mEntityPtr;
-
     void setupPlaneGeometry(Entity *entity, Physics::WorldManager &worldManager, Shader &shaderRef);
+
+    void setupControllerAndObservers(Physics::WorldManager &worldManager);
 
     void setupForces(Physics::WorldManager &worldManager);
 
-    void setupControllerAndObservers(Physics::WorldManager &worldManager);
+    Entity *mEntityPtr;
+    std::map<PlaneComponentIndex, ControlSurfaceState> mControlSurfaceStates;
 
     // TODO: Add members
     //  - Controller (for user input)

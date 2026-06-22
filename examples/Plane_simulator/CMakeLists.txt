@@ -52,6 +52,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/PlanePlayer.cpp
     ${PROJECT_SOURCE_DIR}/src/PlaneObserver.cpp
     ${PROJECT_SOURCE_DIR}/src/AeroSurface.cpp
+    ${PROJECT_SOURCE_DIR}/src/PlaneController.cpp
 )
 
 add_executable(main ${SOURCES})

@@ -45,11 +45,11 @@ inline glm::mat4 computeModelMatrix(const glm::vec3 &translation, const glm::mat
     return modelMatrix;
 }
 
-inline glm::mat3 computeRotationMatrix(float angle, glm::vec3 &axis) {
+inline glm::mat3 computeRotationMatrix(float angle, const glm::vec3 &axis) {
     return glm::mat3(glm::rotate(glm::mat4(1.f), angle, axis));
 }
 
-inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, float angle, glm::vec3 &axis) {
+inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, float angle, const glm::vec3 &axis) {
     glm::mat3 R = glm::mat3(glm::rotate(glm::mat4(1.f), angle, axis));
     return R * matrix * glm::transpose(R);
 }
@@ -62,6 +62,24 @@ inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, const glm::quat &rotatio
 
 inline glm::mat3 rotateMatrix3(const glm::mat3 &matrix, const glm::mat3 &rotation) {
     return rotation * matrix * glm::transpose(rotation);
+}
+
+inline glm::mat4 rotateAroundPoint(const glm::mat4 &matrix, float angle, const glm::vec3 &axis, const glm::vec3 &point) {
+
+    glm::mat4 pivotRotation =
+        glm::translate(glm::mat4(1.0f), point) *
+        glm::rotate(glm::mat4(1.0f), angle, axis) *
+        glm::translate(glm::mat4(1.0f), -point);
+
+    glm::mat4 model = pivotRotation * matrix;
+    return model;
+
+
+
+    // glm::mat4 m = glm::translate(matrix, -point);
+    // m = glm::rotate(m, angle, axis);
+    // m = glm::translate(m, point);
+    // return m;
 }
 
 } // namespace Utils

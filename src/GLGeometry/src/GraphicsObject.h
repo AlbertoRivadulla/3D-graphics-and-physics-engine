@@ -32,6 +32,8 @@ public:
 
     bool hasGeometry() const;
 
+    int getCountObjects() const;
+
     ObjectWithMaterial *setObject(GLGeometry::GLElemObject *object, GLBase::Material *material = nullptr);
 
     ObjectWithMaterial *addObject(GLGeometry::GLElemObject *object, GLBase::Material *material = nullptr);
@@ -68,6 +70,15 @@ public:
         assert(std::holds_alternative<ObjectWithMaterial>(mData));
 
         mGlobalModelMatrix = Utils::computeModelMatrix(std::forward<Args>(args)...);
+    }
+
+    glm::mat4 getModelMatrix() const {
+        return mGlobalModelMatrix;
+    }
+
+    glm::mat4 getModelMatrixAt(size_t index) const {
+        assert(std::holds_alternative<std::vector<ObjectWithMaterial>>(mData));
+        return std::get<std::vector<ObjectWithMaterial>>(mData)[index].objectWithTransform.modelMatrix;
     }
 
     void draw() const;

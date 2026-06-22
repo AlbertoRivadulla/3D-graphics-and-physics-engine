@@ -63,6 +63,8 @@ public:
     Physics::RigidBody *getRigidBody();
     Physics::RigidBody *getRigidBody() const;
 
+    int getCountGraphicsObjects() const;
+
     bool hasPhysics() const;
     bool hasGeometry() const;
 
