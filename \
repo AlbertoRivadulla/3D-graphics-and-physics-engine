@@ -1,5 +1,4 @@
 #include "PlanePlayer.h"
-#include "PlaneConfig.h"
 #include <ranges>
 
 void PlanePlayer::buildAndRegisterInManager(Physics::WorldManager &worldManager, Shader &shaderRef) {
@@ -51,13 +50,10 @@ void PlanePlayer::setupPlaneGeometry(Entity *entity, Physics::WorldManager &worl
     );
 
     // Iterate over the rest of the elements
-    for (size_t i : std::views::iota(size_t(0), PlaneElementConfigs.size())) {
-        if (i == static_cast<size_t>(ComponentIndex::Fuselage)) {
+    for (auto [i, elementConf] : std::views::enumerate(componentParams) | std::views::drop(1)) {
+        if (i == ComponentIndex::Fuselage) {
             continue;
         }
-
-        const auto &elementConf = PlaneElementConfigs[i];
-
         entity->addObject(cubeGeometryPtr, i % 2 == 0 ? starboardWingsMaterial : portWingsMaterial);
         graphicsObject->setModelMatrixAt(i, elementConf.relativePos, elementConf.relativeRotationAngle,
                                          elementConf.relativeRotationAxis, elementConf.scale);
@@ -65,6 +61,25 @@ void PlanePlayer::setupPlaneGeometry(Entity *entity, Physics::WorldManager &worl
                                       elementConf.relativePos + elementConf.centerOfMassWrtRelativePos,
                                       elementConf.relativeRotationAngle, elementConf.relativeRotationAxis);
     }
+
+    // for (const auto &config : PlaneElementConfigs) {
+    //     entity->addObject(cubeGeometryPtr, materialWings);
+    //     graphicsObject->setModelMatrixAt(0, glm::vec3(1., 0., 0.), 0.f, glm::vec3(0., 0., 1.), glm::vec3(1., 2., 1.));
+    //     // entity->addRigidBody<Physics::RigidBody>(1., Physics::InertiaTensors::box(1., 2., 1., 1.), glm::vec3(1., 0., 0.),
+    //     //                                          glm::vec3(0., 0., 0.), glm::vec3(0., 0., 0.));
+    //
+    // }
+
+    entity->addObject(cubeGeometryPtr, materialWings);
+    graphicsObject->setModelMatrixAt(0, glm::vec3(1., 0., 0.), 0.f, glm::vec3(0., 0., 1.), glm::vec3(1., 2., 1.));
+    entity->addRigidBody<Physics::RigidBody>(1., Physics::InertiaTensors::box(1., 2., 1., 1.), glm::vec3(1., 0., 0.),
+                                             glm::vec3(0., 0., 0.), glm::vec3(0., 0., 0.));
+
+    entity->addObject(cubeGeometryPtr, materialBody);
+    graphicsObject->setModelMatrixAt(1, glm::vec3(-1., 0., 0.), 45.f, glm::vec3(0., 1., 1.), glm::vec3(1., 1., 2.));
+    entity->addRigidBodyComponent(2., Physics::InertiaTensors::box(2., 1., 1., 2.), glm::vec3(-1., 0., 0.), 45.f,
+                                  glm::vec3(0., 1., 1.));
+
 }
 
 void PlanePlayer::setupForces(Physics::WorldManager &worldManager) {

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Find the GLFW library, needed for rendering to the screen with OpenGL
 find_package(glfw3 3.3 REQUIRED)

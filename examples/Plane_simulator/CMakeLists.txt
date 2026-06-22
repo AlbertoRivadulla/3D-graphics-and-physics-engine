@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Obtain a file compile_commands.json used by ccls (through the plugin coc.nvim)
 # to provide code completion in Neovim
@@ -51,6 +51,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/PlaneSim.cpp
     ${PROJECT_SOURCE_DIR}/src/PlanePlayer.cpp
     ${PROJECT_SOURCE_DIR}/src/PlaneObserver.cpp
+    ${PROJECT_SOURCE_DIR}/src/AeroSurface.cpp
 )
 
 add_executable(main ${SOURCES})

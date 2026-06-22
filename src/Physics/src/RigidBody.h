@@ -37,7 +37,7 @@ public:
 
     void setDamping(float damping);
 
-    // Add a new component to the rigid body. Takes care of composing intertia tensors and computing center of mass
+    // Add a new component to the rigid body. Takes care of composing inertia tensors and computing center of mass
     //  - mass: mass of the new component
     //  - inertiaTensor: the inertia tensor of the new component with respect to its center of mass, in the component's
     //                   system of coordinates

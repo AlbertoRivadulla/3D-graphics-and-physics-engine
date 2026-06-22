@@ -3,6 +3,8 @@
 
 #include "WorldManager.h"
 #include "PlaneObserver.h"
+#include "AeroSurface.h"
+#include "PlaneConfig.h"
 
 class PlanePlayer {
 public:
@@ -13,7 +15,11 @@ public:
 private:
     Entity *mEntityPtr;
 
+    void setupPlaneGeometry(Entity *entity, Physics::WorldManager &worldManager, Shader &shaderRef);
 
+    void setupForces(Physics::WorldManager &worldManager);
+
+    void setupControllerAndObservers(Physics::WorldManager &worldManager);
 
     // TODO: Add members
     //  - Controller (for user input)
