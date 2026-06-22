@@ -7,8 +7,8 @@ CameraFollowPlaneObserver::CameraFollowPlaneObserver(GLBase::Camera *cameraPtr, 
     //  damping = 2 * sqrt(stiffness)
     mCamera->setTrackingParameters(10.f, 1.f, 50.f, 15.f, 100.f, 20.f);
 
-    mCameraDistance = 7.f;
-    mCameraHeight = 1.f;
+    mCameraDistance = 20.f;
+    mCameraHeight = 4.f;
 
     glm::vec3 lookAtDirection = glm::vec3(0., 0., 1.);
     glm::vec3 upDirection = glm::vec3(0., 1., 0.);

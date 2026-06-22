@@ -26,8 +26,7 @@ void PlanePlayer::setupPlaneGeometry(Entity *entity, Physics::WorldManager &worl
     //  - [ ] Register the entity in the world manager
     //  - [ ] Store the pointer to the entity in the PlaneSim class
 
-    // TODO: Build entities
-    // The local geometric origin is located in the center of the body (it is decoupled from the center of mass)
+    // The local geometric origin is located at the center of the body (it is decoupled from the center of mass)
 
     auto *cubeGeometryPtr = worldManager.getGraphicsManager().addGeometryObject<GLCube>();
     auto *portWingsMaterial =
@@ -42,9 +41,9 @@ void PlanePlayer::setupPlaneGeometry(Entity *entity, Physics::WorldManager &worl
     // Add the first object (the fuselage) separately
     const auto &fuselageConf = PlaneElementConfigs[static_cast<size_t>(ComponentIndex::Fuselage)];
     entity->addObject(cubeGeometryPtr, fuselageMaterial);
-    graphicsObject->setModelMatrixAt(static_cast<size_t>(ComponentIndex::Fuselage), fuselageConf.relativePos,
-                                     fuselageConf.relativeRotationAngle, fuselageConf.relativeRotationAxis,
-                                     fuselageConf.scale);
+    graphicsObject->setModelMatrixAt(static_cast<size_t>(ComponentIndex::Fuselage),
+                                     fuselageConf.relativePos - PlaneCenterOffset, fuselageConf.relativeRotationAngle,
+                                     fuselageConf.relativeRotationAxis, fuselageConf.scale);
     entity->addRigidBody<Physics::RigidBody>(fuselageConf.mass, fuselageConf.localInertiaTensor,
                                              fuselageConf.relativePos + fuselageConf.centerOfMassWrtRelativePos,
                                              glm::vec3(0., 0., 0.), glm::vec3(0., 0., 0.) // Initial velocities
@@ -59,12 +58,15 @@ void PlanePlayer::setupPlaneGeometry(Entity *entity, Physics::WorldManager &worl
         const auto &elementConf = PlaneElementConfigs[i];
 
         entity->addObject(cubeGeometryPtr, i % 2 == 0 ? starboardWingsMaterial : portWingsMaterial);
-        graphicsObject->setModelMatrixAt(i, elementConf.relativePos, elementConf.relativeRotationAngle,
-                                         elementConf.relativeRotationAxis, elementConf.scale);
+        graphicsObject->setModelMatrixAt(i, elementConf.relativePos - PlaneCenterOffset,
+                                         elementConf.relativeRotationAngle, elementConf.relativeRotationAxis,
+                                         elementConf.scale);
         entity->addRigidBodyComponent(i, elementConf.localInertiaTensor,
                                       elementConf.relativePos + elementConf.centerOfMassWrtRelativePos,
                                       elementConf.relativeRotationAngle, elementConf.relativeRotationAxis);
     }
+
+    // TODO: Setup objects for ailerons (only for drawing)
 }
 
 void PlanePlayer::setupForces(Physics::WorldManager &worldManager) {

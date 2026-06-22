@@ -31,11 +31,58 @@ enum class ComponentIndex {
     TailRudder = 7,
 };
 
-constexpr std::array<PlaneElementConfig, 2> PlaneElementConfigs = {
-    PlaneElementConfig(glm::vec3(1., 0., 0.), 0.f, glm::vec3(0., 0., 1.), glm::vec3(1., 2., 1.), 1.,
-                       Physics::InertiaTensors::box(1., 2., 1., 1.), glm::vec3(0., 0., 0.), AeroSurface()),
-    PlaneElementConfig(glm::vec3(-1., 0., 0.), 45.f, glm::vec3(0., 1., 1.), glm::vec3(1., 1., 2.), 2.,
-                       Physics::InertiaTensors::box(2., 1., 1., 2.), glm::vec3(-1., 0., 0.), AeroSurface()),
+constexpr glm::vec3 PlaneCenterOffset = {0., 0., 7.5};
+
+constexpr std::array<PlaneElementConfig, 8> PlaneElementConfigs = {
+    PlaneElementConfig(                                                             // Fuselage
+        glm::vec3(0.0, 1., 7.5), 0., glm::vec3(0., 0., 1.), glm::vec3(2., 2., 15.), // Position, rotation, scale
+        31.8, Physics::InertiaTensors::fromDiagonal({861., 861., 66.}),             // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                      // Mass, inertia, CoM
+        AeroSurface()                                                               // Aerodynamics
+        ),
+    PlaneElementConfig(                                                             // Port aileron wing
+        glm::vec3(12., 1., 10.), 0., glm::vec3(0., 0., 1.), glm::vec3(6., 0.2, 3.), // Position, rotation, scale
+        6.5, Physics::InertiaTensors::fromDiagonal({10.5, 24.0, 13.9}),             // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                      // CoM offset
+        AeroSurface()                                                               // Aerodynamics
+        ),
+    PlaneElementConfig(                                                              // Starboard aileron wing
+        glm::vec3(-12., 1., 10.), 0., glm::vec3(0., 0., 1.), glm::vec3(6., 0.2, 3.), // Position, rotation, scale
+        6.5, Physics::InertiaTensors::fromDiagonal({10.5, 24.0, 13.9}),              // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                       // CoM offset
+        AeroSurface()                                                                // Aerodynamics
+        ),
+    PlaneElementConfig(                                                           // Port flap wing
+        glm::vec3(5., 1., 10.), 0., glm::vec3(0., 0., 1.), glm::vec3(8, 0.2, 3.), // Position, rotation, scale
+        7.31, Physics::InertiaTensors::fromDiagonal({12.2, 33.6, 21.9}),          // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                    // CoM offset
+        AeroSurface()                                                             // Aerodynamics
+        ),
+    PlaneElementConfig(                                                             // Starboard flap wing
+        glm::vec3(-5., 1., 10.), 0., glm::vec3(0., 0., 1.), glm::vec3(8., 0.2, 3.), // Position, rotation, scale
+        7.31, Physics::InertiaTensors::fromDiagonal({12.2, 33.6, 21.9}),            // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                      // CoM offset
+        AeroSurface()                                                               // Aerodynamics
+        ),
+    PlaneElementConfig(                                                              // Port tail elevator
+        glm::vec3(2.5, 1., 0.8), 0., glm::vec3(0., 0., 1.), glm::vec3(3., 0.2, 1.5), // Position, rotation, scale
+        2.6, Physics::InertiaTensors::fromDiagonal({0.385, 1.206, 0.837}),           // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                       // CoM offset
+        AeroSurface()                                                                // Aerodynamics
+        ),
+    PlaneElementConfig(                                                               // Starboard tail elevator
+        glm::vec3(-2.5, 1., 0.8), 0., glm::vec3(0., 0., 1.), glm::vec3(3., 0.2, 1.5), // Position, rotation, scale
+        2.6, Physics::InertiaTensors::fromDiagonal({0.385, 1.206, 0.837}),            // Mass, inertia
+        glm::vec3(0., 0., 0.),                                                        // CoM offset
+        AeroSurface()                                                                 // Aerodynamics
+        ),
+    PlaneElementConfig( // Rudder
+        glm::vec3(0., 3.5, 0.8), glm::radians(90.), glm::vec3(0., 0., 1.),
+        glm::vec3(3., 0.2, 1.5),                                            // Position, rotation, scale
+        2.93, Physics::InertiaTensors::fromDiagonal({1.942, 0.718, 1.262}), // Mass, inertia
+        glm::vec3(0., 0., 0.),                                              // CoM offset
+        AeroSurface()                                                       // Aerodynamics
+        ),
 };
 
 #endif
