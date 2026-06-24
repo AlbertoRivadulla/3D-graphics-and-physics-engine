@@ -99,7 +99,7 @@ void DeferredRenderer::setupGBuffer() {
     // It needs only 3 components per pixel, but I use RGBA for hardware reasons
     glGenTextures(1, &mGPositionTexture);
     glBindTexture(GL_TEXTURE_2D, mGPositionTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mRenderWidth, mRenderHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mRenderWidth, mRenderHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mGPositionTexture, 0);
