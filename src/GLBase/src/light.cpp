@@ -9,11 +9,9 @@ namespace GLBase {
 //==============================
 
 // Constructor
-Light::Light(glm::vec3 color, glm::vec3 position, float intensity,
-             float attenLinear, float attenQuadratic, int shadowRes,
-             LightType lightType)
-    : mLightType{lightType}, mPosition{position}, mColor{color},
-      mIntensity{intensity}, mAttenLinear{attenLinear},
+Light::Light(glm::vec3 color, glm::vec3 position, float intensity, float attenLinear, float attenQuadratic,
+             int shadowRes, LightType lightType)
+    : mLightType{lightType}, mPosition{position}, mColor{color}, mIntensity{intensity}, mAttenLinear{attenLinear},
       mAttenQuadratic{attenQuadratic}, mShadowMapResolution{shadowRes}
 
 {
@@ -26,17 +24,12 @@ Light::Light(glm::vec3 color, glm::vec3 position, float intensity,
 //==============================
 
 // Constructor
-DirectionalLight::DirectionalLight(glm::vec3 color, glm::vec3 position,
-                                   glm::vec3 direction, float intensity,
-                                   float attenLinear, float attenQuadratic,
-                                   int shadowRes,
+DirectionalLight::DirectionalLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction, float intensity,
+                                   float attenLinear, float attenQuadratic, int shadowRes,
                                    unsigned int nrShadowCascadeLevels)
-    : Light(color, position, intensity, attenLinear, attenQuadratic, shadowRes,
-            LIGHT_DIRECTIONAL),
-      mDirection{glm::normalize(direction)},
-      mNrShadowCascadeLevels{nrShadowCascadeLevels},
-      mLightSpaceMatrices(nrShadowCascadeLevels),
-      mShadowCascadeDistances(nrShadowCascadeLevels + 1) {
+    : Light(color, position, intensity, attenLinear, attenQuadratic, shadowRes, LIGHT_DIRECTIONAL),
+      mDirection{glm::normalize(direction)}, mNrShadowCascadeLevels{nrShadowCascadeLevels},
+      mLightSpaceMatrices(nrShadowCascadeLevels), mShadowCascadeDistances(nrShadowCascadeLevels + 1) {
     // Set the near plane of the first frustum to -101, so we know that it needs
     // to be modified
     mShadowCascadeDistances[0] = -101.f;
@@ -68,10 +61,8 @@ void DirectionalLight::setupShadowMap() {
     // Generate the array of textures, for cascaded shadow maps
     glGenTextures(1, &mShadowMapTexture);
     glBindTexture(GL_TEXTURE_2D_ARRAY, mShadowMapTexture);
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F,
-                 mShadowMapResolution, mShadowMapResolution,
-                 mNrShadowCascadeLevels + 1, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
-                 nullptr);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, mShadowMapResolution, mShadowMapResolution,
+                 mNrShadowCascadeLevels + 1, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     // Configure the texture to be white outside the borders, where the light
@@ -85,8 +76,7 @@ void DirectionalLight::setupShadowMap() {
     glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFBO);
     // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
     // GL_TEXTURE_2D, mShadowMapTexture, 0);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mShadowMapTexture,
-                         0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mShadowMapTexture, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
@@ -104,8 +94,7 @@ void DirectionalLight::setupShadowMap() {
     {
         glGenBuffers(1, &mLightMatricesUBO);
         glBindBuffer(GL_UNIFORM_BUFFER, mLightMatricesUBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) * 16, nullptr,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) * 16, nullptr, GL_STATIC_DRAW);
         // Bind this to the point 0, as in the corresponding shader
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, mLightMatricesUBO);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -122,12 +111,16 @@ void DirectionalLight::setupShadowMap() {
 
 // Method to compute the light space matrix from a camera
 // Following https://learnopengl.com/Guest-Articles/2021/CSM
-void DirectionalLight::computeLightSpaceMatrix(const Camera &camera,
-                                               int index) {
+void DirectionalLight::computeLightSpaceMatrix(const Camera &camera, int index) {
     // Get the position of the eight corners of the frustum
     // Store also the z value of the near plane of the current subfrustum
-    std::vector<glm::vec4> corners{camera.getFrustumCornersWorldSpace(
-        mShadowCascadeDistances[index], mShadowCascadeDistances[index + 1])};
+    std::vector<glm::vec4> corners{
+        camera.getFrustumCornersWorldSpace(mShadowCascadeDistances[index], mShadowCascadeDistances[index + 1])};
+
+    // Move the corners to be relative to the camera
+    for (auto &corner : corners) {
+        corner -= glm::vec4(camera.getPosition(), 0.);
+    }
 
     // Compute the center of the frustum
     glm::vec3 center{0., 0., 0.};
@@ -137,10 +130,9 @@ void DirectionalLight::computeLightSpaceMatrix(const Camera &camera,
     center /= corners.size();
 
     // Compute the light view matrix
-    const glm::mat4 lightView{
-        glm::lookAt(center - mDirection, // Position of the light
-                    center,              // Center of the frustum
-                    mUpDirection)};      // Up vector
+    const glm::mat4 lightView{glm::lookAt(center - mDirection, // Position of the light
+                                          center,              // Center of the frustum
+                                          mUpDirection)};      // Up vector
 
     // Get the maximum and minimum coordinates of the corners of the frustum in
     // the light's coordinate system
@@ -151,7 +143,6 @@ void DirectionalLight::computeLightSpaceMatrix(const Camera &camera,
     float maxY{std::numeric_limits<float>::min()};
     float maxZ{std::numeric_limits<float>::min()};
     for (const auto &v : corners) {
-        // Project the current corner to light space
         const glm::vec4 vLightSpace{lightView * v};
         // Compare its coordinates to the ones stored
         minX = std::min(vLightSpace.x, minX);
@@ -175,16 +166,15 @@ void DirectionalLight::computeLightSpaceMatrix(const Camera &camera,
         maxZ *= zMult;
 
     // Compute the projection matrix of the light
-    const glm::mat4 lightProjection{
-        glm::ortho(minX, maxX, minY, maxY, minZ, maxZ)};
+    const glm::mat4 lightProjection{glm::ortho(minX, maxX, minY, maxY, minZ, maxZ)};
 
     // Compute the lightSpaceMatrix
     mLightSpaceMatrices[index] = lightProjection * lightView;
 }
 
 // Method to compute the shadow map
-void DirectionalLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
+void DirectionalLight::computeShadowMap(const Camera &camera,
+                                        const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
     // Check if the frustums have not been computed yet
     if (mShadowCascadeDistances[0] < -100.) {
         // Get the near and far plane from the camera
@@ -198,8 +188,7 @@ void DirectionalLight::computeShadowMap(
 
         // Compute the distances of the rest of the planes
         for (int i = mNrShadowCascadeLevels - 1; i > 0; --i) {
-            mShadowCascadeDistances[i] =
-                (mShadowCascadeDistances[i + 1] - zNear) / 2. + zNear;
+            mShadowCascadeDistances[i] = (mShadowCascadeDistances[i + 1] - zNear) / 2. + zNear;
         }
     }
 
@@ -212,17 +201,16 @@ void DirectionalLight::computeShadowMap(
     // const auto lightMatrices = getLightSpaceMatrices();
     glBindBuffer(GL_UNIFORM_BUFFER, mLightMatricesUBO);
     for (size_t i = 0; i < mNrShadowCascadeLevels; ++i) {
-        glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4),
-                        sizeof(glm::mat4x4), &mLightSpaceMatrices[i]);
+        glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4), sizeof(glm::mat4x4), &mLightSpaceMatrices[i]);
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     mShadowShader->use();
+    mShadowShader->setVec3("cameraPos", camera.getPosition());
 
     // Bind the FBO, whose depth attachment is the shadow map texture
     glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFBO);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_TEXTURE_2D_ARRAY, mShadowMapTexture,
-                         0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_TEXTURE_2D_ARRAY, mShadowMapTexture, 0);
     // glBindTexture(GL_TEXTURE_2D_ARRAY, mShadowMapTexture);
     // Change the size of the viewport
     glViewport(0, 0, mShadowMapResolution, mShadowMapResolution);
@@ -235,39 +223,24 @@ void DirectionalLight::computeShadowMap(
 }
 
 // Method to pass the light to a shader
-void DirectionalLight::configureShader(const Shader &lightingShader,
-                                       Shader *shadowShader,
-                                       unsigned int &indexDirectional,
-                                       unsigned int &indexSpot,
-                                       unsigned int &indexPoint,
-                                       unsigned int &indexShadow) {
+void DirectionalLight::configureShader(const Shader &lightingShader, Shader *shadowShader,
+                                       unsigned int &indexDirectional, unsigned int &indexSpot,
+                                       unsigned int &indexPoint, unsigned int &indexShadow) {
     // Copy the pointer to the shader
     mShadowShader = shadowShader;
 
     // Pass the light properties to the shader
     // The shader must be bound before calling this method
-    lightingShader.setVec3(
-        "dirLights[" + std::to_string(indexDirectional) + "].color", mColor);
-    lightingShader.setVec3("dirLights[" + std::to_string(indexDirectional) +
-                               "].position",
-                           mPosition);
-    lightingShader.setVec3("dirLights[" + std::to_string(indexDirectional) +
-                               "].direction",
-                           mDirection);
+    lightingShader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].color", mColor);
+    lightingShader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].position", mPosition);
+    lightingShader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].direction", mDirection);
 
-    lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) +
-                                "].intensity",
-                            mIntensity);
-    lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) +
-                                "].kLinear",
-                            mAttenLinear);
-    lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) +
-                                "].kQuadratic",
-                            mAttenQuadratic);
+    lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) + "].intensity", mIntensity);
+    lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) + "].kLinear", mAttenLinear);
+    lightingShader.setFloat("dirLights[" + std::to_string(indexDirectional) + "].kQuadratic", mAttenQuadratic);
 
     // Set the binding point for the ligth space matrices in the shader
-    unsigned int lightSpaceMatricesIndex =
-        glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");
+    unsigned int lightSpaceMatricesIndex = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");
     glUniformBlockBinding(mShadowShader->ID, lightSpaceMatricesIndex, 0);
 
     // Increase the counter of the directiona lights
@@ -275,36 +248,27 @@ void DirectionalLight::configureShader(const Shader &lightingShader,
 }
 
 // Method to pass the lightSpaceMatrix to a shader
-void DirectionalLight::configureShaderForLightingPass(
-    const Shader &shader, unsigned int &indexDirectional,
-    unsigned int &indexSpot, unsigned int &indexPoint,
-    unsigned int &indexShadow) const {
+void DirectionalLight::configureShaderForLightingPass(const Shader &shader, unsigned int &indexDirectional,
+                                                      unsigned int &indexSpot, unsigned int &indexPoint,
+                                                      unsigned int &indexShadow) const {
     // Bind the shadowmap texture to the corresponding texture unit
     glActiveTexture(GL_TEXTURE0 + indexShadow);
     glBindTexture(GL_TEXTURE_2D_ARRAY, mShadowMapTexture);
 
     // Pass the position and direction to the shader
-    shader.setVec3("dirLights[" + std::to_string(indexDirectional) +
-                       "].position",
-                   mPosition);
-    shader.setVec3("dirLights[" + std::to_string(indexDirectional) +
-                       "].direction",
-                   mDirection);
+    shader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].position", mPosition);
+    shader.setVec3("dirLights[" + std::to_string(indexDirectional) + "].direction", mDirection);
 
     // Pass also the index of the texture unit for the shadowmap, and the
     // light space matrix
-    shader.setMat4("dirLights[" + std::to_string(indexDirectional) +
-                       "].lightSpaceMatrix",
-                   mLightSpaceMatrix);
-    shader.setInt("dirLights[" + std::to_string(indexDirectional) +
-                      "].shadowMap",
-                  indexShadow);
+    shader.setMat4("dirLights[" + std::to_string(indexDirectional) + "].lightSpaceMatrix", mLightSpaceMatrix);
+    shader.setInt("dirLights[" + std::to_string(indexDirectional) + "].shadowMap", indexShadow);
     // shader.setInt("dirLights[" + std::to_string(indexDirectional) +
     // "].nrCascadeLevels", mNrShadowCascadeLevels);
     shader.setInt("nrCascadeLevels", mNrShadowCascadeLevels);
     for (int i = 0; i < mNrShadowCascadeLevels + 1; ++i) {
-        shader.setFloat("dirLights[" + std::to_string(indexDirectional) +
-                            "].cascadeDistances[" + std::to_string(i) + "]",
+        shader.setFloat("dirLights[" + std::to_string(indexDirectional) + "].cascadeDistances[" + std::to_string(i) +
+                            "]",
                         mShadowCascadeDistances[i]);
     }
 
@@ -321,11 +285,9 @@ void DirectionalLight::configureShaderForLightingPass(
 //==============================
 
 // Constructor
-SpotLight::SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
-                     float angleInner, float angleOuter, float intensity,
-                     float attenLinear, float attenQuadratic, int shadowRes)
-    : Light(color, position, intensity, attenLinear, attenQuadratic, shadowRes,
-            LIGHT_SPOT),
+SpotLight::SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction, float angleInner, float angleOuter,
+                     float intensity, float attenLinear, float attenQuadratic, int shadowRes)
+    : Light(color, position, intensity, attenLinear, attenQuadratic, shadowRes, LIGHT_SPOT),
       mDirection{glm::normalize(direction)} {
     // Outer angle
     mAngleOuter = angleOuter;
@@ -335,8 +297,7 @@ SpotLight::SpotLight(glm::vec3 color, glm::vec3 position, glm::vec3 direction,
 
     // Compute the maximum distance of influence of the light, where the
     // intensity becomes 5/256 times its value at d = 0
-    float disc{mAttenLinear * mAttenLinear -
-               4.f * mAttenQuadratic * (1.f - mIntensity * 256.f / 5.f)};
+    float disc{mAttenLinear * mAttenLinear - 4.f * mAttenQuadratic * (1.f - mIntensity * 256.f / 5.f)};
     mRadiusMax = (-mAttenLinear + glm::sqrt(disc)) / (2.f * mAttenQuadratic);
 
     // Compute the up direction
@@ -363,8 +324,8 @@ void SpotLight::setupShadowMap() {
     // Generate the texture
     glGenTextures(1, &mShadowMapTexture);
     glBindTexture(GL_TEXTURE_2D, mShadowMapTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, mShadowMapResolution,
-                 mShadowMapResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, mShadowMapResolution, mShadowMapResolution, 0,
+                 GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -374,8 +335,7 @@ void SpotLight::setupShadowMap() {
 
     // Use the texture as the depth attachment of the FBO
     glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-                           mShadowMapTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mShadowMapTexture, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
@@ -392,24 +352,22 @@ void SpotLight::setupShadowMap() {
 // void computeLightSpaceMatrix(const Camera& camera);
 void SpotLight::computeLightSpaceMatrix() {
     // Light view matrix
-    const glm::mat4 lightView{
-        glm::lookAt(mPosition,              // Position of the light
-                    mPosition + mDirection, // Center of the frustum
-                    mUpDirection)};         // Up vector
+    const glm::mat4 lightView{glm::lookAt(mPosition,              // Position of the light
+                                          mPosition + mDirection, // Center of the frustum
+                                          mUpDirection)};         // Up vector
 
     // Projection matrix for the light
     // This is simply a perspective projection, with the opening angle of the
     // spot light and an aspect ratio of 1
-    const glm::mat4 lightProjection{
-        glm::perspective(mAngleOuter, 1.f, 0.1f, mRadiusMax)};
+    const glm::mat4 lightProjection{glm::perspective(mAngleOuter, 1.f, 0.1f, mRadiusMax)};
 
     // Compute the lightSpaceMatrix
     mLightSpaceMatrix = lightProjection * lightView;
 }
 
 // Method to compute the shadow map
-void SpotLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
+void SpotLight::computeShadowMap(const Camera &camera,
+                                 const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
     // Compute the light space matrix
     computeLightSpaceMatrix();
 
@@ -440,47 +398,28 @@ void SpotLight::computeShadowMap(
 }
 
 // Method to pass the light to a shader
-void SpotLight::configureShader(const Shader &lightingShader,
-                                Shader *shadowShader,
-                                unsigned int &indexDirectional,
-                                unsigned int &indexSpot,
-                                unsigned int &indexPoint,
-                                unsigned int &indexShadow) {
+void SpotLight::configureShader(const Shader &lightingShader, Shader *shadowShader, unsigned int &indexDirectional,
+                                unsigned int &indexSpot, unsigned int &indexPoint, unsigned int &indexShadow) {
     // Copy the pointer to the shader
     mShadowShader = shadowShader;
 
     // Pass the light properties to the shader
     // The shader must be bound before calling this method
-    lightingShader.setVec3(
-        "spotLights[" + std::to_string(indexSpot) + "].color", mColor);
-    lightingShader.setVec3(
-        "spotLights[" + std::to_string(indexSpot) + "].position", mPosition);
-    lightingShader.setVec3(
-        "spotLights[" + std::to_string(indexSpot) + "].direction", mDirection);
-    lightingShader.setVec3("spotLights[" + std::to_string(indexSpot) +
-                               "].upDirection",
-                           mUpDirection);
+    lightingShader.setVec3("spotLights[" + std::to_string(indexSpot) + "].color", mColor);
+    lightingShader.setVec3("spotLights[" + std::to_string(indexSpot) + "].position", mPosition);
+    lightingShader.setVec3("spotLights[" + std::to_string(indexSpot) + "].direction", mDirection);
+    lightingShader.setVec3("spotLights[" + std::to_string(indexSpot) + "].upDirection", mUpDirection);
 
-    lightingShader.setFloat(
-        "spotLights[" + std::to_string(indexSpot) + "].intensity", mIntensity);
-    lightingShader.setFloat(
-        "spotLights[" + std::to_string(indexSpot) + "].kLinear", mAttenLinear);
-    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) +
-                                "].kQuadratic",
-                            mAttenQuadratic);
+    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].intensity", mIntensity);
+    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].kLinear", mAttenLinear);
+    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].kQuadratic", mAttenQuadratic);
 
-    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) +
-                                "].cosAngleInner",
-                            mCosAngleInner);
-    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) +
-                                "].cosAngleOuter",
-                            mCosAngleOuter);
-    lightingShader.setFloat(
-        "spotLights[" + std::to_string(indexSpot) + "].radiusMax", mRadiusMax);
+    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].cosAngleInner", mCosAngleInner);
+    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].cosAngleOuter", mCosAngleOuter);
+    lightingShader.setFloat("spotLights[" + std::to_string(indexSpot) + "].radiusMax", mRadiusMax);
 
     // Set the binding point for the ligth space matrices in the shader
-    unsigned int lightSpaceMatricesIndex =
-        glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");
+    unsigned int lightSpaceMatricesIndex = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");
     glUniformBlockBinding(mShadowShader->ID, lightSpaceMatricesIndex, 0);
 
     // Increase the counter of the spot lights
@@ -488,27 +427,21 @@ void SpotLight::configureShader(const Shader &lightingShader,
 }
 
 // Method to pass the lightSpaceMatrix to a shader
-void SpotLight::configureShaderForLightingPass(
-    const Shader &shader, unsigned int &indexDirectional,
-    unsigned int &indexSpot, unsigned int &indexPoint,
-    unsigned int &indexShadow) const {
+void SpotLight::configureShaderForLightingPass(const Shader &shader, unsigned int &indexDirectional,
+                                               unsigned int &indexSpot, unsigned int &indexPoint,
+                                               unsigned int &indexShadow) const {
     // Bind the shadowmap texture to the corresponding texture unit
     glActiveTexture(GL_TEXTURE0 + indexShadow);
     glBindTexture(GL_TEXTURE_2D, mShadowMapTexture);
 
     // Pass the position and direction to the shader
-    shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].position",
-                   mPosition);
-    shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].direction",
-                   mDirection);
-    shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].upDirection",
-                   mUpDirection);
+    shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].position", mPosition);
+    shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].direction", mDirection);
+    shader.setVec3("spotLights[" + std::to_string(indexSpot) + "].upDirection", mUpDirection);
 
     // Pass also the index of the texture unit for the shadowmap, and the
     // light space matrix
-    shader.setMat4("spotLights[" + std::to_string(indexSpot) +
-                       "].lightSpaceMatrix",
-                   mLightSpaceMatrix);
+    shader.setMat4("spotLights[" + std::to_string(indexSpot) + "].lightSpaceMatrix", mLightSpaceMatrix);
     // shader.setInt("spotLights[" + std::to_string(indexSpot) + "].shadowMap",
     // indexShadow);
     shader.setInt("spotShadowMap", indexShadow);
@@ -524,23 +457,23 @@ void SpotLight::configureShaderForLightingPass(
 //==============================
 
 // Constructor
-PointLight::PointLight(glm::vec3 color, glm::vec3 position, float intensity,
-                       float attenLinear, float attenQuadratic, int shadowRes)
-    : Light(color, position, intensity, attenLinear, attenQuadratic, shadowRes,
-            LIGHT_POINT) {
+PointLight::PointLight(glm::vec3 color, glm::vec3 position, float intensity, float attenLinear, float attenQuadratic,
+                       int shadowRes)
+    : Light(color, position, intensity, attenLinear, attenQuadratic, shadowRes, LIGHT_POINT) {
     // Compute the maximum distance of influence of the light, where the
     // intensity becomes 5/256 times its value at d = 0
-    float disc{mAttenLinear * mAttenLinear -
-               4.f * mAttenQuadratic * (1.f - mIntensity * 256.f / 5.f)};
+    float disc{mAttenLinear * mAttenLinear - 4.f * mAttenQuadratic * (1.f - mIntensity * 256.f / 5.f)};
     mRadiusMax = (-mAttenLinear + glm::sqrt(disc)) / (2.f * mAttenQuadratic);
 }
 
 // Method to configure the shadow map framebuffer and texture
-void PointLight::setupShadowMap() {}
+void PointLight::setupShadowMap() {
+    // TODO: Implement
+}
 
 // Method to compute the shadow map
-void PointLight::computeShadowMap(
-    const Camera &camera, const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
+void PointLight::computeShadowMap(const Camera &camera,
+                                  const std::vector<GLGeometry::GraphicsObject *> &objectsWithShadow) {
 
     // TODO: Implement
 
@@ -553,38 +486,23 @@ void PointLight::computeShadowMap(
 }
 
 // Method to pass the light to a shader
-void PointLight::configureShader(const Shader &lightingShader,
-                                 Shader *shadowShader,
-                                 unsigned int &indexDirectional,
-                                 unsigned int &indexSpot,
-                                 unsigned int &indexPoint,
-                                 unsigned int &indexShadow) {
+void PointLight::configureShader(const Shader &lightingShader, Shader *shadowShader, unsigned int &indexDirectional,
+                                 unsigned int &indexSpot, unsigned int &indexPoint, unsigned int &indexShadow) {
     // Copy the pointer to the shader
     mShadowShader = shadowShader;
 
     // Pass the light properties to the shader
     // The shader must be bound before calling this method
-    lightingShader.setVec3(
-        "pointLights[" + std::to_string(indexPoint) + "].color", mColor);
-    lightingShader.setVec3(
-        "pointLights[" + std::to_string(indexPoint) + "].position", mPosition);
+    lightingShader.setVec3("pointLights[" + std::to_string(indexPoint) + "].color", mColor);
+    lightingShader.setVec3("pointLights[" + std::to_string(indexPoint) + "].position", mPosition);
 
-    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) +
-                                "].intensity",
-                            mIntensity);
-    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) +
-                                "].kLinear",
-                            mAttenLinear);
-    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) +
-                                "].kQuadratic",
-                            mAttenQuadratic);
-    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) +
-                                "].radiusMax",
-                            mRadiusMax);
+    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].intensity", mIntensity);
+    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].kLinear", mAttenLinear);
+    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].kQuadratic", mAttenQuadratic);
+    lightingShader.setFloat("pointLights[" + std::to_string(indexPoint) + "].radiusMax", mRadiusMax);
 
     // Set the binding point for the ligth space matrices in the shader
-    unsigned int lightSpaceMatricesIndex =
-        glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");
+    unsigned int lightSpaceMatricesIndex = glGetUniformBlockIndex(mShadowShader->ID, "LightSpaceMatrices");
     glUniformBlockBinding(mShadowShader->ID, lightSpaceMatricesIndex, 0);
 
     // Increase the count of the point lights
@@ -592,25 +510,20 @@ void PointLight::configureShader(const Shader &lightingShader,
 }
 
 // Method to pass the lightSpaceMatrix to a shader
-void PointLight::configureShaderForLightingPass(
-    const Shader &shader, unsigned int &indexDirectional,
-    unsigned int &indexSpot, unsigned int &indexPoint,
-    unsigned int &indexShadow) const {
+void PointLight::configureShaderForLightingPass(const Shader &shader, unsigned int &indexDirectional,
+                                                unsigned int &indexSpot, unsigned int &indexPoint,
+                                                unsigned int &indexShadow) const {
     // // Bind the shadowmap texture to the corresponding texture unit
     // glActiveTexture(GL_TEXTURE0 + indexShadow);
     // glBindTexture(GL_TEXTURE_2D, mShadowMapTexture);
 
     // Pass the position to the shader
-    shader.setVec3("pointLights[" + std::to_string(indexPoint) + "].position",
-                   mPosition);
+    shader.setVec3("pointLights[" + std::to_string(indexPoint) + "].position", mPosition);
 
     // Pass also the index of the texture unit for the shadowmap, and the
     // light space matrix
-    shader.setMat4("pointLights[" + std::to_string(indexPoint) +
-                       "].lightSpaceMatrix",
-                   mLightSpaceMatrix);
-    shader.setInt("pointLights[" + std::to_string(indexPoint) + "].shadowMap",
-                  indexShadow++);
+    shader.setMat4("pointLights[" + std::to_string(indexPoint) + "].lightSpaceMatrix", mLightSpaceMatrix);
+    shader.setInt("pointLights[" + std::to_string(indexPoint) + "].shadowMap", indexShadow++);
 
     // Increase the count of the point lights
     indexPoint++;
